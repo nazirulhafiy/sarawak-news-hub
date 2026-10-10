@@ -24,11 +24,12 @@
   --sarawak-black: #111111;
   --group-icon-tile: #fff6d2;
   --group-icon-border: #f7c948;
-  /* Faint land behind the type. Stroke is painted over the fill. */
-  --hero-land: rgba(247, 201, 72, 0.10);
+  /* Faint land behind the type. Stroke is painted over the fill.
+     Tuned to the measured peak of the ai.sarawak.news hero drawing. */
+  --hero-land: rgba(247, 201, 72, 0.06);
   --hero-land-stroke: #f7c948;
-  --hero-stroke-width: 1.75px;
-  --hero-stroke-opacity: 0.5;
+  --hero-stroke-width: 1.4px;
+  --hero-stroke-opacity: 0.26;
   --copy: #374151;
 }
 
@@ -54,10 +55,10 @@ html[data-theme="dark"] {
   --sarawak-black: #111111;
   --group-icon-tile: rgba(247, 201, 72, 0.16);
   --group-icon-border: rgba(247, 201, 72, 0.7);
-  --hero-land: rgba(247, 201, 72, 0.06);
+  --hero-land: rgba(247, 201, 72, 0.04);
   --hero-land-stroke: #f7c948;
-  --hero-stroke-width: 1.5px;
-  --hero-stroke-opacity: 0.26;
+  --hero-stroke-width: 1.4px;
+  --hero-stroke-opacity: 0.11;
   --copy: #d2d8df;
 }
 

@@ -44,12 +44,19 @@ The Sarawak outline is one inline SVG (`svg.hero-map`, viewBox `0 0 614.7 411.1`
 
 The brief is at least 400px tall on a wide page, and at least 300px below 560px, so the whole outline fits inside the hero. The shape is centred. On a wide page it is `min(72%, 500px)` wide. On a phone it is 92% of the column. `overflow: hidden` is a backstop. The shape ends before the cards.
 
-Fill and stroke are tuned apart. The stroke is `#f7c948` in both themes, painted over the fill, with `vector-effect: non-scaling-stroke` and round joins.
+Fill and stroke are tuned apart, and both are quieter than the previous outline. The target is the faint network behind the headline on [ai.sarawak.news](https://ai.sarawak.news/) (`svg.brief-net` in nazirulhafiy/sarawak-ai-news). That drawing uses one ink for its lines and its dots. The lines are `stroke: currentColor`, `stroke-width: 1.4`, `fill: none`. The dots are `fill: currentColor`. The SVG is 350×320 from a 520×480 viewBox, so the 1.4 stroke paints at about 0.94 CSS pixels. A horizontal mask fades the side toward the words; the strongest ink is the unmasked side.
 
-- Light, on white: fill `rgba(247, 201, 72, 0.10)`. Stroke width 1.75px, opacity 0.50.
-- Dark, on `#0f1115`: fill `rgba(247, 201, 72, 0.06)`. Stroke width 1.5px, opacity 0.26.
+- Light: `color: #cfd3da`, opacity 0.37, on white. The full ink blends to about `rgb(237, 239, 241)`, contrast 1.15:1. Rendered pixels on that side peak at `rgb(237, 239, 242)`, contrast 1.15:1.
+- Dark: `color: #4b5563`, opacity 0.42, on `#0f1115`. The full ink blends to about `rgb(40, 46, 54)`, contrast 1.38:1. Rendered pixels peak at `rgb(38, 43, 50)`, contrast 1.33:1.
 
-Those opacities keep the headline and the sub-line at WCAG AA against the strongest yellow in the shape, the stroke where it sits on the fill. Large bold headline text needs 3:1. The 18px sub-line needs 4.5:1.
+The hub keeps Sarawak yellow `#f7c948` instead of that gray. The stroke width is 1.4px in both themes, the same authored width as their lines, with `vector-effect: non-scaling-stroke` and round joins. Stroke opacity is set so the rendered stroke, painted over the fill, lands on that measured peak. The fill stays lighter than the peak. A solid shape at the line’s contrast would cover the hero more than their hairline drawing.
+
+- Light, on white: fill `rgba(247, 201, 72, 0.06)`. Rendered fill pixels sit near `rgb(255, 252, 244)`, about 1.03:1. Stroke opacity 0.26. Rendered stroke pixels peak at `rgb(253, 238, 199)`, 1.15:1.
+- Dark, on `#0f1115`: fill `rgba(247, 201, 72, 0.04)`. Rendered fill pixels sit near `rgb(23, 23, 22)`, about 1.05:1. Stroke opacity 0.11. Rendered stroke pixels peak at `rgb(46, 42, 27)`, 1.32:1.
+
+The previous outline was stronger, especially the dark stroke. Measured on the live page before this change: light fill near `rgb(254, 249, 236)` (about 1.05:1) with a 1.75px stroke at opacity 0.50 peaking at `rgb(250, 225, 154)` (1.29:1). Dark fill near `rgb(28, 27, 22)` (about 1.10:1) with a 1.5px stroke at opacity 0.26 peaking at `rgb(83, 71, 34)` (2.06:1).
+
+The headline and the sub-line stay at WCAG AA against that yellow. Large bold headline text needs 3:1. The 18px sub-line needs 4.5:1. The fainter shape leaves more contrast than the previous outline.
 
 The path is Natural Earth 1:10m cultural admin-1 for Sarawak (`MY-13`), public domain. Projection stored in `data/sarawak-proj.json`: `x = (longitude − 109.528436) × 100`, `y = (4.962329 − latitude) × 100`, width 614.7, height 411.1. Terms: the Natural Earth dataset is public domain ([naturalearthdata.com](https://www.naturalearthdata.com/about/terms-of-use/)). No permission or attribution is required, so the footer does not print a map credit.
 
