@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 import tempfile
 import unittest
@@ -155,17 +156,44 @@ class RenderTests(unittest.TestCase):
         for other in sites:
             self.assertFalse(build.tiles_overlap(centre, build.site_point(other)))
 
-    def test_dist_omits_handoff_and_cname(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            dist = Path(tmp)
-            build.write_dist(build.render_home(PREVIOUS), build.render_about(), dist)
-            names = sorted(path.name for path in dist.rglob("*"))
-            self.assertIn("index.html", names)
-            self.assertIn("OFL.txt", names)
-            self.assertIn("Geist-Variable.woff2", names)
-            self.assertNotIn("CNAME", names)
-            self.assertNotIn("design-handoff", names)
-            self.assertFalse((dist / "design-handoff").exists())
+    def test_dist_publishes_root_domain(self):
+        previous = os.environ.pop("SITE_URL", None)
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                dist = Path(tmp)
+                build.write_dist(build.render_home(PREVIOUS), build.render_about(), dist)
+                names = sorted(path.name for path in dist.rglob("*"))
+                self.assertIn("index.html", names)
+                self.assertIn("OFL.txt", names)
+                self.assertIn("Geist-Variable.woff2", names)
+                self.assertIn("CNAME", names)
+                self.assertEqual((dist / "CNAME").read_text(encoding="utf-8").strip(), "sarawak.news")
+                self.assertNotIn("design-handoff", names)
+                self.assertFalse((dist / "design-handoff").exists())
+                origin = "https://sarawak.news/"
+                home = (dist / "index.html").read_text(encoding="utf-8")
+                about = (dist / "about.html").read_text(encoding="utf-8")
+                for page in (home, about):
+                    self.assertNotIn("github.io", page)
+                    self.assertNotIn("/sarawak-news-hub/", page)
+                    self.assertIn('href="style.css"', page)
+                    self.assertIn('href="fonts/Geist-Variable.woff2"', page)
+                    self.assertIn('src="app.js"', page)
+                    self.assertIn('href="index.html"', page)
+                    self.assertIn('href="about.html"', page)
+                self.assertIn(f'<link rel="canonical" href="{origin}" />', home)
+                self.assertIn(f'<meta property="og:url" content="{origin}" />', home)
+                self.assertIn(f'<link rel="canonical" href="{origin}about.html" />', about)
+                self.assertIn(f'<meta property="og:url" content="{origin}about.html" />', about)
+                robots = (dist / "robots.txt").read_text(encoding="utf-8")
+                sitemap = (dist / "sitemap.xml").read_text(encoding="utf-8")
+                self.assertIn(f"Sitemap: {origin}sitemap.xml", robots)
+                self.assertIn(f"<loc>{origin}</loc>", sitemap)
+                self.assertIn(f"<loc>{origin}about.html</loc>", sitemap)
+                self.assertNotIn("github.io", robots + sitemap)
+        finally:
+            if previous is not None:
+                os.environ["SITE_URL"] = previous
 
 
 class DocsCheckTests(unittest.TestCase):

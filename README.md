@@ -1,13 +1,13 @@
 # Sarawak.News
 
-Hub for [Sarawak.News](https://nazirulhafiy.github.io/sarawak-news-hub/): independent Sarawak sites, in one place. Each site links to its sources.
+Hub for [Sarawak.News](https://sarawak.news/): independent Sarawak sites, in one place. Each site links to its sources.
 
 Two cards:
 
 - [AI.Sarawak.News](https://ai.sarawak.news/) — source-linked coverage
 - [Bantuan.Sarawak.News](https://bantuan.sarawak.news/) — an independent directory of Sarawak government assistance
 
-This is not a government website. It does not use the `sarawak.news` hostname. That needs Nazirul’s approval. There is no `CNAME` and this repo does not change DNS.
+This is not a government website. It is live at [https://sarawak.news/](https://sarawak.news/). The repo `CNAME` is `sarawak.news`, and the build copies that file into `dist/CNAME` for GitHub Pages. Pages, CSS, JS, and the font use relative paths, so they resolve at the domain root.
 
 `design-handoff/` is Design Bot’s reference for layout A. The build does not publish it.
 
@@ -33,7 +33,7 @@ Checks:
 python3 -m unittest discover -s tests -v
 ```
 
-`SITE_URL` overrides the canonical origin. The default is `https://nazirulhafiy.github.io/sarawak-news-hub/`.
+The default canonical origin is `https://sarawak.news/`. `SITE_URL` overrides it. An empty `SITE_URL` omits the canonical and `og:url` tags.
 
 ## Add a site
 
@@ -69,7 +69,7 @@ There is no runtime request for these numbers.
 - A daily schedule (`0 0 * * *`, 08:00 in Sarawak) rebuilds so the counts stay current.
 - `workflow_dispatch` rebuilds `main` as well.
 
-The Pages site is the project URL above. Do not add a custom domain until Nazirul approves it.
+GitHub Pages publishes `dist/` at [https://sarawak.news/](https://sarawak.news/). `dist/CNAME` contains `sarawak.news`. Canonical, `og:url`, `robots.txt`, and `sitemap.xml` use that origin.
 
 ## Map
 

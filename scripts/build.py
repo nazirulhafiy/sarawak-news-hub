@@ -24,9 +24,8 @@ DIST = ROOT / "dist"
 USER_AGENT = "sarawak-news-hub-build/1.0"
 TIMEOUT = 20
 
-# GitHub Pages project URL until Nazirul approves the sarawak.news hostname.
-# Override with SITE_URL. Do not write a CNAME.
-DEFAULT_SITE_URL = "https://nazirulhafiy.github.io/sarawak-news-hub/"
+# Live origin. Pages serves the site at the domain root. SITE_URL overrides this.
+DEFAULT_SITE_URL = "https://sarawak.news/"
 
 # Tile square, in the outline viewBox. Centres come from data/sites.json.
 TILE_SIZE = 72.0
@@ -501,6 +500,10 @@ def write_dist(home: str, about: str, dist: Path = DIST) -> None:
         raise SystemExit("site/fonts must contain Geist-Variable.woff2 and OFL.txt")
     shutil.copy2(woff, fonts / woff.name)
     shutil.copy2(license_file, fonts / license_file.name)
+    cname = ROOT / "CNAME"
+    if not cname.is_file():
+        raise SystemExit("CNAME is missing; Pages needs it in the published output")
+    (dist / "CNAME").write_text(cname.read_text(encoding="utf-8"), encoding="utf-8")
     url = site_url()
     sitemap_loc = f"Sitemap: {url}sitemap.xml\n" if url else ""
     (dist / "robots.txt").write_text(f"User-agent: *\nAllow: /\n{sitemap_loc}", encoding="utf-8")

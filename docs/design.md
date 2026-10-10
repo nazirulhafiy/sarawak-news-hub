@@ -1,6 +1,6 @@
 # Design
 
-The live site is the static pages from `scripts/build.py`, styled by `site/style.css`. This note describes that system.
+The live site is [https://sarawak.news/](https://sarawak.news/). Pages are the static output of `scripts/build.py`, styled by `site/style.css`. This note describes that system.
 
 Every published site is one object in `data/sites.json`. That list drives the card and the map tile together. The current entries are [AI.Sarawak.News](https://ai.sarawak.news/) and [Bantuan.Sarawak.News](https://bantuan.sarawak.news/). There is no PCDS card.
 
@@ -78,7 +78,7 @@ The brief uses bantuan’s `hero-reveal`: a rise of 18px over 0.85s, easing `cub
 
 ## Counts and deploy
 
-`scripts/build.py` writes `dist/` only. `design-handoff/` stays in the repo and is not copied. There is no `CNAME`. The scheduled Pages workflow rebuilds daily so the counts can change without a content commit. See `README.md` for the fetch sources and the fallback file.
+`scripts/build.py` writes `dist/` only. `design-handoff/` stays in the repo and is not copied. The build copies the repo `CNAME` (`sarawak.news`) into `dist/CNAME`. Canonical and `og:url` on the home page are `https://sarawak.news/`. About uses `https://sarawak.news/about.html`. `robots.txt` and `sitemap.xml` use the same origin. Internal links (`index.html`, `about.html`, `style.css`, `app.js`, `fonts/Geist-Variable.woff2`) are relative, so the site works at the domain root. The scheduled Pages workflow rebuilds daily so the counts can change without a content commit. See `README.md` for the fetch sources and the fallback file.
 
 ## Docs check
 
