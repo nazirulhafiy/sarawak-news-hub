@@ -90,15 +90,11 @@ def render_hero() -> str:
     if not re.fullmatch(r"[MLZ0-9.\- ]+", outline):
         raise SystemExit("data/sarawak-path.txt is not a plain SVG path")
     return f"""<header class="brief">
-      <div class="brief-copy">
-        <h1>Independent<br>Sarawak sites,<br>in one place.</h1>
-        <p class="brief-deck">{esc(DECK)}</p>
-      </div>
-      <div class="brief-map">
-        <svg class="hero-map" viewBox="0 0 614.7 411.1" aria-hidden="true">
-          <path class="hero-land" d="{outline}"/>
-        </svg>
-      </div>
+      <svg class="hero-map" viewBox="0 0 614.7 411.1" aria-hidden="true" focusable="false">
+        <path class="hero-land" d="{outline}"/>
+      </svg>
+      <h1>{esc(HEADLINE)}</h1>
+      <p class="brief-deck">{esc(DECK)}</p>
     </header>"""
 
 
