@@ -50,7 +50,6 @@ DUMMY_SITE = {
     "tag": "Example",
     "icon": "brain",
     "text": "A fixture site used only by the test.",
-    "map": {"x": 300, "y": 260},
     "counts": {
         "via": "html-stories",
         "page": "https://dummy.example/",
@@ -103,10 +102,14 @@ class RenderTests(unittest.TestCase):
         self.assertIn("Bantuan.Sarawak.News", home)
         self.assertIn("81 stories · 7 categories", home)
         self.assertIn("24 schemes · 7 categories", home)
-        self.assertIn("https://ai.sarawak.news/", home)
-        self.assertIn("https://bantuan.sarawak.news/", home)
+        self.assertIn('href="https://ai.sarawak.news/"', home)
+        self.assertIn('href="https://bantuan.sarawak.news/"', home)
+        self.assertNotIn('class="hub-domain"', home)
+        self.assertEqual(home.count(">Visit <"), 2)
         self.assertIn('class="hero-land"', home)
-        self.assertIn('class="hero-route"', home)
+        self.assertNotIn("hero-route", home)
+        self.assertNotIn("hero-node", home)
+        self.assertNotIn("hero-tile", home)
         self.assertIn("Map: ", home)
         self.assertIn("Natural Earth", home)
         self.assertIn("fonts/Geist-Variable.woff2", home)
@@ -115,18 +118,21 @@ class RenderTests(unittest.TestCase):
         self.assertNotIn("pcds2030", home)
         self.assertNotIn("brief-net", home)
         self.assertEqual(home.count('class="hub-card"'), 2)
-        self.assertEqual(home.count('class="hero-node"'), 2)
+        self.assertEqual(home.count('class="hero-land"'), 1)
 
-    def test_third_site_renders_card_and_map_tile(self):
+    def test_third_site_renders_card_without_map_tile(self):
         listed = (Path(__file__).resolve().parents[1] / "data" / "sites.json").read_text(encoding="utf-8")
         self.assertNotIn("dummy", listed)
         self.assertNotIn("Dummy.Sarawak.News", listed)
+        self.assertNotIn('"map"', listed)
 
         sites = build.load_sites()
         self.assertEqual([site["id"] for site in sites], ["ai", "bantuan"])
         published = build.render_home(PREVIOUS, sites)
         self.assertNotIn("Dummy.Sarawak.News", published)
         self.assertNotIn('data-site="dummy"', published)
+        self.assertNotIn("hero-node", published)
+        self.assertNotIn("hero-route", published)
 
         extra = [*sites, DUMMY_SITE]
         counts = dict(PREVIOUS)
@@ -134,27 +140,17 @@ class RenderTests(unittest.TestCase):
         home = build.render_home(counts, extra)
 
         self.assertEqual(home.count('class="hub-card"'), 3)
-        self.assertEqual(home.count('class="hero-node"'), 3)
+        self.assertEqual(home.count('class="hero-land"'), 1)
+        self.assertNotIn("hero-node", home)
+        self.assertNotIn("hero-route", home)
+        self.assertNotIn("hero-tile", home)
         self.assertIn('data-site="dummy"', home)
-        self.assertEqual(home.count('data-site="dummy"'), 2)
+        self.assertEqual(home.count('data-site="dummy"'), 1)
         self.assertIn("Dummy.Sarawak.News", home)
         self.assertIn("A fixture site used only by the test.", home)
         self.assertIn("https://dummy.example/", home)
-        self.assertIn('transform="translate(300.0 260.0)"', home)
         self.assertIn(">Example<", home)
-
-        polygon = build.outline_points()
-        centre = build.site_point(DUMMY_SITE)
-        self.assertTrue(build.point_in_outline(*centre, polygon))
-        inset = build.TILE_SIZE / 2 - 2
-        for dx in (-inset, inset):
-            for dy in (-inset, inset):
-                self.assertTrue(
-                    build.point_in_outline(centre[0] + dx, centre[1] + dy, polygon),
-                    f"tile corner {(centre[0] + dx, centre[1] + dy)} is outside the outline",
-                )
-        for other in sites:
-            self.assertFalse(build.tiles_overlap(centre, build.site_point(other)))
+        self.assertIn("3 items · 1 group", home)
 
     def test_dist_publishes_root_domain(self):
         previous = os.environ.pop("SITE_URL", None)

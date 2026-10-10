@@ -27,10 +27,6 @@ TIMEOUT = 20
 # Live origin. Pages serves the site at the domain root. SITE_URL overrides this.
 DEFAULT_SITE_URL = "https://sarawak.news/"
 
-# Tile square, in the outline viewBox. Centres come from data/sites.json.
-TILE_SIZE = 72.0
-ROUTE_BOW = 26.0
-
 HEADLINE = "Independent Sarawak sites, in one place."
 DECK = "Each site links to its sources."
 
@@ -69,9 +65,6 @@ def load_sites(path: Path = DATA / "sites.json") -> list[dict]:
         icon = SITE / "icons" / f"{site['icon']}.svg"
         if not icon.is_file():
             raise SystemExit(f"{site_id} icon not found: {icon.relative_to(ROOT)}")
-        spot = site.get("map") or {}
-        if not isinstance(spot.get("x"), (int, float)) or not isinstance(spot.get("y"), (int, float)):
-            raise SystemExit(f"{site_id} map needs numeric x and y")
         counts = site.get("counts") or {}
         if counts.get("via") not in COUNT_SOURCES:
             raise SystemExit(f"{site_id} counts.via must be one of {', '.join(COUNT_SOURCES)}")
@@ -84,10 +77,6 @@ def load_sites(path: Path = DATA / "sites.json") -> list[dict]:
         if counts["via"] == "schemes-json" and not isinstance(counts.get("json"), str):
             raise SystemExit(f"{site_id} counts.json is required for schemes-json")
     return sites
-
-
-def site_point(site: dict) -> tuple[float, float]:
-    return (float(site["map"]["x"]), float(site["map"]["y"]))
 
 
 def domain_of(url: str) -> str:
@@ -227,116 +216,18 @@ def tile_icon(name: str) -> str:
     )
 
 
-def hero_route(start: tuple[float, float], end: tuple[float, float]) -> str:
-    ax, ay = start
-    bx, by = end
-    dx, dy = bx - ax, by - ay
-    length = (dx * dx + dy * dy) ** 0.5 or 1.0
-    # Bow northwest of the chord so the two-site line matches the H1 drawing.
-    px, py = dy / length, -dx / length
-    cx = (ax + bx) / 2 + px * ROUTE_BOW
-    cy = (ay + by) / 2 + py * ROUTE_BOW
-    return f"M{ax:.1f} {ay:.1f} Q {cx:.1f} {cy:.1f} {bx:.1f} {by:.1f}"
-
-
-def mst_edges(points: list[tuple[float, float]]) -> list[tuple[int, int]]:
-    """Euclidean minimum spanning tree. Straight edges of this tree do not cross."""
-    parent = list(range(len(points)))
-
-    def find(node: int) -> int:
-        while parent[node] != node:
-            parent[node] = parent[parent[node]]
-            node = parent[node]
-        return node
-
-    pairs = []
-    for i in range(len(points)):
-        for j in range(i + 1, len(points)):
-            dx = points[i][0] - points[j][0]
-            dy = points[i][1] - points[j][1]
-            pairs.append((dx * dx + dy * dy, i, j))
-    pairs.sort()
-    chosen: list[tuple[int, int]] = []
-    for _dist, i, j in pairs:
-        left, right = find(i), find(j)
-        if left == right:
-            continue
-        parent[left] = right
-        chosen.append((i, j))
-        if len(chosen) == len(points) - 1:
-            break
-    return chosen
-
-
-def hero_routes(sites: list[dict]) -> list[str]:
-    points = [site_point(site) for site in sites]
-    if len(points) < 2:
-        return []
-    if len(points) == 2:
-        return [hero_route(points[0], points[1])]
-    return [
-        f"M{points[i][0]:.1f} {points[i][1]:.1f} L{points[j][0]:.1f} {points[j][1]:.1f}"
-        for i, j in mst_edges(points)
-    ]
-
-
-def hero_node(site: dict) -> str:
-    x, y = site_point(site)
-    return (
-        f'<g class="hero-node" transform="translate({x:.1f} {y:.1f})" data-site="{esc(site["id"])}">'
-        '<rect class="hero-tile" x="-36" y="-36" width="72" height="72" rx="16"/>'
-        '<svg class="hero-icon" x="-21" y="-21" width="42" height="42" viewBox="0 0 256 256" fill="currentColor">'
-        f"{icon_inner(site['icon'], 'hero-icon-fill')}"
-        "</svg></g>"
-    )
-
-
-def outline_points(text: str | None = None) -> list[tuple[float, float]]:
-    raw = text if text is not None else (DATA / "sarawak-path.txt").read_text(encoding="utf-8")
-    points: list[tuple[float, float]] = []
-    for command, rest in re.findall(r"([MLZ])([^MLZ]*)", raw.strip()):
-        if command == "Z":
-            break
-        nums = rest.split()
-        for index in range(0, len(nums), 2):
-            points.append((float(nums[index]), float(nums[index + 1])))
-    return points
-
-
-def point_in_outline(x: float, y: float, polygon: list[tuple[float, float]] | None = None) -> bool:
-    poly = outline_points() if polygon is None else polygon
-    inside = False
-    j = len(poly) - 1
-    for i, (xi, yi) in enumerate(poly):
-        xj, yj = poly[j]
-        if (yi > y) != (yj > y) and x < (xj - xi) * (y - yi) / (yj - yi or 1e-12) + xi:
-            inside = not inside
-        j = i
-    return inside
-
-
-def tiles_overlap(a: tuple[float, float], b: tuple[float, float], size: float = TILE_SIZE) -> bool:
-    return abs(a[0] - b[0]) < size and abs(a[1] - b[1]) < size
-
-
-def render_hero(sites: list[dict] | None = None) -> str:
-    sites = load_sites() if sites is None else sites
+def render_hero() -> str:
     outline = (DATA / "sarawak-path.txt").read_text(encoding="utf-8").strip()
     if not re.fullmatch(r"[MLZ0-9.\- ]+", outline):
         raise SystemExit("data/sarawak-path.txt is not a plain SVG path")
-    names = ", ".join(site["name"] for site in sites)
-    routes = "\n          ".join(f'<path class="hero-route" d="{path}"/>' for path in hero_routes(sites))
-    nodes = "\n          ".join(hero_node(site) for site in sites)
     return f"""<header class="brief">
       <div class="brief-copy">
         <h1>Independent<br>Sarawak sites,<br>in one place.</h1>
         <p class="brief-deck">{esc(DECK)}</p>
       </div>
       <div class="brief-map">
-        <svg class="hero-map" viewBox="0 0 614.7 411.1" role="img" aria-label="Outline of Sarawak, with {esc(names)} marked">
+        <svg class="hero-map" viewBox="0 0 614.7 411.1" aria-hidden="true">
           <path class="hero-land" d="{outline}"/>
-          {routes}
-          {nodes}
         </svg>
       </div>
     </header>"""
@@ -348,7 +239,7 @@ def render_card(site: dict, counts: dict) -> str:
         <h2 class="hub-name">{esc(site["name"])}</h2>
         <p class="hub-meta">{esc(meta_line(site, counts))}</p>
         <p class="hub-desc">{esc(site["text"])}</p>
-        <p class="hub-foot"><span class="hub-domain">{esc(domain_of(site["url"]))}</span><a class="hub-visit" href="{esc(site["url"])}">Visit <span class="hub-arrow" aria-hidden="true">→</span></a></p>
+        <p class="hub-foot"><a class="hub-visit" href="{esc(site["url"])}">Visit <span class="hub-arrow" aria-hidden="true">→</span></a></p>
       </article>"""
 
 
@@ -440,7 +331,7 @@ def render_home(counts: dict, sites: list[dict] | None = None) -> str:
   <a class="skip-link" href="#content">Skip to content</a>
 {render_header("sites")}
   <main id="content">
-    {render_hero(sites)}
+    {render_hero()}
     <section class="hub-grid" aria-label="Sites">
       {cards}
     </section>

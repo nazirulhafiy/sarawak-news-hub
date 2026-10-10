@@ -7,7 +7,6 @@
       "tag": "News",
       "icon": "brain",
       "text": "Source-linked coverage across policy, public services, education, workforce, research, infrastructure and business.",
-      "map": { "x": 128, "y": 348 },
       "counts": {
         "via": "html-stories",
         "page": "https://ai.sarawak.news/",
@@ -22,7 +21,6 @@
       "tag": "Directory",
       "icon": "hand-heart",
       "text": "An independent directory of Sarawak government assistance. Every scheme links to an official page.",
-      "map": { "x": 424, "y": 128 },
       "counts": {
         "via": "schemes-json",
         "page": "https://bantuan.sarawak.news/",

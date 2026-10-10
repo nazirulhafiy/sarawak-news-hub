@@ -2,7 +2,7 @@
 
 The live site is [https://sarawak.news/](https://sarawak.news/). Pages are the static output of `scripts/build.py`, styled by `site/style.css`. This note describes that system.
 
-Every published site is one object in `data/sites.json`. That list drives the card and the map tile together. The current entries are [AI.Sarawak.News](https://ai.sarawak.news/) and [Bantuan.Sarawak.News](https://bantuan.sarawak.news/). There is no PCDS card.
+Every published site is one object in `data/sites.json`. That list drives the cards. The current entries are [AI.Sarawak.News](https://ai.sarawak.news/) and [Bantuan.Sarawak.News](https://bantuan.sarawak.news/). There is no PCDS card. The map is only the Sarawak outline. It does not mark sites.
 
 ## Type and colour
 
@@ -29,42 +29,42 @@ On a wide page the headline and sub-line sit on the left. The map sits on the ri
 
 The headline is broken onto three lines so it matches H1: “Independent”, “Sarawak sites,”, “in one place.”
 
-The drawing is one inline SVG (`svg.hero-map`, viewBox `0 0 614.7 411.1`). The land is a single filled path from `data/sarawak-path.txt`. It is faint: light mode fill `#e6e9ee` and stroke `#d5dae1`; dark mode fill `#1c222c` and stroke `#465062`. Dotted links (`path.hero-route`) join the tiles. The stroke is `#b7bec7` in light mode and `#8e98a6` in dark mode.
+The drawing is one inline SVG (`svg.hero-map`, viewBox `0 0 614.7 411.1`), hidden from assistive tech because it is a background graphic. The only shape is `path.hero-land` from `data/sarawak-path.txt`. There are no site tiles, icons, or dotted lines on the map. Card icons stay on the cards.
 
-With two sites the link is one curve, bowed northwest, in list order. With three or more, the build draws a straight dotted segment for each edge of a Euclidean minimum spanning tree. Those straight edges do not cross.
+The stroke is Sarawak yellow. Light and dark are tuned apart so the line stays a quiet mark and the headline stays the loudest thing in the brief.
 
-Each tile is a 72-by-72 square centred on that site’s `map.x` and `map.y`. The numbers are tidy spots on the outline, not towns. The icon is the Phosphor duotone file `site/icons/{icon}.svg` (MIT), the same yellow tile treatment as bantuan’s category icons. In dark mode the icon stroke turns yellow and the duotone fill drops to opacity 0.45. AI uses `brain` at `(128, 348)`. Bantuan uses `hand-heart` at `(424, 128)`.
+- Light, on white: fill `rgba(247, 201, 72, 0.12)`. Stroke `#e8b01a` at 2.6px and full opacity. `#e8b01a` is the same hue as `#f7c948`, a step deeper, so the line stays visible on white and still reads as Sarawak yellow. A paler `#f7c948` stroke at the same width disappears into the page.
+- Dark, on `#0f1115`: fill `rgba(247, 201, 72, 0.045)`. Stroke `#f7c948` at 1.7px and opacity 0.46. Full-strength yellow on the dark canvas is too bright for a background graphic.
+
+The stroke uses `vector-effect: non-scaling-stroke`, so the width stays in CSS pixels when the map scales. Joins are round.
 
 The path is Natural Earth 1:10m cultural admin-1 for Sarawak (`MY-13`), public domain. Projection stored in `data/sarawak-proj.json`: `x = (longitude − 109.528436) × 100`, `y = (4.962329 − latitude) × 100`, width 614.7, height 411.1. The footer credit reads “Map: Natural Earth” and links to [naturalearthdata.com](https://www.naturalearthdata.com/). Terms: the Natural Earth dataset is public domain. No permission or attribution is required; the credit is still shown.
 
 ## Cards
 
-Cards use the same `data/sites.json` list, in that order. Two columns with a 16px gap, one column below 560px. A third site wraps onto the next row. Each card has the Phosphor tile, the `tag` pill, the name, a count line, the `text`, the hostname of `url`, and a Visit link to `url`.
+Cards use the same `data/sites.json` list, in that order. Two columns with a 16px gap, one column below 560px. A third site wraps onto the next row. Each card has the Phosphor tile, the `tag` pill, the name, a count line, the `text`, and a Visit link to `url`. The card does not print the hostname. That repeated the title. Visit sits on the right of a top border, so the footer stays a single quiet row.
 
 The count line is `{n} {noun} · {n} {groupNoun}` from that site’s `counts` block. The noun is singular when the number is 1. CSS uppercases the line. Updated dates are fetched and stored in `data/counts.json`. They are not printed on the card.
 
 ## Adding a site
 
-Add one object to the `sites` array. Do not edit the template. The next build draws a card and a map tile for it.
+Add one object to the `sites` array. Do not edit the template. The next build draws a card for it. The map outline does not change.
 
 | Field | Role |
 | --- | --- |
 | `id` | Lowercase slug. Key in `data/counts.json`. |
-| `name` | Card heading and the tile’s place in the map label. |
-| `url` | Visit link. The card domain is the hostname. |
+| `name` | Card heading. |
+| `url` | Visit link on the card, and the hostname link on About. Counts also use this origin. There is no separate domain field. |
 | `tag` | Pill, such as News or Directory. |
-| `icon` | File name in `site/icons/` without `.svg`. |
+| `icon` | File name in `site/icons/` without `.svg`. Phosphor duotone, used on the card only. |
 | `text` | Card description. |
-| `map.x`, `map.y` | Tile centre on the outline. Not a real place. |
 | `counts.via` | `html-stories` or `schemes-json`. |
 | `counts.page` | Page whose `.updated time` is the updated date. For `html-stories`, also the page of story cards. |
 | `counts.json` | Required for `schemes-json`. Array length is the count. Distinct `group` values are the categories. |
 | `counts.noun` | `[singular, plural]` for the main count. |
 | `counts.groupNoun` | `[singular, plural]` for the category count. |
 
-`html-stories` counts `<article>` elements and `data-section-filter` values other than `all`. The All badge must match the article count.
-
-To place `map.x` and `map.y`: the viewBox is `0 0 614.7 411.1`, x grows east, and y grows south. The tile is 72 units square around that point, so keep the centre at least 36 units in from the coast and at least 72 units from every other centre. Order is only the card order. The dotted links are computed from the positions.
+`html-stories` counts `<article>` elements and `data-section-filter` values other than `all`. The All badge must match the article count. There is no `map` field.
 
 Run `python3 scripts/build.py` once while the new page answers, so `data/counts.json` gains a fallback row. A later failed fetch keeps that row. A failed fetch with no row stops the build.
 

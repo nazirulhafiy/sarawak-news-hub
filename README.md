@@ -37,9 +37,9 @@ The default canonical origin is `https://sarawak.news/`. `SITE_URL` overrides it
 
 ## Add a site
 
-One object in `data/sites.json` becomes both a card and a map tile. Fields, the two count fetchers, and how to pick a `map.x` / `map.y` that sits inside the outline are in [docs/design.md](docs/design.md) under “Adding a site”. The spot is a tidy point on the drawing, not a town. Put a new Phosphor duotone inner SVG at `site/icons/{icon}.svg` if the mark is new. Then run the build so `data/counts.json` stores a fallback for that `id`.
+One object in `data/sites.json` becomes a card. The hero map is only the Sarawak outline: a faint Sarawak-yellow stroke, with no site tiles and no dotted lines. Fields and the two count fetchers are in [docs/design.md](docs/design.md) under “Adding a site”. Put a new Phosphor duotone inner SVG at `site/icons/{icon}.svg` if the card mark is new. Then run the build so `data/counts.json` stores a fallback for that `id`.
 
-`tests/test_build.py` method `test_third_site_renders_card_and_map_tile` adds a dummy site in the test only, and checks that it renders as a card and a tile inside the outline without covering the other tiles. That dummy is not in `data/sites.json`. The Pages workflow runs `python -m unittest discover -s tests -v` on every pull request and on `main`.
+`tests/test_build.py` method `test_third_site_renders_card_without_map_tile` adds a dummy site in the test only, and checks that it renders as a card and that the page draws no map tiles. That dummy is not in `data/sites.json`. The Pages workflow runs `python -m unittest discover -s tests -v` on every pull request and on `main`.
 
 ## Build
 
@@ -73,4 +73,4 @@ GitHub Pages publishes `dist/` at [https://sarawak.news/](https://sarawak.news/)
 
 ## Map
 
-The hero outline is Natural Earth 1:10m admin-1 for Sarawak, public domain ([terms](https://www.naturalearthdata.com/about/terms-of-use/)). The simplified path is `data/sarawak-path.txt`. Projection notes are in `data/sarawak-proj.json`. The footer says “Map: Natural Earth”. Details are in `docs/design.md`.
+The hero outline is Natural Earth 1:10m admin-1 for Sarawak, public domain ([terms](https://www.naturalearthdata.com/about/terms-of-use/)). It is a faint Sarawak-yellow stroke beside the headline, with no site tiles and no dotted lines. The simplified path is `data/sarawak-path.txt`. Projection notes are in `data/sarawak-proj.json`. The footer says “Map: Natural Earth”. Light and dark stroke values are in `docs/design.md`.
