@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""Build the static Sarawak.News hub.
-
-Counts are fetched from the live sites at build time. A failed fetch keeps the
-last known values in data/counts.json and does not fail the build.
-"""
+"""Build the static Sarawak.News hub."""
 
 from __future__ import annotations
 
@@ -11,9 +7,7 @@ import html
 import json
 import re
 import shutil
-import urllib.error
 import urllib.parse
-import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,16 +15,11 @@ DATA = ROOT / "data"
 SITE = ROOT / "site"
 DIST = ROOT / "dist"
 
-USER_AGENT = "sarawak-news-hub-build/1.0"
-TIMEOUT = 20
-
 # Live origin. Pages serves the site at the domain root. SITE_URL overrides this.
 DEFAULT_SITE_URL = "https://sarawak.news/"
 
 HEADLINE = "Independent Sarawak sites, in one place."
 DECK = "Each site links to its sources."
-
-COUNT_SOURCES = ("html-stories", "schemes-json")
 
 
 def site_url() -> str:
@@ -65,141 +54,12 @@ def load_sites(path: Path = DATA / "sites.json") -> list[dict]:
         icon = SITE / "icons" / f"{site['icon']}.svg"
         if not icon.is_file():
             raise SystemExit(f"{site_id} icon not found: {icon.relative_to(ROOT)}")
-        counts = site.get("counts") or {}
-        if counts.get("via") not in COUNT_SOURCES:
-            raise SystemExit(f"{site_id} counts.via must be one of {', '.join(COUNT_SOURCES)}")
-        for noun in ("noun", "groupNoun"):
-            pair = counts.get(noun)
-            if not (isinstance(pair, list) and len(pair) == 2 and all(isinstance(part, str) for part in pair)):
-                raise SystemExit(f"{site_id} counts.{noun} must be [singular, plural]")
-        if not isinstance(counts.get("page"), str):
-            raise SystemExit(f"{site_id} counts.page is required")
-        if counts["via"] == "schemes-json" and not isinstance(counts.get("json"), str):
-            raise SystemExit(f"{site_id} counts.json is required for schemes-json")
     return sites
 
 
 def domain_of(url: str) -> str:
     host = urllib.parse.urlparse(url).hostname or url
     return host.removeprefix("www.")
-
-
-def load_counts(path: Path = DATA / "counts.json") -> dict:
-    return json.loads(path.read_text(encoding="utf-8"))
-
-
-def save_counts(counts: dict, path: Path = DATA / "counts.json") -> None:
-    text = json.dumps(counts, indent=2, ensure_ascii=False) + "\n"
-    if path.is_file() and path.read_text(encoding="utf-8") == text:
-        return
-    path.write_text(text, encoding="utf-8")
-
-
-def http_get(url: str) -> str:
-    request = urllib.request.Request(
-        url,
-        headers={"User-Agent": USER_AGENT, "Accept": "*/*"},
-    )
-    with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
-        charset = response.headers.get_content_charset() or "utf-8"
-        return response.read().decode(charset, errors="replace")
-
-
-def _updated(page: str) -> str:
-    match = re.search(
-        r'class="updated"[\s\S]*?<time datetime="(\d{4}-\d{2}-\d{2})"',
-        page,
-    )
-    if not match:
-        raise ValueError("updated date not found")
-    return match.group(1)
-
-
-def parse_ai(page: str) -> dict:
-    stories = len(re.findall(r"<article\b", page))
-    filters = re.findall(r'data-section-filter="([^"]+)"', page)
-    categories = [name for name in filters if name != "all"]
-    # Preserve order, drop duplicates.
-    seen: list[str] = []
-    for name in categories:
-        if name not in seen:
-            seen.append(name)
-    badge = re.search(
-        r'data-section-filter="all"[\s\S]*?category-filter-count[^>]*>\s*(\d+)',
-        page,
-    )
-    if stories < 1 or not seen:
-        raise ValueError("ai.sarawak.news page is missing stories or categories")
-    if badge and int(badge.group(1)) != stories:
-        raise ValueError(
-            f"ai story count {stories} does not match the All badge {badge.group(1)}"
-        )
-    return {"count": stories, "categories": len(seen), "updated": _updated(page)}
-
-
-def parse_bantuan(schemes_payload: str, page: str) -> dict:
-    schemes = json.loads(schemes_payload)
-    if not isinstance(schemes, list) or not schemes:
-        raise ValueError("schemes.json is empty")
-    groups = {item.get("group") for item in schemes if isinstance(item, dict) and item.get("group")}
-    if not groups:
-        raise ValueError("schemes.json has no categories")
-    return {
-        "count": len(schemes),
-        "categories": len(groups),
-        "updated": _updated(page),
-    }
-
-
-def fetch_site_counts(site: dict, getter=http_get) -> dict:
-    spec = site["counts"]
-    if spec["via"] == "html-stories":
-        return parse_ai(getter(spec["page"]))
-    if spec["via"] == "schemes-json":
-        return parse_bantuan(getter(spec["json"]), getter(spec["page"]))
-    raise ValueError(f"unknown counts.via {spec['via']}")
-
-
-def _count_phrase(site: dict, item: dict) -> str:
-    noun = site["counts"]["noun"][1]
-    group = site["counts"]["groupNoun"][1]
-    return f"{item['count']} {noun}, {item['categories']} {group}, updated {item['updated']}"
-
-
-def refresh_counts(previous: dict, getter=http_get, sites: list[dict] | None = None) -> tuple[dict, list[str]]:
-    """Return counts and notes. A failed fetch keeps that site's last known values."""
-    sites = load_sites() if sites is None else sites
-    counts: dict = {}
-    notes: list[str] = []
-    for site in sites:
-        site_id = site["id"]
-        try:
-            fetched = fetch_site_counts(site, getter)
-            counts[site_id] = fetched
-            notes.append(f"{domain_of(site['url'])}: {_count_phrase(site, fetched)} ({site['counts']['via']})")
-        except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError, OSError) as error:
-            if site_id not in previous:
-                raise RuntimeError(
-                    f"{site_id}: fetch failed ({error}) and data/counts.json has no fallback"
-                ) from error
-            counts[site_id] = previous[site_id]
-            notes.append(
-                f"{domain_of(site['url'])}: fetch failed ({error}); keeping {_count_phrase(site, previous[site_id])}"
-            )
-    return counts, notes
-
-
-def _plural(count: int, singular: str, plural: str) -> str:
-    return f"{count} {singular if count == 1 else plural}"
-
-
-def meta_line(site: dict, counts: dict) -> str:
-    item = counts[site["id"]]
-    noun = site["counts"]["noun"]
-    group = site["counts"]["groupNoun"]
-    left = _plural(item["count"], noun[0], noun[1])
-    right = _plural(item["categories"], group[0], group[1])
-    return f"{left} · {right}"
 
 
 def icon_inner(name: str, fill_class: str) -> str:
@@ -233,11 +93,10 @@ def render_hero() -> str:
     </header>"""
 
 
-def render_card(site: dict, counts: dict) -> str:
+def render_card(site: dict) -> str:
     return f"""<article class="hub-card" data-site="{esc(site["id"])}">
         <div class="hub-top">{tile_icon(site["icon"])}<span class="hub-pill">{esc(site["tag"])}</span></div>
         <h2 class="hub-name">{esc(site["name"])}</h2>
-        <p class="hub-meta">{esc(meta_line(site, counts))}</p>
         <p class="hub-desc">{esc(site["text"])}</p>
         <p class="hub-foot"><a class="hub-visit" href="{esc(site["url"])}">Visit <span class="hub-arrow" aria-hidden="true">→</span></a></p>
       </article>"""
@@ -291,7 +150,6 @@ def render_footer() -> str:
     return """  <footer class="site-footer">
     <div class="site-footer-bottom">
       <p>Built by <a class="site-footer-link site-footer-credit-link" href="https://hafiy.my">hafiy.my</a>, an independent publication. Not affiliated with the Sarawak Government.</p>
-      <p class="map-credit">Map: <a href="https://www.naturalearthdata.com/">Natural Earth</a></p>
     </div>
   </footer>"""
 
@@ -321,12 +179,12 @@ def render_head(title: str, description: str, canonical: str) -> str:
 </head>"""
 
 
-def render_home(counts: dict, sites: list[dict] | None = None) -> str:
+def render_home(sites: list[dict] | None = None) -> str:
     sites = load_sites() if sites is None else sites
     url = site_url()
     canonical = url or ""
     description = "Each site links to its sources."
-    cards = "\n".join(render_card(site, counts) for site in sites)
+    cards = "\n".join(render_card(site) for site in sites)
     body = f"""<body>
   <a class="skip-link" href="#content">Skip to content</a>
 {render_header("sites")}
@@ -411,26 +269,18 @@ def write_dist(home: str, about: str, dist: Path = DIST) -> None:
         )
 
 
-def build(fetch: bool = True, getter=http_get) -> list[str]:
+def build() -> None:
     sites = load_sites()
-    previous = load_counts()
-    if fetch:
-        counts, notes = refresh_counts(previous, getter, sites)
-        save_counts(counts)
-    else:
-        counts, notes = previous, ["counts: using data/counts.json (fetch skipped)"]
-    home = render_home(counts, sites)
+    home = render_home(sites)
     about = render_about(sites)
-    for banned in ("PCDS", "pcds2030", "brief-net"):
+    for banned in ("PCDS", "pcds2030", "brief-net", "hub-meta"):
         if banned in home or banned in about:
             raise SystemExit(f"Banned marker in build output: {banned}")
     write_dist(home, about)
-    return notes
 
 
 def main() -> None:
-    for note in build():
-        print(note)
+    build()
     print(f"Built {DIST / 'index.html'}")
 
 

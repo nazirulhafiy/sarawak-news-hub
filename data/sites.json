@@ -6,13 +6,7 @@
       "url": "https://ai.sarawak.news/",
       "tag": "News",
       "icon": "brain",
-      "text": "Source-linked coverage across policy, public services, education, workforce, research, infrastructure and business.",
-      "counts": {
-        "via": "html-stories",
-        "page": "https://ai.sarawak.news/",
-        "noun": ["story", "stories"],
-        "groupNoun": ["category", "categories"]
-      }
+      "text": "Source-linked coverage across policy, public services, education, workforce, research, infrastructure and business."
     },
     {
       "id": "bantuan",
@@ -20,14 +14,7 @@
       "url": "https://bantuan.sarawak.news/",
       "tag": "Directory",
       "icon": "hand-heart",
-      "text": "An independent directory of Sarawak government assistance. Every scheme links to an official page.",
-      "counts": {
-        "via": "schemes-json",
-        "page": "https://bantuan.sarawak.news/",
-        "json": "https://bantuan.sarawak.news/schemes.json",
-        "noun": ["scheme", "schemes"],
-        "groupNoun": ["category", "categories"]
-      }
+      "text": "An independent directory of Sarawak government assistance. Every scheme links to an official page."
     }
   ]
 }
