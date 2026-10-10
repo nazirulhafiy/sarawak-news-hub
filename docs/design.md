@@ -12,6 +12,19 @@ Colours are the same tokens as [bantuan.sarawak.news](https://bantuan.sarawak.ne
 
 Dark mode sets `html[data-theme="dark"]` and swaps the same tokens: canvas `#0f1115`, card `#171b22`, ink `#f3f5f7`, muted `#aeb6c2`, line `#2c333d`, red `#f15b61`, red ink `#ff8d92`. Icon tiles use a translucent yellow fill and a yellow border. Card description copy is `#374151` in light mode and `#d2d8df` in dark mode.
 
+## Favicon
+
+Nazirul picked F1, the yellow Sarawak shape on a black rounded tile. The source files live in `design-handoff/favicon-F1/`. The build copies four of them to the root of `dist/` and does not publish the rest of `design-handoff/`:
+
+| Published URL | Source |
+| --- | --- |
+| `favicon.ico` | `favicon.ico` |
+| `favicon.svg` | `f1.svg` |
+| `apple-touch-icon.png` | `f1-180.png` |
+| `icon-512.png` | `f1-512.png` |
+
+The head links the SVG icon, the `.ico` with `sizes="any"`, the Apple touch icon, and the 512 PNG. `theme-color` is `#ffffff` for `prefers-color-scheme: light` and `#0f1115` for dark. The 16 and 32 pixel extras stay in the handoff folder. `favicon.ico` already carries the small sizes.
+
 ## Theme
 
 `scripts/build.py` inlines the same boot script as bantuan. Before paint it reads `localStorage` key `sarawak-theme`. `dark` forces dark. `light` forces light. With no stored choice, `prefers-color-scheme: dark` selects dark. `site/app.js` updates the toggle label, persists a click, and follows later system changes only when nothing is stored.
@@ -27,7 +40,7 @@ On a wide page the headline and sub-line sit on the left. The map sits on the ri
 - Independent Sarawak sites, in one place.
 - Each site links to its sources.
 
-The headline is broken onto three lines so it matches H1: “Independent”, “Sarawak sites,”, “in one place.”
+The headline is broken onto three lines so it matches H1: “Independent”, “Sarawak sites,”, “in one place.” The document `<title>`, `og:title`, and `twitter:title` on the home page are `Sarawak.News`. About keeps `<title>About Sarawak.News</title>`.
 
 The drawing is one inline SVG (`svg.hero-map`, viewBox `0 0 614.7 411.1`), hidden from assistive tech because it is a background graphic. The only shape is `path.hero-land` from `data/sarawak-path.txt`. There are no site tiles, icons, or dotted lines on the map. Card icons stay on the cards.
 

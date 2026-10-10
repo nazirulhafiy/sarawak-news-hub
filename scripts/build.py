@@ -20,6 +20,15 @@ DEFAULT_SITE_URL = "https://sarawak.news/"
 
 HEADLINE = "Independent Sarawak sites, in one place."
 DECK = "Each site links to its sources."
+PAGE_TITLE = "Sarawak.News"
+
+# Published names, copied from design-handoff/favicon-F1/. The handoff folder itself stays unpublished.
+FAVICON_FILES = {
+    "favicon.ico": "favicon.ico",
+    "favicon.svg": "f1.svg",
+    "apple-touch-icon.png": "f1-180.png",
+    "icon-512.png": "f1-512.png",
+}
 
 
 def site_url() -> str:
@@ -164,6 +173,8 @@ def render_head(title: str, description: str, canonical: str) -> str:
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="{esc(description)}" />
   <meta name="robots" content="index,follow" />
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="{esc(title)}" />
   <meta property="og:description" content="{esc(description)}" />
@@ -172,6 +183,10 @@ def render_head(title: str, description: str, canonical: str) -> str:
   <meta name="twitter:title" content="{esc(title)}" />
   <meta name="twitter:description" content="{esc(description)}" />{canonical_tag}
   <title>{esc(title)}</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="icon" href="icon-512.png" type="image/png" sizes="512x512" />
   <link rel="preload" href="fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin />
 {theme_boot()}
   <link rel="stylesheet" href="style.css" />
@@ -196,7 +211,7 @@ def render_home(sites: list[dict] | None = None) -> str:
   </main>
 {render_footer()}
 </body>"""
-    return render_head(HEADLINE, description, canonical) + "\n" + body + "\n</html>\n"
+    return render_head(PAGE_TITLE, description, canonical) + "\n" + body + "\n</html>\n"
 
 
 def render_about(sites: list[dict] | None = None) -> str:
@@ -249,6 +264,12 @@ def write_dist(home: str, about: str, dist: Path = DIST) -> None:
         raise SystemExit("site/fonts must contain Geist-Variable.woff2 and OFL.txt")
     shutil.copy2(woff, fonts / woff.name)
     shutil.copy2(license_file, fonts / license_file.name)
+    handoff = ROOT / "design-handoff" / "favicon-F1"
+    for dest_name, src_name in FAVICON_FILES.items():
+        src = handoff / src_name
+        if not src.is_file():
+            raise SystemExit(f"missing favicon source {src.relative_to(ROOT)}")
+        shutil.copy2(src, dist / dest_name)
     cname = ROOT / "CNAME"
     if not cname.is_file():
         raise SystemExit("CNAME is missing; Pages needs it in the published output")
