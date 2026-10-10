@@ -29,7 +29,11 @@ DUMMY_SITE = {
 class RenderTests(unittest.TestCase):
     def test_home_has_two_cards_and_hero(self):
         home = build.render_home()
-        self.assertIn("Independent<br>Sarawak sites,<br>in one place.", home)
+        self.assertIn("<h1>Independent Sarawak sites, in one place.</h1>", home)
+        self.assertIn('class="hero-map"', home)
+        self.assertIn('aria-hidden="true"', home)
+        self.assertNotIn("brief-map", home)
+        self.assertNotIn("<br>", home)
         self.assertIn("Each site links to its sources.", home)
         self.assertIn("<title>Sarawak.News</title>", home)
         self.assertIn('<meta property="og:title" content="Sarawak.News" />', home)

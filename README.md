@@ -59,4 +59,4 @@ GitHub Pages publishes `dist/` at [https://sarawak.news/](https://sarawak.news/)
 
 ## Map
 
-The hero outline is Natural Earth 1:10m admin-1 for Sarawak, public domain ([terms](https://www.naturalearthdata.com/about/terms-of-use/)). It is a faint Sarawak-yellow stroke beside the headline, with no site tiles and no dotted lines. The simplified path is `data/sarawak-path.txt`. Projection notes are in `data/sarawak-proj.json`. The footer does not credit the map, because attribution is not required. Light and dark stroke values, and the licence note, are in `docs/design.md`.
+The hero outline is Natural Earth 1:10m admin-1 for Sarawak, public domain ([terms](https://www.naturalearthdata.com/about/terms-of-use/)). It sits behind the centred headline as a faint Sarawak-yellow shape, with no site tiles and no dotted lines. The simplified path is `data/sarawak-path.txt`. Projection notes are in `data/sarawak-proj.json`. The footer does not credit the map, because attribution is not required. Light and dark stroke values, and the licence note, are in `docs/design.md`.

@@ -33,23 +33,23 @@ The header is bantuan’s bar: wordmark, red / yellow / black rule, Sites and Ab
 
 ## Hero
 
-The home hero is layout H1, not a placeholder and not bantuan’s category network.
-
-On a wide page the headline and sub-line sit on the left. The map sits on the right, vertically centred with that text. Below 560px the map moves above the text and centres in the column. The words are fixed:
+The home hero follows the centred brief on [bantuan.sarawak.news](https://bantuan.sarawak.news/) and [ai.sarawak.news](https://ai.sarawak.news/). The words are fixed:
 
 - Independent Sarawak sites, in one place.
 - Each site links to its sources.
 
-The headline is broken onto three lines so it matches H1: “Independent”, “Sarawak sites,”, “in one place.” The document `<title>`, `og:title`, and `twitter:title` on the home page are `Sarawak.News`. About keeps `<title>About Sarawak.News</title>`.
+`.brief` is 760px at most, centred, `text-align: center`, with `padding: 42px 8px 36px` and `margin: 32px auto 8px`. The headline is `clamp(36px, 6vw, 48px)`, weight 700, letter-spacing `-1.2px`, line-height `1.02`, `max-width: 680px`, and `margin: 0 auto 16px`. The sub-line is 18px, line-height `1.62`, `max-width: 620px`, centred, in the copy colour (`#374151` light, `#d2d8df` dark). Below 560px the headline is `clamp(2.15rem, 11vw, 3rem)`, the sub-line is 17px, and the brief padding is `32px 0 28px`. The headline wraps on its own. It is not forced onto three lines. The document `<title>`, `og:title`, and `twitter:title` on the home page are `Sarawak.News`. About keeps `<title>About Sarawak.News</title>`.
 
-The drawing is one inline SVG (`svg.hero-map`, viewBox `0 0 614.7 411.1`), hidden from assistive tech because it is a background graphic. The only shape is `path.hero-land` from `data/sarawak-path.txt`. There are no site tiles, icons, or dotted lines on the map. Card icons stay on the cards.
+The Sarawak outline is one inline SVG (`svg.hero-map`, viewBox `0 0 614.7 411.1`) behind that type. `aria-hidden="true"` and `focusable="false"` mark it decorative. `pointer-events: none` and `z-index: 0` keep it off clicks and under the words. The only shape is `path.hero-land` from `data/sarawak-path.txt`. There are no site tiles, icons, or dotted lines. Card icons stay on the cards.
 
-The stroke is Sarawak yellow. Light and dark are tuned apart so the line stays a quiet mark and the headline stays the loudest thing in the brief.
+The brief is at least 400px tall on a wide page, and at least 300px below 560px, so the whole outline fits inside the hero. The shape is centred. On a wide page it is `min(72%, 500px)` wide. On a phone it is 92% of the column. `overflow: hidden` is a backstop. The shape ends before the cards.
 
-- Light, on white: fill `rgba(247, 201, 72, 0.12)`. Stroke `#e8b01a` at 2.6px and full opacity. `#e8b01a` is the same hue as `#f7c948`, a step deeper, so the line stays visible on white and still reads as Sarawak yellow. A paler `#f7c948` stroke at the same width disappears into the page.
-- Dark, on `#0f1115`: fill `rgba(247, 201, 72, 0.045)`. Stroke `#f7c948` at 1.7px and opacity 0.46. Full-strength yellow on the dark canvas is too bright for a background graphic.
+Fill and stroke are tuned apart. The stroke is `#f7c948` in both themes, painted over the fill, with `vector-effect: non-scaling-stroke` and round joins.
 
-The stroke uses `vector-effect: non-scaling-stroke`, so the width stays in CSS pixels when the map scales. Joins are round.
+- Light, on white: fill `rgba(247, 201, 72, 0.10)`. Stroke width 1.75px, opacity 0.50.
+- Dark, on `#0f1115`: fill `rgba(247, 201, 72, 0.06)`. Stroke width 1.5px, opacity 0.26.
+
+Those opacities keep the headline and the sub-line at WCAG AA against the strongest yellow in the shape, the stroke where it sits on the fill. Large bold headline text needs 3:1. The 18px sub-line needs 4.5:1.
 
 The path is Natural Earth 1:10m cultural admin-1 for Sarawak (`MY-13`), public domain. Projection stored in `data/sarawak-proj.json`: `x = (longitude − 109.528436) × 100`, `y = (4.962329 − latitude) × 100`, width 614.7, height 411.1. Terms: the Natural Earth dataset is public domain ([naturalearthdata.com](https://www.naturalearthdata.com/about/terms-of-use/)). No permission or attribution is required, so the footer does not print a map credit.
 
