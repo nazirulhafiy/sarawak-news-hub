@@ -35,6 +35,12 @@ python3 -m unittest discover -s tests -v
 
 `SITE_URL` overrides the canonical origin. The default is `https://nazirulhafiy.github.io/sarawak-news-hub/`.
 
+## Add a site
+
+One object in `data/sites.json` becomes both a card and a map tile. Fields, the two count fetchers, and how to pick a `map.x` / `map.y` that sits inside the outline are in [docs/design.md](docs/design.md) under “Adding a site”. The spot is a tidy point on the drawing, not a town. Put a new Phosphor duotone inner SVG at `site/icons/{icon}.svg` if the mark is new. Then run the build so `data/counts.json` stores a fallback for that `id`.
+
+`tests/test_build.py` method `test_third_site_renders_card_and_map_tile` adds a dummy site in the test only, and checks that it renders as a card and a tile inside the outline without covering the other tiles. That dummy is not in `data/sites.json`. The Pages workflow runs `python -m unittest discover -s tests -v` on every pull request and on `main`.
+
 ## Build
 
 `scripts/build.py` fetches live counts, renders `dist/index.html` and `dist/about.html`, and copies `site/style.css`, `site/app.js`, and `site/fonts/` (Geist variable font and the SIL OFL licence). The font is preloaded and uses `font-display: swap`, with system-ui in the fallback stack.
@@ -43,10 +49,14 @@ If a fetch fails, that site keeps the last values in `data/counts.json`. The bui
 
 ### Data sources
 
-| Site | Counts | Updated date |
+Each site’s `counts` block in `data/sites.json` says how to fetch. The two supported values of `counts.via`:
+
+| `via` | Counts | Updated date |
 | --- | --- | --- |
-| AI.Sarawak.News | Homepage HTML: one `<article>` per story, and `data-section-filter` values other than `all` for categories. The All badge must match the article count. | `<time datetime>` inside `.updated` on the homepage |
-| Bantuan.Sarawak.News | [`schemes.json`](https://bantuan.sarawak.news/schemes.json): length is the scheme count, distinct `group` values are the categories | `<time datetime>` inside `.updated` on the homepage |
+| `html-stories` | `counts.page` HTML: one `<article>` per story, and `data-section-filter` values other than `all` for categories. The All badge must match the article count. | `<time datetime>` inside `.updated` on that page |
+| `schemes-json` | `counts.json`: array length is the count, distinct `group` values are the categories | `<time datetime>` inside `.updated` on `counts.page` |
+
+AI uses `html-stories` on https://ai.sarawak.news/. Bantuan uses `schemes-json` at https://bantuan.sarawak.news/schemes.json and the updated date on the homepage.
 
 There is no runtime request for these numbers.
 

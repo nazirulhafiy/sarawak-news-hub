@@ -1,11 +1,11 @@
 {
   "ai": {
-    "stories": 81,
+    "count": 81,
     "categories": 7,
     "updated": "2026-10-08"
   },
   "bantuan": {
-    "schemes": 24,
+    "count": 24,
     "categories": 7,
     "updated": "2026-10-06"
   }

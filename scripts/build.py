@@ -12,6 +12,7 @@ import json
 import re
 import shutil
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -20,9 +21,6 @@ DATA = ROOT / "data"
 SITE = ROOT / "site"
 DIST = ROOT / "dist"
 
-AI_URL = "https://ai.sarawak.news/"
-BANTUAN_URL = "https://bantuan.sarawak.news/"
-BANTUAN_SCHEMES_URL = "https://bantuan.sarawak.news/schemes.json"
 USER_AGENT = "sarawak-news-hub-build/1.0"
 TIMEOUT = 20
 
@@ -30,35 +28,14 @@ TIMEOUT = 20
 # Override with SITE_URL. Do not write a CNAME.
 DEFAULT_SITE_URL = "https://nazirulhafiy.github.io/sarawak-news-hub/"
 
-# Tile centres in the Natural Earth path's viewBox (0 0 614.7 411.1).
-# Southwest coast: AI. North coast: Bantuan. Joined by a dotted curve.
-AI_TILE = (128.0, 348.0)
-BANTUAN_TILE = (424.0, 128.0)
+# Tile square, in the outline viewBox. Centres come from data/sites.json.
+TILE_SIZE = 72.0
 ROUTE_BOW = 26.0
 
 HEADLINE = "Independent Sarawak sites, in one place."
 DECK = "Each site links to its sources."
 
-SITES = (
-    {
-        "key": "ai",
-        "name": "AI.Sarawak.News",
-        "domain": "ai.sarawak.news",
-        "url": "https://ai.sarawak.news/",
-        "kind": "News",
-        "icon": "brain",
-        "desc": "Source-linked coverage across policy, public services, education, workforce, research, infrastructure and business.",
-    },
-    {
-        "key": "bantuan",
-        "name": "Bantuan.Sarawak.News",
-        "domain": "bantuan.sarawak.news",
-        "url": "https://bantuan.sarawak.news/",
-        "kind": "Directory",
-        "icon": "hand-heart",
-        "desc": "An independent directory of Sarawak government assistance. Every scheme links to an official page.",
-    },
-)
+COUNT_SOURCES = ("html-stories", "schemes-json")
 
 
 def site_url() -> str:
@@ -72,6 +49,51 @@ def site_url() -> str:
 
 def esc(value: object) -> str:
     return html.escape(str(value), quote=True)
+
+
+def load_sites(path: Path = DATA / "sites.json") -> list[dict]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    sites = payload.get("sites")
+    if not isinstance(sites, list) or not sites:
+        raise SystemExit("data/sites.json needs a non-empty sites list")
+    seen: set[str] = set()
+    for site in sites:
+        site_id = site.get("id")
+        if not isinstance(site_id, str) or not re.fullmatch(r"[a-z0-9-]+", site_id):
+            raise SystemExit(f"site id must be a lowercase slug, got {site_id!r}")
+        if site_id in seen:
+            raise SystemExit(f"duplicate site id: {site_id}")
+        seen.add(site_id)
+        for field in ("name", "url", "tag", "icon", "text"):
+            if not isinstance(site.get(field), str) or not site[field].strip():
+                raise SystemExit(f"{site_id} is missing {field}")
+        icon = SITE / "icons" / f"{site['icon']}.svg"
+        if not icon.is_file():
+            raise SystemExit(f"{site_id} icon not found: {icon.relative_to(ROOT)}")
+        spot = site.get("map") or {}
+        if not isinstance(spot.get("x"), (int, float)) or not isinstance(spot.get("y"), (int, float)):
+            raise SystemExit(f"{site_id} map needs numeric x and y")
+        counts = site.get("counts") or {}
+        if counts.get("via") not in COUNT_SOURCES:
+            raise SystemExit(f"{site_id} counts.via must be one of {', '.join(COUNT_SOURCES)}")
+        for noun in ("noun", "groupNoun"):
+            pair = counts.get(noun)
+            if not (isinstance(pair, list) and len(pair) == 2 and all(isinstance(part, str) for part in pair)):
+                raise SystemExit(f"{site_id} counts.{noun} must be [singular, plural]")
+        if not isinstance(counts.get("page"), str):
+            raise SystemExit(f"{site_id} counts.page is required")
+        if counts["via"] == "schemes-json" and not isinstance(counts.get("json"), str):
+            raise SystemExit(f"{site_id} counts.json is required for schemes-json")
+    return sites
+
+
+def site_point(site: dict) -> tuple[float, float]:
+    return (float(site["map"]["x"]), float(site["map"]["y"]))
+
+
+def domain_of(url: str) -> str:
+    host = urllib.parse.urlparse(url).hostname or url
+    return host.removeprefix("www.")
 
 
 def load_counts(path: Path = DATA / "counts.json") -> dict:
@@ -124,52 +146,58 @@ def parse_ai(page: str) -> dict:
         raise ValueError(
             f"ai story count {stories} does not match the All badge {badge.group(1)}"
         )
-    return {"stories": stories, "categories": len(seen), "updated": _updated(page)}
+    return {"count": stories, "categories": len(seen), "updated": _updated(page)}
 
 
 def parse_bantuan(schemes_payload: str, page: str) -> dict:
     schemes = json.loads(schemes_payload)
     if not isinstance(schemes, list) or not schemes:
-        raise ValueError("bantuan schemes.json is empty")
+        raise ValueError("schemes.json is empty")
     groups = {item.get("group") for item in schemes if isinstance(item, dict) and item.get("group")}
     if not groups:
-        raise ValueError("bantuan schemes.json has no categories")
+        raise ValueError("schemes.json has no categories")
     return {
-        "schemes": len(schemes),
+        "count": len(schemes),
         "categories": len(groups),
         "updated": _updated(page),
     }
 
 
-def refresh_counts(previous: dict, getter=http_get) -> tuple[dict, list[str]]:
-    """Return counts and human-readable notes. Fetch failures keep previous values."""
-    counts = json.loads(json.dumps(previous))
+def fetch_site_counts(site: dict, getter=http_get) -> dict:
+    spec = site["counts"]
+    if spec["via"] == "html-stories":
+        return parse_ai(getter(spec["page"]))
+    if spec["via"] == "schemes-json":
+        return parse_bantuan(getter(spec["json"]), getter(spec["page"]))
+    raise ValueError(f"unknown counts.via {spec['via']}")
+
+
+def _count_phrase(site: dict, item: dict) -> str:
+    noun = site["counts"]["noun"][1]
+    group = site["counts"]["groupNoun"][1]
+    return f"{item['count']} {noun}, {item['categories']} {group}, updated {item['updated']}"
+
+
+def refresh_counts(previous: dict, getter=http_get, sites: list[dict] | None = None) -> tuple[dict, list[str]]:
+    """Return counts and notes. A failed fetch keeps that site's last known values."""
+    sites = load_sites() if sites is None else sites
+    counts: dict = {}
     notes: list[str] = []
-
-    try:
-        ai = parse_ai(getter(AI_URL))
-        counts["ai"] = ai
-        notes.append(
-            f"ai.sarawak.news: {ai['stories']} stories, {ai['categories']} categories, updated {ai['updated']} (homepage HTML)"
-        )
-    except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError, OSError) as error:
-        kept = counts["ai"]
-        notes.append(
-            f"ai.sarawak.news: fetch failed ({error}); keeping {kept['stories']} stories, {kept['categories']} categories, updated {kept['updated']}"
-        )
-
-    try:
-        bantuan = parse_bantuan(getter(BANTUAN_SCHEMES_URL), getter(BANTUAN_URL))
-        counts["bantuan"] = bantuan
-        notes.append(
-            f"bantuan.sarawak.news: {bantuan['schemes']} schemes, {bantuan['categories']} categories, updated {bantuan['updated']} (schemes.json + homepage HTML)"
-        )
-    except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError, OSError) as error:
-        kept = counts["bantuan"]
-        notes.append(
-            f"bantuan.sarawak.news: fetch failed ({error}); keeping {kept['schemes']} schemes, {kept['categories']} categories, updated {kept['updated']}"
-        )
-
+    for site in sites:
+        site_id = site["id"]
+        try:
+            fetched = fetch_site_counts(site, getter)
+            counts[site_id] = fetched
+            notes.append(f"{domain_of(site['url'])}: {_count_phrase(site, fetched)} ({site['counts']['via']})")
+        except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError, OSError) as error:
+            if site_id not in previous:
+                raise RuntimeError(
+                    f"{site_id}: fetch failed ({error}) and data/counts.json has no fallback"
+                ) from error
+            counts[site_id] = previous[site_id]
+            notes.append(
+                f"{domain_of(site['url'])}: fetch failed ({error}); keeping {_count_phrase(site, previous[site_id])}"
+            )
     return counts, notes
 
 
@@ -177,13 +205,12 @@ def _plural(count: int, singular: str, plural: str) -> str:
     return f"{count} {singular if count == 1 else plural}"
 
 
-def meta_line(counts: dict, key: str) -> str:
-    item = counts[key]
-    if key == "ai":
-        left = _plural(item["stories"], "story", "stories")
-    else:
-        left = _plural(item["schemes"], "scheme", "schemes")
-    right = _plural(item["categories"], "category", "categories")
+def meta_line(site: dict, counts: dict) -> str:
+    item = counts[site["id"]]
+    noun = site["counts"]["noun"]
+    group = site["counts"]["groupNoun"]
+    left = _plural(item["count"], noun[0], noun[1])
+    right = _plural(item["categories"], group[0], group[1])
     return f"{left} · {right}"
 
 
@@ -205,53 +232,124 @@ def hero_route(start: tuple[float, float], end: tuple[float, float]) -> str:
     ax, ay = start
     bx, by = end
     dx, dy = bx - ax, by - ay
-    length = (dx * dx + dy * dy) ** 0.5
-    # Bow northwest of the chord so the dotted line follows the coast side.
+    length = (dx * dx + dy * dy) ** 0.5 or 1.0
+    # Bow northwest of the chord so the two-site line matches the H1 drawing.
     px, py = dy / length, -dx / length
     cx = (ax + bx) / 2 + px * ROUTE_BOW
     cy = (ay + by) / 2 + py * ROUTE_BOW
     return f"M{ax:.1f} {ay:.1f} Q {cx:.1f} {cy:.1f} {bx:.1f} {by:.1f}"
 
 
-def hero_node(name: str, centre: tuple[float, float]) -> str:
-    x, y = centre
+def mst_edges(points: list[tuple[float, float]]) -> list[tuple[int, int]]:
+    """Euclidean minimum spanning tree. Straight edges of this tree do not cross."""
+    parent = list(range(len(points)))
+
+    def find(node: int) -> int:
+        while parent[node] != node:
+            parent[node] = parent[parent[node]]
+            node = parent[node]
+        return node
+
+    pairs = []
+    for i in range(len(points)):
+        for j in range(i + 1, len(points)):
+            dx = points[i][0] - points[j][0]
+            dy = points[i][1] - points[j][1]
+            pairs.append((dx * dx + dy * dy, i, j))
+    pairs.sort()
+    chosen: list[tuple[int, int]] = []
+    for _dist, i, j in pairs:
+        left, right = find(i), find(j)
+        if left == right:
+            continue
+        parent[left] = right
+        chosen.append((i, j))
+        if len(chosen) == len(points) - 1:
+            break
+    return chosen
+
+
+def hero_routes(sites: list[dict]) -> list[str]:
+    points = [site_point(site) for site in sites]
+    if len(points) < 2:
+        return []
+    if len(points) == 2:
+        return [hero_route(points[0], points[1])]
+    return [
+        f"M{points[i][0]:.1f} {points[i][1]:.1f} L{points[j][0]:.1f} {points[j][1]:.1f}"
+        for i, j in mst_edges(points)
+    ]
+
+
+def hero_node(site: dict) -> str:
+    x, y = site_point(site)
     return (
-        f'<g class="hero-node" transform="translate({x:.1f} {y:.1f})">'
+        f'<g class="hero-node" transform="translate({x:.1f} {y:.1f})" data-site="{esc(site["id"])}">'
         '<rect class="hero-tile" x="-36" y="-36" width="72" height="72" rx="16"/>'
         '<svg class="hero-icon" x="-21" y="-21" width="42" height="42" viewBox="0 0 256 256" fill="currentColor">'
-        f"{icon_inner(name, 'hero-icon-fill')}"
+        f"{icon_inner(site['icon'], 'hero-icon-fill')}"
         "</svg></g>"
     )
 
 
-def render_hero() -> str:
+def outline_points(text: str | None = None) -> list[tuple[float, float]]:
+    raw = text if text is not None else (DATA / "sarawak-path.txt").read_text(encoding="utf-8")
+    points: list[tuple[float, float]] = []
+    for command, rest in re.findall(r"([MLZ])([^MLZ]*)", raw.strip()):
+        if command == "Z":
+            break
+        nums = rest.split()
+        for index in range(0, len(nums), 2):
+            points.append((float(nums[index]), float(nums[index + 1])))
+    return points
+
+
+def point_in_outline(x: float, y: float, polygon: list[tuple[float, float]] | None = None) -> bool:
+    poly = outline_points() if polygon is None else polygon
+    inside = False
+    j = len(poly) - 1
+    for i, (xi, yi) in enumerate(poly):
+        xj, yj = poly[j]
+        if (yi > y) != (yj > y) and x < (xj - xi) * (y - yi) / (yj - yi or 1e-12) + xi:
+            inside = not inside
+        j = i
+    return inside
+
+
+def tiles_overlap(a: tuple[float, float], b: tuple[float, float], size: float = TILE_SIZE) -> bool:
+    return abs(a[0] - b[0]) < size and abs(a[1] - b[1]) < size
+
+
+def render_hero(sites: list[dict] | None = None) -> str:
+    sites = load_sites() if sites is None else sites
     outline = (DATA / "sarawak-path.txt").read_text(encoding="utf-8").strip()
     if not re.fullmatch(r"[MLZ0-9.\- ]+", outline):
         raise SystemExit("data/sarawak-path.txt is not a plain SVG path")
-    route = hero_route(AI_TILE, BANTUAN_TILE)
+    names = ", ".join(site["name"] for site in sites)
+    routes = "\n          ".join(f'<path class="hero-route" d="{path}"/>' for path in hero_routes(sites))
+    nodes = "\n          ".join(hero_node(site) for site in sites)
     return f"""<header class="brief">
       <div class="brief-copy">
         <h1>Independent<br>Sarawak sites,<br>in one place.</h1>
         <p class="brief-deck">{esc(DECK)}</p>
       </div>
       <div class="brief-map">
-        <svg class="hero-map" viewBox="0 0 614.7 411.1" role="img" aria-label="Outline of Sarawak, with AI.Sarawak.News and Bantuan.Sarawak.News marked">
+        <svg class="hero-map" viewBox="0 0 614.7 411.1" role="img" aria-label="Outline of Sarawak, with {esc(names)} marked">
           <path class="hero-land" d="{outline}"/>
-          <path class="hero-route" d="{route}"/>
-          {hero_node("brain", AI_TILE)}
-          {hero_node("hand-heart", BANTUAN_TILE)}
+          {routes}
+          {nodes}
         </svg>
       </div>
     </header>"""
 
 
 def render_card(site: dict, counts: dict) -> str:
-    return f"""<article class="hub-card">
-        <div class="hub-top">{tile_icon(site["icon"])}<span class="hub-pill">{esc(site["kind"])}</span></div>
+    return f"""<article class="hub-card" data-site="{esc(site["id"])}">
+        <div class="hub-top">{tile_icon(site["icon"])}<span class="hub-pill">{esc(site["tag"])}</span></div>
         <h2 class="hub-name">{esc(site["name"])}</h2>
-        <p class="hub-meta">{esc(meta_line(counts, site["key"]))}</p>
-        <p class="hub-desc">{esc(site["desc"])}</p>
-        <p class="hub-foot"><span class="hub-domain">{esc(site["domain"])}</span><a class="hub-visit" href="{esc(site["url"])}">Visit <span class="hub-arrow" aria-hidden="true">→</span></a></p>
+        <p class="hub-meta">{esc(meta_line(site, counts))}</p>
+        <p class="hub-desc">{esc(site["text"])}</p>
+        <p class="hub-foot"><span class="hub-domain">{esc(domain_of(site["url"]))}</span><a class="hub-visit" href="{esc(site["url"])}">Visit <span class="hub-arrow" aria-hidden="true">→</span></a></p>
       </article>"""
 
 
@@ -333,16 +431,17 @@ def render_head(title: str, description: str, canonical: str) -> str:
 </head>"""
 
 
-def render_home(counts: dict) -> str:
+def render_home(counts: dict, sites: list[dict] | None = None) -> str:
+    sites = load_sites() if sites is None else sites
     url = site_url()
     canonical = url or ""
     description = "Each site links to its sources."
-    cards = "\n".join(render_card(site, counts) for site in SITES)
+    cards = "\n".join(render_card(site, counts) for site in sites)
     body = f"""<body>
   <a class="skip-link" href="#content">Skip to content</a>
 {render_header("sites")}
   <main id="content">
-    {render_hero()}
+    {render_hero(sites)}
     <section class="hub-grid" aria-label="Sites">
       {cards}
     </section>
@@ -352,18 +451,19 @@ def render_home(counts: dict) -> str:
     return render_head(HEADLINE, description, canonical) + "\n" + body + "\n</html>\n"
 
 
-def render_about() -> str:
+def render_about(sites: list[dict] | None = None) -> str:
+    sites = load_sites() if sites is None else sites
     url = site_url()
     canonical = f"{url}about.html" if url else ""
     title = "About Sarawak.News"
     description = f"{HEADLINE} {DECK}"
     sections = []
-    for site in SITES:
+    for site in sites:
         sections.append(
-            f"""    <section class="about-section" aria-labelledby="about-{esc(site["key"])}">
-      <h2 id="about-{esc(site["key"])}">{esc(site["name"])}</h2>
-      <p>{esc(site["desc"])}</p>
-      <p><a href="{esc(site["url"])}">{esc(site["domain"])}</a></p>
+            f"""    <section class="about-section" aria-labelledby="about-{esc(site["id"])}">
+      <h2 id="about-{esc(site["id"])}">{esc(site["name"])}</h2>
+      <p>{esc(site["text"])}</p>
+      <p><a href="{esc(site["url"])}">{esc(domain_of(site["url"]))}</a></p>
     </section>"""
         )
     body = f"""<body>
@@ -418,14 +518,15 @@ def write_dist(home: str, about: str, dist: Path = DIST) -> None:
 
 
 def build(fetch: bool = True, getter=http_get) -> list[str]:
+    sites = load_sites()
     previous = load_counts()
     if fetch:
-        counts, notes = refresh_counts(previous, getter)
+        counts, notes = refresh_counts(previous, getter, sites)
         save_counts(counts)
     else:
         counts, notes = previous, ["counts: using data/counts.json (fetch skipped)"]
-    home = render_home(counts)
-    about = render_about()
+    home = render_home(counts, sites)
+    about = render_about(sites)
     for banned in ("PCDS", "pcds2030", "brief-net"):
         if banned in home or banned in about:
             raise SystemExit(f"Banned marker in build output: {banned}")

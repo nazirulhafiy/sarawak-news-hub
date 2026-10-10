@@ -16,6 +16,7 @@ WATCH_PATTERNS = (
     ".github/workflows/*",
     "data/sarawak-path.txt",
     "data/sarawak-proj.json",
+    "data/sites.json",
 )
 
 FAIL_MESSAGE = (

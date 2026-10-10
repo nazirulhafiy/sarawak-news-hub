@@ -2,7 +2,7 @@
 
 The live site is the static pages from `scripts/build.py`, styled by `site/style.css`. This note describes that system.
 
-The hub lists two sites: [AI.Sarawak.News](https://ai.sarawak.news/) and [Bantuan.Sarawak.News](https://bantuan.sarawak.news/). There is no PCDS card.
+Every published site is one object in `data/sites.json`. That list drives the card and the map tile together. The current entries are [AI.Sarawak.News](https://ai.sarawak.news/) and [Bantuan.Sarawak.News](https://bantuan.sarawak.news/). There is no PCDS card.
 
 ## Type and colour
 
@@ -29,22 +29,44 @@ On a wide page the headline and sub-line sit on the left. The map sits on the ri
 
 The headline is broken onto three lines so it matches H1: “Independent”, “Sarawak sites,”, “in one place.”
 
-The drawing is one inline SVG (`svg.hero-map`, viewBox `0 0 614.7 411.1`). The land is a single filled path from `data/sarawak-path.txt`. It is faint: light mode fill `#e6e9ee` and stroke `#d5dae1`; dark mode fill `#1c222c` and stroke `#465062`. A dotted curve (`path.hero-route`) joins two tiles. The route is `#b7bec7` in light mode and `#8e98a6` in dark mode.
+The drawing is one inline SVG (`svg.hero-map`, viewBox `0 0 614.7 411.1`). The land is a single filled path from `data/sarawak-path.txt`. It is faint: light mode fill `#e6e9ee` and stroke `#d5dae1`; dark mode fill `#1c222c` and stroke `#465062`. Dotted links (`path.hero-route`) join the tiles. The stroke is `#b7bec7` in light mode and `#8e98a6` in dark mode.
 
-The tiles use Phosphor duotone icons (MIT), inlined at build time from `site/icons`: brain for AI, hand-heart for Bantuan. They use the same yellow tile treatment as bantuan’s category icons. In dark mode the icon stroke turns yellow and the duotone fill drops to opacity 0.45. Centres, in viewBox units, are AI `(128, 348)` on the southwest of the outline and Bantuan `(424, 128)` on the north coast.
+With two sites the link is one curve, bowed northwest, in list order. With three or more, the build draws a straight dotted segment for each edge of a Euclidean minimum spanning tree. Those straight edges do not cross.
+
+Each tile is a 72-by-72 square centred on that site’s `map.x` and `map.y`. The numbers are tidy spots on the outline, not towns. The icon is the Phosphor duotone file `site/icons/{icon}.svg` (MIT), the same yellow tile treatment as bantuan’s category icons. In dark mode the icon stroke turns yellow and the duotone fill drops to opacity 0.45. AI uses `brain` at `(128, 348)`. Bantuan uses `hand-heart` at `(424, 128)`.
 
 The path is Natural Earth 1:10m cultural admin-1 for Sarawak (`MY-13`), public domain. Projection stored in `data/sarawak-proj.json`: `x = (longitude − 109.528436) × 100`, `y = (4.962329 − latitude) × 100`, width 614.7, height 411.1. The footer credit reads “Map: Natural Earth” and links to [naturalearthdata.com](https://www.naturalearthdata.com/). Terms: the Natural Earth dataset is public domain. No permission or attribution is required; the credit is still shown.
 
 ## Cards
 
-Two equal cards in a 16px grid, one column below 560px. Each card has the Phosphor tile, a pill (News or Directory), the site name, a count line, the description, the domain, and a Visit link to the live site.
+Cards use the same `data/sites.json` list, in that order. Two columns with a 16px gap, one column below 560px. A third site wraps onto the next row. Each card has the Phosphor tile, the `tag` pill, the name, a count line, the `text`, the hostname of `url`, and a Visit link to `url`.
 
-Count lines are filled at build time:
+The count line is `{n} {noun} · {n} {groupNoun}` from that site’s `counts` block. The noun is singular when the number is 1. CSS uppercases the line. Updated dates are fetched and stored in `data/counts.json`. They are not printed on the card.
 
-- AI: `{n} stories · {n} categories`
-- Bantuan: `{n} schemes · {n} categories`
+## Adding a site
 
-The count is singular when the number is 1. CSS uppercases the line. Updated dates are fetched and stored in `data/counts.json`. They are not printed on the card.
+Add one object to the `sites` array. Do not edit the template. The next build draws a card and a map tile for it.
+
+| Field | Role |
+| --- | --- |
+| `id` | Lowercase slug. Key in `data/counts.json`. |
+| `name` | Card heading and the tile’s place in the map label. |
+| `url` | Visit link. The card domain is the hostname. |
+| `tag` | Pill, such as News or Directory. |
+| `icon` | File name in `site/icons/` without `.svg`. |
+| `text` | Card description. |
+| `map.x`, `map.y` | Tile centre on the outline. Not a real place. |
+| `counts.via` | `html-stories` or `schemes-json`. |
+| `counts.page` | Page whose `.updated time` is the updated date. For `html-stories`, also the page of story cards. |
+| `counts.json` | Required for `schemes-json`. Array length is the count. Distinct `group` values are the categories. |
+| `counts.noun` | `[singular, plural]` for the main count. |
+| `counts.groupNoun` | `[singular, plural]` for the category count. |
+
+`html-stories` counts `<article>` elements and `data-section-filter` values other than `all`. The All badge must match the article count.
+
+To place `map.x` and `map.y`: the viewBox is `0 0 614.7 411.1`, x grows east, and y grows south. The tile is 72 units square around that point, so keep the centre at least 36 units in from the coast and at least 72 units from every other centre. Order is only the card order. The dotted links are computed from the positions.
+
+Run `python3 scripts/build.py` once while the new page answers, so `data/counts.json` gains a fallback row. A later failed fetch keeps that row. A failed fetch with no row stops the build.
 
 ## Footer
 
@@ -60,4 +82,4 @@ The brief uses bantuan’s `hero-reveal`: a rise of 18px over 0.85s, easing `cub
 
 ## Docs check
 
-`.github/workflows/docs-check.yml` runs job `docs-check` on pull requests (`opened`, `synchronize`, `reopened`, `labeled`, `unlabeled`). It diffs the PR with three dots (`base...head`). Watched paths are `site/*`, `scripts/build.py`, `scripts/docs_check_pr.py`, `.github/workflows/*`, `data/sarawak-path.txt`, and `data/sarawak-proj.json`. A change there fails unless `docs/` also changes, or the PR has the `no-docs-needed` label. `data/counts.json` is content data and is not watched.
+`.github/workflows/docs-check.yml` runs job `docs-check` on pull requests (`opened`, `synchronize`, `reopened`, `labeled`, `unlabeled`). It diffs the PR with three dots (`base...head`). Watched paths are `site/*`, `scripts/build.py`, `scripts/docs_check_pr.py`, `.github/workflows/*`, `data/sarawak-path.txt`, `data/sarawak-proj.json`, and `data/sites.json`. A change there fails unless `docs/` also changes, or the PR has the `no-docs-needed` label. `data/counts.json` is fetched content and is not watched.
