@@ -29,7 +29,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Run tests
-        # Discovers tests/test_build.py, including test_third_site_renders_card_and_map_tile.
+        # Discovers tests/test_build.py, including test_third_site_renders_card_without_map_tile.
         run: python -m unittest discover -s tests -v
       - name: Build static site
         run: python scripts/build.py
