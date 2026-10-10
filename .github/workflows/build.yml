@@ -4,9 +4,6 @@ on:
   push:
     branches: [main]
   pull_request:
-  schedule:
-    # 08:00 in Sarawak (UTC+8). Refreshes story and scheme counts.
-    - cron: "0 0 * * *"
   workflow_dispatch:
 
 permissions:
@@ -16,7 +13,7 @@ permissions:
 
 concurrency:
   # PRs: one group per PR so concurrent PR builds do not cancel each other.
-  # main, schedule, and manual runs share "pages" and are not cancelled mid-deploy.
+  # main and manual runs share "pages" and are not cancelled mid-deploy.
   group: ${{ github.event_name == 'pull_request' && format('{0}-pr-{1}', github.workflow, github.event.pull_request.number) || 'pages' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 

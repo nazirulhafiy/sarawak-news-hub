@@ -8,7 +8,7 @@ import os
 import subprocess
 import sys
 
-# Design or behaviour. Content data (data/counts.json) is not watched.
+# Design or behaviour.
 WATCH_PATTERNS = (
     "site/*",
     "scripts/build.py",

@@ -385,7 +385,6 @@ html[data-theme="dark"] .hub-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 6px;
 }
 
 .group-icon-tile {
@@ -435,18 +434,8 @@ html[data-theme="dark"] .group-icon-fill { opacity: 0.45; }
   line-height: 1.3;
 }
 
-.hub-meta {
-  margin: 0;
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 750;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  line-height: 1.4;
-}
-
 .hub-desc {
-  margin: 2px 0 0;
+  margin: 0;
   color: var(--copy);
   font-size: 15px;
   line-height: 1.55;
@@ -532,14 +521,7 @@ html[data-theme="dark"] .site-footer {
 
 .site-footer-bottom p { margin: 0; }
 
-.map-credit {
-  margin-top: 6px;
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.site-footer-credit-link,
-.map-credit a {
+.site-footer-credit-link {
   color: var(--sarawak-red);
   font-weight: 650;
   text-decoration: underline;

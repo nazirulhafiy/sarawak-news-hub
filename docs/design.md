@@ -38,13 +38,11 @@ The stroke is Sarawak yellow. Light and dark are tuned apart so the line stays a
 
 The stroke uses `vector-effect: non-scaling-stroke`, so the width stays in CSS pixels when the map scales. Joins are round.
 
-The path is Natural Earth 1:10m cultural admin-1 for Sarawak (`MY-13`), public domain. Projection stored in `data/sarawak-proj.json`: `x = (longitude − 109.528436) × 100`, `y = (4.962329 − latitude) × 100`, width 614.7, height 411.1. The footer credit reads “Map: Natural Earth” and links to [naturalearthdata.com](https://www.naturalearthdata.com/). Terms: the Natural Earth dataset is public domain. No permission or attribution is required; the credit is still shown.
+The path is Natural Earth 1:10m cultural admin-1 for Sarawak (`MY-13`), public domain. Projection stored in `data/sarawak-proj.json`: `x = (longitude − 109.528436) × 100`, `y = (4.962329 − latitude) × 100`, width 614.7, height 411.1. Terms: the Natural Earth dataset is public domain ([naturalearthdata.com](https://www.naturalearthdata.com/about/terms-of-use/)). No permission or attribution is required, so the footer does not print a map credit.
 
 ## Cards
 
-Cards use the same `data/sites.json` list, in that order. Two columns with a 16px gap, one column below 560px. A third site wraps onto the next row. Each card has the Phosphor tile, the `tag` pill, the name, a count line, the `text`, and a Visit link to `url`. Visit sits on the right of a top border, so the footer stays a single quiet row.
-
-The count line is `{n} {noun} · {n} {groupNoun}` from that site’s `counts` block. The noun is singular when the number is 1. CSS uppercases the line. Updated dates are fetched and stored in `data/counts.json`. They are not printed on the card.
+Cards use the same `data/sites.json` list, in that order. Two columns with a 16px gap, one column below 560px. A third site wraps onto the next row. Each card has the Phosphor tile, the `tag` pill, the name, the `text`, and a Visit link to `url`. The name sits under the icon row, the description follows, and Visit sits on the right of a top border. The description grows to fill the card, so the two Visit rows line up when the paragraphs differ in length.
 
 ## Adding a site
 
@@ -52,34 +50,29 @@ Add one object to the `sites` array. Do not edit the template. The next build dr
 
 | Field | Role |
 | --- | --- |
-| `id` | Lowercase slug. Key in `data/counts.json`. |
+| `id` | Lowercase slug. Used on the card and as the About heading id. |
 | `name` | Card heading. |
-| `url` | Visit link on the card, and the hostname link on About. Counts also use this origin. There is no separate domain field. |
+| `url` | Visit link on the card, and the hostname link on About. There is no separate domain field. |
 | `tag` | Pill, such as News or Directory. |
 | `icon` | File name in `site/icons/` without `.svg`. Phosphor duotone, used on the card only. |
 | `text` | Card description. |
-| `counts.via` | `html-stories` or `schemes-json`. |
-| `counts.page` | Page whose `.updated time` is the updated date. For `html-stories`, also the page of story cards. |
-| `counts.json` | Required for `schemes-json`. Array length is the count. Distinct `group` values are the categories. |
-| `counts.noun` | `[singular, plural]` for the main count. |
-| `counts.groupNoun` | `[singular, plural]` for the category count. |
 
-`html-stories` counts `<article>` elements and `data-section-filter` values other than `all`. The All badge must match the article count. There is no `map` field.
-
-Run `python3 scripts/build.py` once while the new page answers, so `data/counts.json` gains a fallback row. A later failed fetch keeps that row. A failed fetch with no row stops the build.
+Those six fields are the whole entry. There is no `map` field and no `counts` field. The build does not fetch story or scheme totals.
 
 ## Footer
 
-A rounded credit box, centred: “Built by hafiy.my, an independent publication. Not affiliated with the Sarawak Government.” Under it, the smaller map credit.
+A rounded credit box with one centred line: “Built by hafiy.my, an independent publication. Not affiliated with the Sarawak Government.”
 
 ## Motion
 
 The brief uses bantuan’s `hero-reveal`: a rise of 18px over 0.85s, easing `cubic-bezier(.22, 1, .36, 1)`. The headline and sub-line use `hero-content-reveal` (10px, 0.7s). The map does not animate on its own. `prefers-reduced-motion: reduce` removes the transform motion.
 
-## Counts and deploy
+## Deploy
 
-`scripts/build.py` writes `dist/` only. `design-handoff/` stays in the repo and is not copied. The build copies the repo `CNAME` (`sarawak.news`) into `dist/CNAME`. Canonical and `og:url` on the home page are `https://sarawak.news/`. About uses `https://sarawak.news/about.html`. `robots.txt` and `sitemap.xml` use the same origin. Internal links (`index.html`, `about.html`, `style.css`, `app.js`, `fonts/Geist-Variable.woff2`) are relative, so the site works at the domain root. The scheduled Pages workflow rebuilds daily so the counts can change without a content commit. See `README.md` for the fetch sources and the fallback file.
+`scripts/build.py` writes `dist/` only. It does not fetch live pages. `design-handoff/` stays in the repo and is not copied. The build copies the repo `CNAME` (`sarawak.news`) into `dist/CNAME`. Canonical and `og:url` on the home page are `https://sarawak.news/`. About uses `https://sarawak.news/about.html`. `robots.txt` and `sitemap.xml` use the same origin. Internal links (`index.html`, `about.html`, `style.css`, `app.js`, `fonts/Geist-Variable.woff2`) are relative, so the site works at the domain root.
+
+`.github/workflows/build.yml` tests and builds on every pull request. A push to `main` deploys that build with GitHub Pages. `workflow_dispatch` can rebuild `main` by hand. The daily schedule is gone. It only existed to refresh counts, and the cards no longer show counts.
 
 ## Docs check
 
-`.github/workflows/docs-check.yml` runs job `docs-check` on pull requests (`opened`, `synchronize`, `reopened`, `labeled`, `unlabeled`). It diffs the PR with three dots (`base...head`). Watched paths are `site/*`, `scripts/build.py`, `scripts/docs_check_pr.py`, `.github/workflows/*`, `data/sarawak-path.txt`, `data/sarawak-proj.json`, and `data/sites.json`. A change there fails unless `docs/` also changes, or the PR has the `no-docs-needed` label. `data/counts.json` is fetched content and is not watched.
+`.github/workflows/docs-check.yml` runs job `docs-check` on pull requests (`opened`, `synchronize`, `reopened`, `labeled`, `unlabeled`). It diffs the PR with three dots (`base...head`). Watched paths are `site/*`, `scripts/build.py`, `scripts/docs_check_pr.py`, `.github/workflows/*`, `data/sarawak-path.txt`, `data/sarawak-proj.json`, and `data/sites.json`. A change there fails unless `docs/` also changes, or the PR has the `no-docs-needed` label.
