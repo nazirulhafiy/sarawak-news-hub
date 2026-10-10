@@ -42,7 +42,7 @@ The path is Natural Earth 1:10m cultural admin-1 for Sarawak (`MY-13`), public d
 
 ## Cards
 
-Cards use the same `data/sites.json` list, in that order. Two columns with a 16px gap, one column below 560px. A third site wraps onto the next row. Each card has the Phosphor tile, the `tag` pill, the name, a count line, the `text`, and a Visit link to `url`. The card does not print the hostname. That repeated the title. Visit sits on the right of a top border, so the footer stays a single quiet row.
+Cards use the same `data/sites.json` list, in that order. Two columns with a 16px gap, one column below 560px. A third site wraps onto the next row. Each card has the Phosphor tile, the `tag` pill, the name, a count line, the `text`, and a Visit link to `url`. Visit sits on the right of a top border, so the footer stays a single quiet row.
 
 The count line is `{n} {noun} · {n} {groupNoun}` from that site’s `counts` block. The noun is singular when the number is 1. CSS uppercases the line. Updated dates are fetched and stored in `data/counts.json`. They are not printed on the card.
 
