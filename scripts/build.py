@@ -18,9 +18,11 @@ DIST = ROOT / "dist"
 # Live origin. Pages serves the site at the domain root. SITE_URL overrides this.
 DEFAULT_SITE_URL = "https://sarawak.news/"
 
-HEADLINE = "Independent Sarawak sites, in one place."
+HEADLINE = "Sarawak News made easy"
 DECK = "Each site links to its sources."
 PAGE_TITLE = "Sarawak.News"
+PHOTO_CREDIT = "https://commons.wikimedia.org/wiki/File:Kuching_Sarawak_Dewan-Undangan-Negeri-Sarawak-01.jpg"
+PHOTO_LICENCE = "https://creativecommons.org/licenses/by-sa/4.0/"
 
 # Published names, copied from design-handoff/favicon-F1/. The handoff folder itself stays unpublished.
 FAVICON_FILES = {
@@ -86,15 +88,13 @@ def tile_icon(name: str) -> str:
 
 
 def render_hero() -> str:
-    outline = (DATA / "sarawak-path.txt").read_text(encoding="utf-8").strip()
-    if not re.fullmatch(r"[MLZ0-9.\- ]+", outline):
-        raise SystemExit("data/sarawak-path.txt is not a plain SVG path")
+    art = (SITE / "hero-art.svg").read_text(encoding="utf-8").strip()
+    if 'class="hero-art"' not in art or "aria-hidden" not in art:
+        raise SystemExit("site/hero-art.svg is missing the decorative riverfront drawing")
     return f"""<header class="brief">
-      <svg class="hero-map" viewBox="0 0 614.7 411.1" aria-hidden="true" focusable="false">
-        <path class="hero-land" d="{outline}"/>
-      </svg>
       <h1>{esc(HEADLINE)}</h1>
       <p class="brief-deck">{esc(DECK)}</p>
+      {art}
     </header>"""
 
 
@@ -215,7 +215,7 @@ def render_about(sites: list[dict] | None = None) -> str:
     url = site_url()
     canonical = f"{url}about.html" if url else ""
     title = "About Sarawak.News"
-    description = f"{HEADLINE} {DECK}"
+    description = f"{HEADLINE}. {DECK}"
     sections = []
     for site in sites:
         sections.append(
@@ -231,13 +231,14 @@ def render_about(sites: list[dict] | None = None) -> str:
   <main id="content" class="about-page">
     <header class="about-hero">
       <h1>About Sarawak.News</h1>
-      <p class="about-lede">{esc(HEADLINE)} {esc(DECK)}</p>
+      <p class="about-lede">{esc(HEADLINE)}. {esc(DECK)}</p>
     </header>
 {chr(10).join(sections)}
     <section class="about-section" aria-labelledby="about-independence">
       <h2 id="about-independence">Independence</h2>
       <p>Built by <a href="https://hafiy.my">hafiy.my</a>, an independent publication. Not affiliated with the Sarawak Government.</p>
     </section>
+    <p class="about-credit">The riverfront drawing is traced from a <a href="{esc(PHOTO_CREDIT)}">reference photo</a> by CEphoto (Uwe Aranas), <a href="{esc(PHOTO_LICENCE)}">CC BY-SA 4.0</a>.</p>
   </main>
 {render_footer()}
 </body>"""

@@ -29,9 +29,15 @@ DUMMY_SITE = {
 class RenderTests(unittest.TestCase):
     def test_home_has_two_cards_and_hero(self):
         home = build.render_home()
-        self.assertIn("<h1>Independent Sarawak sites, in one place.</h1>", home)
-        self.assertIn('class="hero-map"', home)
+        self.assertIn("<h1>Sarawak News made easy</h1>", home)
+        self.assertNotIn("Sarawak News made easy.", home)
+        self.assertNotIn("Independent Sarawak sites", home)
+        self.assertIn('class="hero-art"', home)
         self.assertIn('aria-hidden="true"', home)
+        self.assertIn('class="dun"', home)
+        self.assertIn('class="art-sun"', home)
+        self.assertNotIn("hero-map", home)
+        self.assertNotIn("hero-land", home)
         self.assertNotIn("brief-map", home)
         self.assertNotIn("<br>", home)
         self.assertIn("Each site links to its sources.", home)
@@ -49,7 +55,6 @@ class RenderTests(unittest.TestCase):
         self.assertIn('href="https://bantuan.sarawak.news/"', home)
         self.assertNotIn('class="hub-domain"', home)
         self.assertEqual(home.count(">Visit <"), 2)
-        self.assertIn('class="hero-land"', home)
         self.assertNotIn("hero-route", home)
         self.assertNotIn("hero-node", home)
         self.assertNotIn("hero-tile", home)
@@ -64,7 +69,7 @@ class RenderTests(unittest.TestCase):
         self.assertNotIn("pcds2030", home)
         self.assertNotIn("brief-net", home)
         self.assertEqual(home.count('class="hub-card"'), 2)
-        self.assertEqual(home.count('class="hero-land"'), 1)
+        self.assertEqual(home.count('class="hero-art"'), 1)
 
     def test_third_site_renders_card_without_map_tile(self):
         listed = (Path(__file__).resolve().parents[1] / "data" / "sites.json").read_text(encoding="utf-8")
@@ -85,7 +90,7 @@ class RenderTests(unittest.TestCase):
         home = build.render_home([*sites, DUMMY_SITE])
 
         self.assertEqual(home.count('class="hub-card"'), 3)
-        self.assertEqual(home.count('class="hero-land"'), 1)
+        self.assertEqual(home.count('class="hero-art"'), 1)
         self.assertNotIn("hero-node", home)
         self.assertNotIn("hero-route", home)
         self.assertNotIn("hero-tile", home)
@@ -134,6 +139,13 @@ class RenderTests(unittest.TestCase):
                 self.assertIn(f'<link rel="canonical" href="{origin}about.html" />', about)
                 self.assertIn(f'<meta property="og:url" content="{origin}about.html" />', about)
                 self.assertIn("<title>About Sarawak.News</title>", about)
+                self.assertIn("CEphoto (Uwe Aranas)", about)
+                self.assertIn(build.PHOTO_CREDIT, about)
+                self.assertIn(build.PHOTO_LICENCE, about)
+                self.assertIn('class="about-credit"', about)
+                self.assertNotIn("CEphoto", home)
+                self.assertNotIn(".jpg", home)
+                self.assertNotIn("commons.wikimedia.org", home)
                 self.assertIn('<meta property="og:title" content="About Sarawak.News" />', about)
                 self.assertIn('<meta name="twitter:title" content="About Sarawak.News" />', about)
                 for page in (home, about):
@@ -160,7 +172,8 @@ class DocsCheckTests(unittest.TestCase):
         self.assertTrue(docs_check.matches_watch("site/fonts/OFL.txt"))
         self.assertTrue(docs_check.matches_watch("scripts/build.py"))
         self.assertTrue(docs_check.matches_watch(".github/workflows/build.yml"))
-        self.assertTrue(docs_check.matches_watch("data/sarawak-path.txt"))
+        self.assertFalse(docs_check.matches_watch("data/sarawak-path.txt"))
+        self.assertFalse(docs_check.matches_watch("data/sarawak-proj.json"))
         self.assertTrue(docs_check.matches_watch("data/sites.json"))
         self.assertFalse(docs_check.matches_watch("README.md"))
 
