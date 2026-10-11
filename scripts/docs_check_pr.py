@@ -14,8 +14,6 @@ WATCH_PATTERNS = (
     "scripts/build.py",
     "scripts/docs_check_pr.py",
     ".github/workflows/*",
-    "data/sarawak-path.txt",
-    "data/sarawak-proj.json",
     "data/sites.json",
 )
 

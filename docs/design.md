@@ -2,7 +2,7 @@
 
 The live site is [https://sarawak.news/](https://sarawak.news/). Pages are the static output of `scripts/build.py`, styled by `site/style.css`. This note describes that system.
 
-Every published site is one object in `data/sites.json`. That list drives the cards. The current entries are [AI.Sarawak.News](https://ai.sarawak.news/) and [Bantuan.Sarawak.News](https://bantuan.sarawak.news/). There is no PCDS card. The map is only the Sarawak outline. It does not mark sites.
+Every published site is one object in `data/sites.json`. That list drives the cards. The current entries are [AI.Sarawak.News](https://ai.sarawak.news/) and [Bantuan.Sarawak.News](https://bantuan.sarawak.news/). There is no PCDS card. The hero is a line drawing of the Sarawak State Legislative Assembly riverfront. It does not mark sites.
 
 ## Type and colour
 
@@ -33,32 +33,20 @@ The header is bantuan’s bar: wordmark, red / yellow / black rule, Sites and Ab
 
 ## Hero
 
-The home hero follows the centred brief on [bantuan.sarawak.news](https://bantuan.sarawak.news/) and [ai.sarawak.news](https://ai.sarawak.news/). The words are fixed:
+The home hero is a centred brief. The words are fixed:
 
-- Independent Sarawak sites, in one place.
+- Sarawak News made easy
 - Each site links to its sources.
 
-`.brief` is 760px at most, centred, `text-align: center`, with `padding: 42px 8px 36px` and `margin: 32px auto 8px`. The headline is `clamp(36px, 6vw, 48px)`, weight 700, letter-spacing `-1.2px`, line-height `1.02`, `max-width: 680px`, and `margin: 0 auto 16px`. The sub-line is 18px, line-height `1.62`, `max-width: 620px`, centred, in the copy colour (`#374151` light, `#d2d8df` dark). Below 560px the headline is `clamp(2.15rem, 11vw, 3rem)`, the sub-line is 17px, and the brief padding is `32px 0 28px`. The headline wraps on its own. It is not forced onto three lines. The document `<title>`, `og:title`, and `twitter:title` on the home page are `Sarawak.News`. About keeps `<title>About Sarawak.News</title>`.
+The headline has no full stop. `.brief` is 760px at most, centred, `text-align: center`, with `padding: 44px 8px 0` and `margin: 32px auto 8px`. The headline is `clamp(36px, 6vw, 48px)`, weight 700, letter-spacing `-1.2px`, line-height `1.02`, `max-width: 680px`, and `margin: 0 auto 12px`. The sub-line is 18px, line-height `1.62`, `max-width: 620px`, centred, in the copy colour (`#374151` light, `#d2d8df` dark). Below 560px the headline is `clamp(2.15rem, 11vw, 3rem)`, the sub-line is 17px, and the brief padding is `30px 0 0`. The headline wraps on its own. The document `<title>`, `og:title`, and `twitter:title` on the home page are `Sarawak.News`. About keeps `<title>About Sarawak.News</title>`.
 
-The Sarawak outline is one inline SVG (`svg.hero-map`, viewBox `0 0 614.7 411.1`) behind that type. `aria-hidden="true"` and `focusable="false"` mark it decorative. `pointer-events: none` and `z-index: 0` keep it off clicks and under the words. The only shape is `path.hero-land` from `data/sarawak-path.txt`. There are no site tiles, icons, or dotted lines. Card icons stay on the cards.
+Under the words is one inline SVG (`svg.hero-art`, viewBox `0 0 760 240`) from `site/hero-art.svg`. It is a line drawing of the Dewan Undangan Negeri riverfront: hills, the assembly building, the Darul Hana bridge, the river, and a small sun. `aria-hidden="true"` and `focusable="false"` mark it decorative. `pointer-events: none` keeps it off clicks. The drawing sits in the flow, full width of the 760px rail, with `margin-top: 22px`. A horizontal mask fades the outer 10% on each side. Below 560px the drawing is 132% of the column and shifted with `margin: 16px -16% 0`, so it bleeds off the screen edges. `html` uses `overflow-x: hidden` so that bleed does not scroll.
 
-The brief is at least 400px tall on a wide page, and at least 300px below 560px, so the whole outline fits inside the hero. The shape is centred. On a wide page it is `min(72%, 500px)` wide. On a phone it is 92% of the column. `overflow: hidden` is a backstop. The shape ends before the cards.
+Light lines use `color: #8b93a1` at opacity 0.6. The building (`.dun`) is `#6b7584`. Hills, bridge, cables, river, promenade, and minor marks each have their own opacity (0.6, 0.75, 0.7, 0.75, 0.55, 0.85). The sun is Sarawak yellow: stroke `#f7c948` at 2px, fill `rgba(247, 201, 72, 0.18)`.
 
-Fill and stroke are tuned apart, and both are quieter than the previous outline. The target is the faint network behind the headline on [ai.sarawak.news](https://ai.sarawak.news/) (`svg.brief-net` in nazirulhafiy/sarawak-ai-news). That drawing uses one ink for its lines and its dots. The lines are `stroke: currentColor`, `stroke-width: 1.4`, `fill: none`. The dots are `fill: currentColor`. The SVG is 350×320 from a 520×480 viewBox, so the 1.4 stroke paints at about 0.94 CSS pixels. A horizontal mask fades the side toward the words; the strongest ink is the unmasked side.
+Dark mode changes only those inks. The drawing is `#5f6977` at opacity 0.6, the building is `#8a94a3`, and the sun fill is `rgba(247, 201, 72, 0.1)` with stroke opacity 0.6. Page, card, and type colours stay on the theme tokens.
 
-- Light: `color: #cfd3da`, opacity 0.37, on white. The full ink blends to about `rgb(237, 239, 241)`, contrast 1.15:1. Rendered pixels on that side peak at `rgb(237, 239, 242)`, contrast 1.15:1.
-- Dark: `color: #4b5563`, opacity 0.42, on `#0f1115`. The full ink blends to about `rgb(40, 46, 54)`, contrast 1.38:1. Rendered pixels peak at `rgb(38, 43, 50)`, contrast 1.33:1.
-
-The hub keeps Sarawak yellow `#f7c948` instead of that gray. The stroke width is 1.4px in both themes, the same authored width as their lines, with `vector-effect: non-scaling-stroke` and round joins. Stroke opacity is set so the rendered stroke, painted over the fill, lands on that measured peak. The fill stays lighter than the peak. A solid shape at the line’s contrast would cover the hero more than their hairline drawing.
-
-- Light, on white: fill `rgba(247, 201, 72, 0.06)`. Rendered fill pixels sit near `rgb(255, 252, 244)`, about 1.03:1. Stroke opacity 0.26. Rendered stroke pixels peak at `rgb(253, 238, 199)`, 1.15:1.
-- Dark, on `#0f1115`: fill `rgba(247, 201, 72, 0.04)`. Rendered fill pixels sit near `rgb(23, 23, 22)`, about 1.05:1. Stroke opacity 0.11. Rendered stroke pixels peak at `rgb(46, 42, 27)`, 1.32:1.
-
-The previous outline was stronger, especially the dark stroke. Measured on the live page before this change: light fill near `rgb(254, 249, 236)` (about 1.05:1) with a 1.75px stroke at opacity 0.50 peaking at `rgb(250, 225, 154)` (1.29:1). Dark fill near `rgb(28, 27, 22)` (about 1.10:1) with a 1.5px stroke at opacity 0.26 peaking at `rgb(83, 71, 34)` (2.06:1).
-
-The headline and the sub-line stay at WCAG AA against that yellow. Large bold headline text needs 3:1. The 18px sub-line needs 4.5:1. The fainter shape leaves more contrast than the previous outline.
-
-The path is Natural Earth 1:10m cultural admin-1 for Sarawak (`MY-13`), public domain. Projection stored in `data/sarawak-proj.json`: `x = (longitude − 109.528436) × 100`, `y = (4.962329 − latitude) × 100`, width 614.7, height 411.1. Terms: the Natural Earth dataset is public domain ([naturalearthdata.com](https://www.naturalearthdata.com/about/terms-of-use/)). No permission or attribution is required, so the footer does not print a map credit.
+The drawing is traced from a reference photo by CEphoto (Uwe Aranas), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). The photo is [Kuching Sarawak Dewan-Undangan-Negeri-Sarawak-01.jpg](https://commons.wikimedia.org/wiki/File:Kuching_Sarawak_Dewan-Undangan-Negeri-Sarawak-01.jpg) on Wikimedia Commons. The reference photos are not published. About carries a short credit with those two links. The footer does not. The favicon stays the F1 Sarawak tile.
 
 ## Cards
 
@@ -66,7 +54,7 @@ Cards use the same `data/sites.json` list, in that order. Two columns with a 16p
 
 ## Adding a site
 
-Add one object to the `sites` array. Do not edit the template. The next build draws a card for it. The map outline does not change.
+Add one object to the `sites` array. Do not edit the template. The next build draws a card for it. The riverfront drawing does not change.
 
 | Field | Role |
 | --- | --- |
@@ -85,7 +73,7 @@ A rounded credit box with one centred line: “Built by hafiy.my, an independent
 
 ## Motion
 
-The brief uses bantuan’s `hero-reveal`: a rise of 18px over 0.85s, easing `cubic-bezier(.22, 1, .36, 1)`. The headline and sub-line use `hero-content-reveal` (10px, 0.7s). The map does not animate on its own. `prefers-reduced-motion: reduce` removes the transform motion.
+The brief uses bantuan’s `hero-reveal`: a rise of 18px over 0.85s, easing `cubic-bezier(.22, 1, .36, 1)`. The headline and sub-line use `hero-content-reveal` (10px, 0.7s), delayed 0.12s and 0.22s. The drawing uses `hero-art-reveal` (10px, 0.7s, delay 0.4s) and ends at opacity 0.6, so it appears last. `prefers-reduced-motion: reduce` removes the motion.
 
 ## Deploy
 
@@ -95,4 +83,4 @@ The brief uses bantuan’s `hero-reveal`: a rise of 18px over 0.85s, easing `cub
 
 ## Docs check
 
-`.github/workflows/docs-check.yml` runs job `docs-check` on pull requests (`opened`, `synchronize`, `reopened`, `labeled`, `unlabeled`). It diffs the PR with three dots (`base...head`). Watched paths are `site/*`, `scripts/build.py`, `scripts/docs_check_pr.py`, `.github/workflows/*`, `data/sarawak-path.txt`, `data/sarawak-proj.json`, and `data/sites.json`. A change there fails unless `docs/` also changes, or the PR has the `no-docs-needed` label.
+`.github/workflows/docs-check.yml` runs job `docs-check` on pull requests (`opened`, `synchronize`, `reopened`, `labeled`, `unlabeled`). It diffs the PR with three dots (`base...head`). Watched paths are `site/*`, `scripts/build.py`, `scripts/docs_check_pr.py`, `.github/workflows/*`, and `data/sites.json`. A change there fails unless `docs/` also changes, or the PR has the `no-docs-needed` label.

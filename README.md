@@ -13,7 +13,7 @@ This is not a government website. It is live at [https://sarawak.news/](https://
 
 ## Documentation
 
-- `docs/design.md` — colour, type, theme, the H1 map hero, cards, and the docs check
+- `docs/design.md` — colour, type, theme, the riverfront hero, cards, and the docs check
 - `AGENTS.md` — docs must ship with design or behaviour changes
 
 ## Run
@@ -37,13 +37,13 @@ The default canonical origin is `https://sarawak.news/`. `SITE_URL` overrides it
 
 ## Add a site
 
-One object in `data/sites.json` becomes a card. The fields are `id`, `name`, `url`, `tag`, `icon`, and `text`. Details are in [docs/design.md](docs/design.md) under “Adding a site”. Put a new Phosphor duotone inner SVG at `site/icons/{icon}.svg` if the card mark is new. The hero map is only the Sarawak outline: a faint Sarawak-yellow stroke, with no site tiles and no dotted lines.
+One object in `data/sites.json` becomes a card. The fields are `id`, `name`, `url`, `tag`, `icon`, and `text`. Details are in [docs/design.md](docs/design.md) under “Adding a site”. Put a new Phosphor duotone inner SVG at `site/icons/{icon}.svg` if the card mark is new. The hero is the riverfront line drawing. Adding a site does not change it.
 
 `tests/test_build.py` method `test_third_site_renders_card_without_map_tile` adds a dummy site in the test only, and checks that it renders as a card and that the page draws no map tiles. That dummy is not in `data/sites.json`. The Pages workflow runs `python -m unittest discover -s tests -v` on every pull request and on `main`.
 
 ## Build
 
-`scripts/build.py` renders `dist/index.html` and `dist/about.html` from `data/sites.json`, and copies `site/style.css`, `site/app.js`, and `site/fonts/` (Geist variable font and the SIL OFL licence). The font is preloaded and uses `font-display: swap`, with system-ui in the fallback stack. It also copies the F1 favicon from `design-handoff/favicon-F1/` to `dist/favicon.ico`, `dist/favicon.svg`, `dist/apple-touch-icon.png`, and `dist/icon-512.png`. The rest of `design-handoff/` is not published. The build does not fetch the sister sites. Cards show the name, the description, and Visit. The home tab title is `Sarawak.News`. The on-page headline stays “Independent Sarawak sites, in one place.”
+`scripts/build.py` renders `dist/index.html` and `dist/about.html` from `data/sites.json`, and copies `site/style.css`, `site/app.js`, and `site/fonts/` (Geist variable font and the SIL OFL licence). The font is preloaded and uses `font-display: swap`, with system-ui in the fallback stack. It also copies the F1 favicon from `design-handoff/favicon-F1/` to `dist/favicon.ico`, `dist/favicon.svg`, `dist/apple-touch-icon.png`, and `dist/icon-512.png`. The rest of `design-handoff/` is not published. The build does not fetch the sister sites. Cards show the name, the description, and Visit. The home tab title is `Sarawak.News`. The on-page headline is “Sarawak News made easy”.
 
 ## Deploy
 
@@ -57,6 +57,6 @@ There is no daily schedule. It only refreshed the count lines, and those lines a
 
 GitHub Pages publishes `dist/` at [https://sarawak.news/](https://sarawak.news/). `dist/CNAME` contains `sarawak.news`. Canonical, `og:url`, `robots.txt`, and `sitemap.xml` use that origin.
 
-## Map
+## Drawing
 
-The hero outline is Natural Earth 1:10m admin-1 for Sarawak, public domain ([terms](https://www.naturalearthdata.com/about/terms-of-use/)). It sits behind the centred headline as a faint Sarawak-yellow shape, with no site tiles and no dotted lines. The simplified path is `data/sarawak-path.txt`. Projection notes are in `data/sarawak-proj.json`. The footer does not credit the map, because attribution is not required. Light and dark stroke values, and the licence note, are in `docs/design.md`.
+The hero drawing is the Dewan Undangan Negeri riverfront, inlined from `site/hero-art.svg`. It is decorative. Dark mode changes only the line colours. The drawing is traced from a reference photo by CEphoto (Uwe Aranas), CC BY-SA 4.0. About links the [photo](https://commons.wikimedia.org/wiki/File:Kuching_Sarawak_Dewan-Undangan-Negeri-Sarawak-01.jpg) and the [licence](https://creativecommons.org/licenses/by-sa/4.0/). The reference photos are not published. The footer stays the unaffiliated credit. The favicon is still the F1 tile. Line colours are in `docs/design.md`.
