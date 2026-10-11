@@ -346,8 +346,10 @@ h1 {
 
 .hero-art .dun { color: #6b7584; }
 .art-hills { opacity: .6; }
+.art-peak { opacity: .9; }
 .art-bridge { opacity: .75; }
 .art-cables { opacity: .7; }
+.art-mast { stroke-width: 1.9; }
 .art-river { opacity: .75; }
 .art-prom { opacity: .55; }
 .art-minor { opacity: .85; }
@@ -497,12 +499,16 @@ html[data-theme="dark"] .group-icon-fill { opacity: 0.45; }
 
 .about-section a { color: var(--sarawak-red-ink); font-weight: 650; }
 
+.about-credits { margin: 28px 0 0; }
+
 .about-credit {
-  margin: 28px 0 0;
+  margin: 0 0 4px;
   color: var(--muted);
   font-size: 13px;
   line-height: 1.55;
 }
+
+.about-credits .about-credit:last-child { margin-bottom: 0; }
 
 .about-credit a { color: var(--sarawak-red-ink); font-weight: 650; }
 
