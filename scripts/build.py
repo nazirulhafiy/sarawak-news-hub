@@ -21,8 +21,32 @@ DEFAULT_SITE_URL = "https://sarawak.news/"
 HEADLINE = "Sarawak News made easy"
 DECK = "Each site links to its sources."
 PAGE_TITLE = "Sarawak.News"
-PHOTO_CREDIT = "https://commons.wikimedia.org/wiki/File:Kuching_Sarawak_Dewan-Undangan-Negeri-Sarawak-01.jpg"
 PHOTO_LICENCE = "https://creativecommons.org/licenses/by-sa/4.0/"
+PHOTO_LICENCE_25 = "https://creativecommons.org/licenses/by-sa/2.5/"
+# One line each for a shape that was traced. Other references are proportions only.
+DRAWING_CREDITS = (
+    (
+        "The DUN is traced from a",
+        "CEphoto (Uwe Aranas)",
+        "https://commons.wikimedia.org/wiki/File:Kuching_Sarawak_Dewan-Undangan-Negeri-Sarawak-01.jpg",
+        PHOTO_LICENCE,
+        "CC BY-SA 4.0",
+    ),
+    (
+        "The Darul Hana pylons are traced from a",
+        "Meandkancil2020",
+        "https://commons.wikimedia.org/wiki/File:Jambatan_Darul_Hana,_di_Bandaraya_Kuching.jpg",
+        PHOTO_LICENCE,
+        "CC BY-SA 4.0",
+    ),
+    (
+        "Gunung Santubong is traced from a",
+        "Matthew Anderson Lockhart",
+        "https://commons.wikimedia.org/wiki/File:Mount_Santubong_from_Santubong_Bridge.jpg",
+        PHOTO_LICENCE_25,
+        "CC BY-SA 2.5",
+    ),
+)
 
 # Published names, copied from design-handoff/favicon-F1/. The handoff folder itself stays unpublished.
 FAVICON_FILES = {
@@ -91,6 +115,8 @@ def render_hero() -> str:
     art = (SITE / "hero-art.svg").read_text(encoding="utf-8").strip()
     if 'class="hero-art"' not in art or "aria-hidden" not in art:
         raise SystemExit("site/hero-art.svg is missing the decorative riverfront drawing")
+    if "art-boat" in art:
+        raise SystemExit("site/hero-art.svg still contains the tambang")
     return f"""<header class="brief">
       <h1>{esc(HEADLINE)}</h1>
       <p class="brief-deck">{esc(DECK)}</p>
@@ -238,7 +264,12 @@ def render_about(sites: list[dict] | None = None) -> str:
       <h2 id="about-independence">Independence</h2>
       <p>Built by <a href="https://hafiy.my">hafiy.my</a>, an independent publication. Not affiliated with the Sarawak Government.</p>
     </section>
-    <p class="about-credit">The riverfront drawing is traced from a <a href="{esc(PHOTO_CREDIT)}">reference photo</a> by CEphoto (Uwe Aranas), <a href="{esc(PHOTO_LICENCE)}">CC BY-SA 4.0</a>.</p>
+    <div class="about-credits">
+      {"".join(
+          f'<p class="about-credit">{esc(lead)} <a href="{esc(photo)}">reference photo</a> by {esc(author)}, <a href="{esc(licence)}">{esc(name)}</a>.</p>'
+          for lead, author, photo, licence, name in DRAWING_CREDITS
+      )}
+    </div>
   </main>
 {render_footer()}
 </body>"""
