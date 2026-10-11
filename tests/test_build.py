@@ -29,8 +29,20 @@ DUMMY_SITE = {
 class RenderTests(unittest.TestCase):
     def test_home_has_two_cards_and_hero(self):
         home = build.render_home()
-        self.assertIn("<h1>Sarawak News made easy</h1>", home)
-        self.assertNotIn("Sarawak News made easy.", home)
+        self.assertIn("<h1>Sarawak, made easy.</h1>", home)
+        self.assertNotIn("Sarawak News made easy", home)
+        self.assertIn(
+            '<meta name="description" content="Explore Sarawak-focused sites, all in one place." />',
+            home,
+        )
+        self.assertIn(
+            '<meta property="og:description" content="Explore Sarawak-focused sites, all in one place." />',
+            home,
+        )
+        self.assertIn(
+            '<meta name="twitter:description" content="Explore Sarawak-focused sites, all in one place." />',
+            home,
+        )
         self.assertNotIn("Independent Sarawak sites", home)
         self.assertIn('class="hero-art"', home)
         self.assertIn('aria-hidden="true"', home)
@@ -43,7 +55,11 @@ class RenderTests(unittest.TestCase):
         self.assertNotIn("hero-land", home)
         self.assertNotIn("brief-map", home)
         self.assertNotIn("<br>", home)
-        self.assertIn("Each site links to its sources.", home)
+        self.assertIn(
+            '<p class="brief-deck">Explore Sarawak-focused sites, all in one place.</p>',
+            home,
+        )
+        self.assertNotIn("Each site links to its sources.", home)
         self.assertIn("<title>Sarawak.News</title>", home)
         self.assertIn('<meta property="og:title" content="Sarawak.News" />', home)
         self.assertIn('<meta name="twitter:title" content="Sarawak.News" />', home)
@@ -142,6 +158,25 @@ class RenderTests(unittest.TestCase):
                 self.assertIn(f'<link rel="canonical" href="{origin}about.html" />', about)
                 self.assertIn(f'<meta property="og:url" content="{origin}about.html" />', about)
                 self.assertIn("<title>About Sarawak.News</title>", about)
+                self.assertIn(
+                    '<meta name="description" content="Explore Sarawak-focused sites, all in one place." />',
+                    about,
+                )
+                self.assertIn(
+                    '<meta property="og:description" content="Explore Sarawak-focused sites, all in one place." />',
+                    about,
+                )
+                self.assertIn(
+                    '<meta name="twitter:description" content="Explore Sarawak-focused sites, all in one place." />',
+                    about,
+                )
+                self.assertIn(
+                    "Sarawak, made easy. Explore Sarawak-focused sites, all in one place.",
+                    about,
+                )
+                self.assertNotIn("Sarawak, made easy..", about)
+                self.assertNotIn("Each site links to its sources.", about)
+                self.assertNotIn("Sarawak News made easy", about)
                 self.assertEqual(about.count('class="about-credit"'), 3)
                 for _lead, author, photo, licence, name in build.DRAWING_CREDITS:
                     self.assertIn(author, about)

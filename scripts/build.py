@@ -18,8 +18,8 @@ DIST = ROOT / "dist"
 # Live origin. Pages serves the site at the domain root. SITE_URL overrides this.
 DEFAULT_SITE_URL = "https://sarawak.news/"
 
-HEADLINE = "Sarawak News made easy"
-DECK = "Each site links to its sources."
+HEADLINE = "Sarawak, made easy."
+DECK = "Explore Sarawak-focused sites, all in one place."
 PAGE_TITLE = "Sarawak.News"
 PHOTO_LICENCE = "https://creativecommons.org/licenses/by-sa/4.0/"
 PHOTO_LICENCE_25 = "https://creativecommons.org/licenses/by-sa/2.5/"
@@ -220,7 +220,7 @@ def render_home(sites: list[dict] | None = None) -> str:
     sites = load_sites() if sites is None else sites
     url = site_url()
     canonical = url or ""
-    description = "Each site links to its sources."
+    description = DECK
     cards = "\n".join(render_card(site) for site in sites)
     body = f"""<body>
   <a class="skip-link" href="#content">Skip to content</a>
@@ -241,7 +241,7 @@ def render_about(sites: list[dict] | None = None) -> str:
     url = site_url()
     canonical = f"{url}about.html" if url else ""
     title = "About Sarawak.News"
-    description = f"{HEADLINE}. {DECK}"
+    description = DECK
     sections = []
     for site in sites:
         sections.append(
@@ -257,7 +257,7 @@ def render_about(sites: list[dict] | None = None) -> str:
   <main id="content" class="about-page">
     <header class="about-hero">
       <h1>About Sarawak.News</h1>
-      <p class="about-lede">{esc(HEADLINE)}. {esc(DECK)}</p>
+      <p class="about-lede">{esc(HEADLINE)} {esc(DECK)}</p>
     </header>
 {chr(10).join(sections)}
     <section class="about-section" aria-labelledby="about-independence">
