@@ -328,6 +328,8 @@ h1 {
   color: var(--copy);
   font-size: 18px;
   line-height: 1.62;
+  text-wrap: pretty;
+  text-wrap: balance;
 }
 
 .hero-art {
