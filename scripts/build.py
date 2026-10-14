@@ -194,6 +194,8 @@ def render_footer() -> str:
 def render_head(title: str, description: str, canonical: str) -> str:
     canonical_tag = f'\n  <link rel="canonical" href="{esc(canonical)}" />' if canonical else ""
     og_url = f'\n  <meta property="og:url" content="{esc(canonical)}" />' if canonical else ""
+    url = site_url()
+    image = f"{url}og.png" if url else "og.png"
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -207,9 +209,13 @@ def render_head(title: str, description: str, canonical: str) -> str:
   <meta property="og:title" content="{esc(title)}" />
   <meta property="og:description" content="{esc(description)}" />
   <meta property="og:site_name" content="Sarawak.News" />{og_url}
-  <meta name="twitter:card" content="summary" />
+  <meta property="og:image" content="{esc(image)}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="{esc(title)}" />
-  <meta name="twitter:description" content="{esc(description)}" />{canonical_tag}
+  <meta name="twitter:description" content="{esc(description)}" />
+  <meta name="twitter:image" content="{esc(image)}" />{canonical_tag}
   <title>{esc(title)}</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="favicon.ico" sizes="any" />
@@ -306,6 +312,10 @@ def write_dist(home: str, about: str, dist: Path = DIST) -> None:
         if not src.is_file():
             raise SystemExit(f"missing favicon source {src.relative_to(ROOT)}")
         shutil.copy2(src, dist / dest_name)
+    og = SITE / "og.png"
+    if not og.is_file():
+        raise SystemExit("site/og.png is missing")
+    shutil.copy2(og, dist / "og.png")
     cname = ROOT / "CNAME"
     if not cname.is_file():
         raise SystemExit("CNAME is missing; Pages needs it in the published output")
