@@ -19,7 +19,8 @@ DIST = ROOT / "dist"
 DEFAULT_SITE_URL = "https://sarawak.news/"
 
 HEADLINE = "Sarawak, made easy."
-DECK = "Explore Sarawak-focused sites, all in one place."
+DECK = "Aggregating Sarawak info, all in one place."
+SUBTITLE = "Aggregating Sarawak info, all in one place."
 PAGE_TITLE = "Sarawak.News"
 PHOTO_LICENCE = "https://creativecommons.org/licenses/by-sa/4.0/"
 PHOTO_LICENCE_25 = "https://creativecommons.org/licenses/by-sa/2.5/"
@@ -119,7 +120,7 @@ def render_hero() -> str:
         raise SystemExit("site/hero-art.svg still contains the tambang")
     return f"""<header class="brief">
       <h1>{esc(HEADLINE)}</h1>
-      <p class="brief-deck">{esc(DECK)}</p>
+      <p class="brief-deck">{esc(SUBTITLE)}</p>
       {art}
     </header>"""
 

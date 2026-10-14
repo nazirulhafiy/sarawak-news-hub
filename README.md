@@ -1,6 +1,6 @@
 # Sarawak.News
 
-Hub for [Sarawak.News](https://sarawak.news/). The home headline is “Sarawak, made easy.” The sub-line is “Explore Sarawak-focused sites, all in one place.”
+Hub for [Sarawak.News](https://sarawak.news/). The home headline is “Sarawak, made easy.” The sub-line is “Aggregating Sarawak info, all in one place.”
 
 Two cards:
 
@@ -43,7 +43,7 @@ One object in `data/sites.json` becomes a card. The fields are `id`, `name`, `ur
 
 ## Build
 
-`scripts/build.py` renders `dist/index.html` and `dist/about.html` from `data/sites.json`, and copies `site/style.css`, `site/app.js`, and `site/fonts/` (Geist variable font and the SIL OFL licence). The font is preloaded and uses `font-display: swap`, with system-ui in the fallback stack. It also copies the F1 favicon from `design-handoff/favicon-F1/` to `dist/favicon.ico`, `dist/favicon.svg`, `dist/apple-touch-icon.png`, and `dist/icon-512.png`. The rest of `design-handoff/` is not published. The build does not fetch the sister sites. Cards show the name, the description, and Visit. The home tab title is `Sarawak.News`. The on-page headline is “Sarawak, made easy.” The sub-line is “Explore Sarawak-focused sites, all in one place.” Home and About `description`, `og:description`, and `twitter:description` use that sub-line.
+`scripts/build.py` renders `dist/index.html` and `dist/about.html` from `data/sites.json`, and copies `site/style.css`, `site/app.js`, and `site/fonts/` (Geist variable font and the SIL OFL licence). The font is preloaded and uses `font-display: swap`, with system-ui in the fallback stack. It also copies the F1 favicon from `design-handoff/favicon-F1/` to `dist/favicon.ico`, `dist/favicon.svg`, `dist/apple-touch-icon.png`, and `dist/icon-512.png`. The rest of `design-handoff/` is not published. The build does not fetch the sister sites. Cards show the name, the description, and Visit. The home tab title is `Sarawak.News`. The on-page headline is “Sarawak, made easy.” The sub-line is “Aggregating Sarawak info, all in one place.” Home and About `description`, `og:description`, and `twitter:description` use that sub-line.
 
 ## Deploy
 
