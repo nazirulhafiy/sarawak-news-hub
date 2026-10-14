@@ -56,9 +56,14 @@ class RenderTests(unittest.TestCase):
         self.assertNotIn("brief-map", home)
         self.assertNotIn("<br>", home)
         self.assertIn(
+            '<p class="brief-deck">Aggregating Sarawak info, all in one place.</p>',
+            home,
+        )
+        self.assertNotIn(
             '<p class="brief-deck">Explore Sarawak-focused sites, all in one place.</p>',
             home,
         )
+        self.assertEqual(home.count("Aggregating Sarawak info, all in one place."), 1)
         self.assertNotIn("Each site links to its sources.", home)
         self.assertIn("<title>Sarawak.News</title>", home)
         self.assertIn('<meta property="og:title" content="Sarawak.News" />', home)
@@ -179,6 +184,7 @@ class RenderTests(unittest.TestCase):
                     "Sarawak, made easy. Explore Sarawak-focused sites, all in one place.",
                     about,
                 )
+                self.assertNotIn("Aggregating Sarawak info", about)
                 self.assertNotIn("Sarawak, made easy..", about)
                 self.assertNotIn("Each site links to its sources.", about)
                 self.assertNotIn("Sarawak News made easy", about)
