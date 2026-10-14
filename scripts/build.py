@@ -19,7 +19,7 @@ DIST = ROOT / "dist"
 DEFAULT_SITE_URL = "https://sarawak.news/"
 
 HEADLINE = "Sarawak, made easy."
-DECK = "Explore Sarawak-focused sites, all in one place."
+DECK = "Aggregating Sarawak info, all in one place."
 SUBTITLE = "Aggregating Sarawak info, all in one place."
 PAGE_TITLE = "Sarawak.News"
 PHOTO_LICENCE = "https://creativecommons.org/licenses/by-sa/4.0/"
