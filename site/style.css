@@ -377,10 +377,12 @@ h1 {
 .art-prom { opacity: .55; }
 .art-minor { opacity: .85; }
 .art-sun { stroke: var(--sarawak-yellow); stroke-width: 2; fill: rgba(247, 201, 72, .18); }
+.art-moon { display: none; stroke: var(--sarawak-yellow); stroke-width: 2; fill: rgba(247, 201, 72, .1); stroke-opacity: .6; }
 
 html[data-theme="dark"] .hero-art { color: #5f6977; opacity: .6; }
 html[data-theme="dark"] .hero-art .dun { color: #8a94a3; }
-html[data-theme="dark"] .art-sun { fill: rgba(247, 201, 72, .1); stroke-opacity: .6; }
+html[data-theme="dark"] .art-sun { display: none; }
+html[data-theme="dark"] .art-moon { display: inline; }
 
 .hub-grid {
   display: grid;
