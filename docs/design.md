@@ -23,7 +23,13 @@ Nazirul picked F1, the yellow Sarawak shape on a black rounded tile. The source 
 | `apple-touch-icon.png` | `f1-180.png` |
 | `icon-512.png` | `f1-512.png` |
 
-The head links the SVG icon, the `.ico` with `sizes="any"`, the Apple touch icon, and the 512 PNG. `theme-color` is `#ffffff` for `prefers-color-scheme: light` and `#0f1115` for dark. The 16 and 32 pixel extras stay in the handoff folder. `favicon.ico` already carries the small sizes.
+The head links the SVG icon, the `.ico` with `sizes="any"`, the Apple touch icon, and the 512 PNG. `theme-color` is `#ffffff` for `prefers-color-scheme: light` and `#0f1115` for dark. The 16 and 32 pixel extras stay in the handoff folder. `favicon.ico` already carries the small sizes. The favicon and the app icon stay this rounded F1 tile. They are not the share image.
+
+## Social image
+
+`site/og.png` is a 1200×630 PNG. The build copies it to `dist/og.png`. The background is the dark canvas `#0f1115` and runs to every edge. The file is RGB, with no alpha and no rounded corners. On the left is the yellow Sarawak map from the F1 mark (`#f7c948`). Beside it, in Geist, are the name Sarawak.News (`#f3f5f7`) and the line “Explore Sarawak-focused sites, all in one place.” (`#d2d8df`). A 6px red / yellow / dark rule sits on the bottom edge, the same colours as the dark header rule.
+
+Home and About point `og:image` and `twitter:image` at `https://sarawak.news/og.png`. `og:image:width` is 1200 and `og:image:height` is 630. `twitter:card` is `summary_large_image`.
 
 ## Theme
 
