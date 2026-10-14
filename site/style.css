@@ -383,6 +383,7 @@ html[data-theme="dark"] .hero-art { color: #5f6977; opacity: .6; }
 html[data-theme="dark"] .hero-art .dun { color: #8a94a3; }
 html[data-theme="dark"] .art-sun { display: none; }
 html[data-theme="dark"] .art-moon { display: inline; }
+.hero-art .occl{fill:#fff;stroke:none}html[data-theme=dark] .hero-art .occl{fill:#0f1115}
 
 .hub-grid {
   display: grid;
