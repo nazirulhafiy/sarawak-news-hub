@@ -152,6 +152,7 @@ def render_header(active: str) -> str:
         return f'<a class="{klass}" href="{href}"{current}>{label}</a>'
 
     return f"""  <header class="bar">
+    <div class="bar-inner">
     <span class="brand-lockup"><a class="brand" href="index.html">Sarawak.News</a></span>
     <nav class="site-nav" id="primary-navigation" aria-label="Primary">
       {link("sites", "index.html", "Sites")}
@@ -174,6 +175,7 @@ def render_header(active: str) -> str:
         </g>
       </svg>
     </button>
+    </div>
   </header>"""
 
 
