@@ -32,15 +32,15 @@ class RenderTests(unittest.TestCase):
         self.assertIn("<h1>Sarawak, made easy.</h1>", home)
         self.assertNotIn("Sarawak News made easy", home)
         self.assertIn(
-            '<meta name="description" content="Aggregating Sarawak information, all in one place." />',
+            '<meta name="description" content="Aggregating key information, all in one place." />',
             home,
         )
         self.assertIn(
-            '<meta property="og:description" content="Aggregating Sarawak information, all in one place." />',
+            '<meta property="og:description" content="Aggregating key information, all in one place." />',
             home,
         )
         self.assertIn(
-            '<meta name="twitter:description" content="Aggregating Sarawak information, all in one place." />',
+            '<meta name="twitter:description" content="Aggregating key information, all in one place." />',
             home,
         )
         self.assertNotIn("Independent Sarawak sites", home)
@@ -56,7 +56,7 @@ class RenderTests(unittest.TestCase):
         self.assertNotIn("brief-map", home)
         self.assertNotIn("<br>", home)
         self.assertIn(
-            '<p class="brief-deck">Aggregating Sarawak information, all in one place.</p>',
+            '<p class="brief-deck">Aggregating key information, all in one place.</p>',
             home,
         )
         self.assertNotIn("Explore Sarawak-focused sites", home)
@@ -165,19 +165,19 @@ class RenderTests(unittest.TestCase):
                 self.assertIn(f'<meta property="og:url" content="{origin}about.html" />', about)
                 self.assertIn("<title>About Sarawak.News</title>", about)
                 self.assertIn(
-                    '<meta name="description" content="Aggregating Sarawak information, all in one place." />',
+                    '<meta name="description" content="Aggregating key information, all in one place." />',
                     about,
                 )
                 self.assertIn(
-                    '<meta property="og:description" content="Aggregating Sarawak information, all in one place." />',
+                    '<meta property="og:description" content="Aggregating key information, all in one place." />',
                     about,
                 )
                 self.assertIn(
-                    '<meta name="twitter:description" content="Aggregating Sarawak information, all in one place." />',
+                    '<meta name="twitter:description" content="Aggregating key information, all in one place." />',
                     about,
                 )
                 self.assertIn(
-                    "Sarawak, made easy. Aggregating Sarawak information, all in one place.",
+                    "Sarawak, made easy. Aggregating key information, all in one place.",
                     about,
                 )
                 self.assertNotIn("Explore Sarawak-focused sites", about)
