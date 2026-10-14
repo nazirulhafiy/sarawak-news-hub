@@ -684,7 +684,7 @@ html[data-theme="dark"] .back-to-top:hover{border-color:#f7c948}
 
   .brief-deck { font-size: 17px; }
 
-  .hero-art { width: 132%; max-width: none; margin: 16px -16% 0; }
+  .hero-art { width: 115%; max-width: none; margin: 16px -7.5% 0; }
 
   .hub-grid { grid-template-columns: 1fr; gap: 12px; margin-top: 18px; }
 
