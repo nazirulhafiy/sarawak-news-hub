@@ -79,6 +79,10 @@ Those six fields are the whole entry. There is no `map` field and no `counts` fi
 
 A rounded credit box with one centred line: “Built by hafiy.my, an independent publication. Not affiliated with the Sarawak Government.”
 
+## Back to top
+
+The control uses the same markup as ai.sarawak.news: a `button.back-to-top` with `type="button"`, `aria-label="Back to top"`, a “Back to top” label, and an `↑` arrow. It starts `hidden`, so it is not focusable. `site/app.js` shows it only when `scrollY` is at least 600, and hides it again below that. The home page cannot scroll that far, so the control stays absent there. Wider than 560px it is a text pill, “Back to top ↑”, fixed 24px from the viewport’s right and bottom edges. From 560px down it is an arrow-only button, 44px by 44px, inset with `max(14px, env(safe-area-inset-*) + 14px)`. The chip is `#111111` and the label and arrow are `#f7c948` in both themes. Light mode’s border is 1px `#111111`. Dark mode’s border is 1px `#f7c948`. It fades over 180ms. `prefers-reduced-motion: reduce` drops the fade and scrolls to the top instantly; otherwise the click scrolls smoothly. The focus ring is 3px `#f7c948` with a 2px offset. The control sits in the screen corner, under the sticky bar (`z-index` 30, bar 40), and does not cover the header.
+
 ## Motion
 
 The brief uses bantuan’s `hero-reveal`: a rise of 18px over 0.85s, easing `cubic-bezier(.22, 1, .36, 1)`. The headline and sub-line use `hero-content-reveal` (10px, 0.7s), delayed 0.12s and 0.22s. The drawing uses `hero-art-reveal` (10px, 0.7s, delay 0.4s) and ends at opacity 0.6, so it appears last. `prefers-reduced-motion: reduce` removes the motion.

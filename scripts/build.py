@@ -179,6 +179,10 @@ def render_header(active: str) -> str:
   </header>"""
 
 
+def render_back_to_top() -> str:
+    return """  <button class="back-to-top" type="button" data-back-to-top aria-label="Back to top" hidden><span class="back-to-top-label">Back to top</span> <span class="back-to-top-arrow" aria-hidden="true">↑</span></button>"""
+
+
 def render_footer() -> str:
     return """  <footer class="site-footer">
     <div class="site-footer-bottom">
@@ -234,6 +238,7 @@ def render_home(sites: list[dict] | None = None) -> str:
     </section>
   </main>
 {render_footer()}
+{render_back_to_top()}
 </body>"""
     return render_head(PAGE_TITLE, description, canonical) + "\n" + body + "\n</html>\n"
 
@@ -274,6 +279,7 @@ def render_about(sites: list[dict] | None = None) -> str:
     </div>
   </main>
 {render_footer()}
+{render_back_to_top()}
 </body>"""
     return render_head(title, description, canonical) + "\n" + body + "\n</html>\n"
 
