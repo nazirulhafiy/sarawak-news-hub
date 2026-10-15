@@ -15,6 +15,14 @@
       "tag": "Directory",
       "icon": "hand-heart",
       "text": "An independent directory of Sarawak government assistance. Every scheme links to an official page."
+    },
+    {
+      "id": "events",
+      "name": "Events.Sarawak.News",
+      "url": "https://events.sarawak.news",
+      "tag": "Calendar",
+      "icon": "calendar",
+      "text": "Festivals, races, regattas and cultural events across Sarawak, listed month by month."
     }
   ]
 }
