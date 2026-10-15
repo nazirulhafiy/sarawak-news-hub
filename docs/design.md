@@ -104,3 +104,9 @@ The brief uses bantuan’s `hero-reveal`: a rise of 18px over 0.85s, easing `cub
 ## Docs check
 
 `.github/workflows/docs-check.yml` runs job `docs-check` on pull requests (`opened`, `synchronize`, `reopened`, `labeled`, `unlabeled`). It diffs the PR with three dots (`base...head`). Watched paths are `site/*`, `scripts/build.py`, `scripts/docs_check_pr.py`, `.github/workflows/*`, and `data/sites.json`. A change there fails unless `docs/` also changes, or the PR has the `no-docs-needed` label.
+
+## Analytics
+
+- Google Analytics 4: measurement ID `G-SJMJ0R0GJS`, emitted in `<head>` of every page by `render_ga_script()` in `scripts/build.py` (edit the build, not `dist/`).
+- Cloudflare Web Analytics: the hub is served by GitHub Pages (not proxied), so `render_cf_beacon()` adds the beacon manually using the sarawak.news zone Web Analytics site token `092a061973fc4d899cd2e4b52952af89` (same site as ai.sarawak.news; filter by hostname in the dashboard).
+- No Content-Security-Policy is set; if one is added, allow `www.googletagmanager.com`, `*.google-analytics.com` and `static.cloudflareinsights.com`.
