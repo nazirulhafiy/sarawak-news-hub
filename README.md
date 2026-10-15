@@ -2,10 +2,11 @@
 
 Hub for [Sarawak.News](https://sarawak.news/). The home headline is “Sarawak, made easy.” The sub-line is “Aggregating key information, all in one place.”
 
-Two cards:
+Three cards:
 
 - [AI.Sarawak.News](https://ai.sarawak.news/) — source-linked coverage
 - [Bantuan.Sarawak.News](https://bantuan.sarawak.news/) — an independent directory of Sarawak government assistance
+- [Events.Sarawak.News](https://events.sarawak.news) — festivals, races, regattas and cultural events across Sarawak, listed month by month
 
 This is not a government website. It is live at [https://sarawak.news/](https://sarawak.news/). The repo `CNAME` is `sarawak.news`, and the build copies that file into `dist/CNAME` for GitHub Pages. Pages, CSS, JS, and the font use relative paths, so they resolve at the domain root.
 
