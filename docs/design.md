@@ -2,7 +2,7 @@
 
 The live site is [https://sarawak.news/](https://sarawak.news/). Pages are the static output of `scripts/build.py`, styled by `site/style.css`. This note describes that system.
 
-Every published site is one object in `data/sites.json`. That list drives the cards. The current entries are [AI.Sarawak.News](https://ai.sarawak.news/) and [Bantuan.Sarawak.News](https://bantuan.sarawak.news/). There is no PCDS card. The hero is a line drawing of the Sarawak State Legislative Assembly riverfront, with Wisma Sanyan, Menara Kidurong and the Grand Old Lady derrick added. It does not mark sites.
+Every published site is one object in `data/sites.json`. That list drives the cards. The current entries are [AI.Sarawak.News](https://ai.sarawak.news/), [Bantuan.Sarawak.News](https://bantuan.sarawak.news/), and [Events.Sarawak.News](https://events.sarawak.news). Events uses the Phosphor calendar tile (`site/icons/calendar.svg`). There is no PCDS card. The hero is a line drawing of the Sarawak State Legislative Assembly riverfront, with Wisma Sanyan, Menara Kidurong and the Grand Old Lady derrick added. It does not mark sites.
 
 ## Type and colour
 
