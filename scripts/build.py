@@ -58,6 +58,28 @@ FAVICON_FILES = {
 }
 
 
+# Cloudflare Web Analytics token for the sarawak.news zone site (hub is served by GitHub Pages, not proxied).
+CLOUDFLARE_WEB_ANALYTICS_TOKEN = "092a061973fc4d899cd2e4b52952af89"
+
+
+def render_cf_beacon() -> str:
+    return (
+        '<script defer src="https://static.cloudflareinsights.com/beacon.min.js" '
+        f"data-cf-beacon='{{\"token\":\"{CLOUDFLARE_WEB_ANALYTICS_TOKEN}\"}}'></script>"
+    )
+
+
+GA_MEASUREMENT_ID = "G-SJMJ0R0GJS"
+
+
+def render_ga_script() -> str:
+    return (
+        f'<script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>'
+        "<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}"
+        f"gtag('js',new Date());gtag('config','{GA_MEASUREMENT_ID}');</script>"
+    )
+
+
 def site_url() -> str:
     import os
 
@@ -226,6 +248,8 @@ def render_head(title: str, description: str, canonical: str) -> str:
 {theme_boot()}
   <link rel="stylesheet" href="style.css" />
   <script src="app.js" defer></script>
+  {render_ga_script()}
+  {render_cf_beacon()}
 </head>"""
 
 
