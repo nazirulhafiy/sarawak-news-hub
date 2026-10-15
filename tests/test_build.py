@@ -67,14 +67,17 @@ class RenderTests(unittest.TestCase):
         self.assertNotIn("<title>Independent", home)
         self.assertIn("AI.Sarawak.News", home)
         self.assertIn("Bantuan.Sarawak.News", home)
+        self.assertIn("Events.Sarawak.News", home)
         self.assertNotIn("hub-meta", home)
         self.assertNotIn("stories", home)
         self.assertNotIn("schemes", home)
         self.assertNotIn("categories", home)
         self.assertIn('href="https://ai.sarawak.news/"', home)
         self.assertIn('href="https://bantuan.sarawak.news/"', home)
+        self.assertIn('href="https://events.sarawak.news"', home)
+        self.assertIn(">Calendar<", home)
         self.assertNotIn('class="hub-domain"', home)
-        self.assertEqual(home.count(">Visit <"), 2)
+        self.assertEqual(home.count(">Visit <"), 3)
         self.assertNotIn("hero-route", home)
         self.assertNotIn("hero-node", home)
         self.assertNotIn("hero-tile", home)
@@ -88,7 +91,7 @@ class RenderTests(unittest.TestCase):
         self.assertNotIn("PCDS", home)
         self.assertNotIn("pcds2030", home)
         self.assertNotIn("brief-net", home)
-        self.assertEqual(home.count('class="hub-card"'), 2)
+        self.assertEqual(home.count('class="hub-card"'), 3)
         self.assertEqual(home.count('class="hero-art"'), 1)
 
     def test_third_site_renders_card_without_map_tile(self):
@@ -99,7 +102,7 @@ class RenderTests(unittest.TestCase):
 
         self.assertNotIn('"counts"', listed)
         sites = build.load_sites()
-        self.assertEqual([site["id"] for site in sites], ["ai", "bantuan"])
+        self.assertEqual([site["id"] for site in sites], ["ai", "bantuan", "events"])
         published = build.render_home(sites)
         self.assertNotIn("Dummy.Sarawak.News", published)
         self.assertNotIn('data-site="dummy"', published)
@@ -109,7 +112,7 @@ class RenderTests(unittest.TestCase):
 
         home = build.render_home([*sites, DUMMY_SITE])
 
-        self.assertEqual(home.count('class="hub-card"'), 3)
+        self.assertEqual(home.count('class="hub-card"'), 4)
         self.assertEqual(home.count('class="hero-art"'), 1)
         self.assertNotIn("hero-node", home)
         self.assertNotIn("hero-route", home)
@@ -121,7 +124,7 @@ class RenderTests(unittest.TestCase):
         self.assertIn("A fixture site used only by the test.", home)
         self.assertIn("https://dummy.example/", home)
         self.assertIn(">Example<", home)
-        self.assertEqual(home.count(">Visit <"), 3)
+        self.assertEqual(home.count(">Visit <"), 4)
 
     def test_dist_publishes_root_domain(self):
         previous = os.environ.pop("SITE_URL", None)
