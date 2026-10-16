@@ -68,6 +68,10 @@ Other photos were used only to check general proportions: the rest of the assemb
 
 Cards use the same `data/sites.json` list, in that order. Two columns with a 16px gap, one column below 560px. A third site wraps onto the next row. Each card has the Phosphor tile, the `tag` pill, the name, the `text`, and a Visit link to `url`. The name sits under the icon row, the description follows, and Visit sits on the right of a top border. The description grows to fill the card, so the two Visit rows line up when the paragraphs differ in length.
 
+## Card hover
+
+On devices with hover, a card lifts 3px, its border turns Sarawak yellow `#f7c948`, a 3px yellow bar wipes in from the left along the top edge (`::before`, `scaleX` 0 → 1), and the shadow deepens to `0 8px 24px rgba(17,24,39,.08), 0 2px 6px rgba(17,24,39,.06)` (dark: `0 8px 24px rgba(0,0,0,.45)`). Transitions are 0.18s ease. There is no scaling and no text colour change. The card itself is not a link, so `:hover` sits on `.hub-card` and keyboard focus uses `.hub-card:has(.hub-visit:focus-visible)`: tabbing to Visit gives the card the same lift and bar plus a 2px `#111827` outline at 3px offset (`#f7c948` in dark), replacing the link's own ring. Hover rules are inside `@media (hover: hover)`, so touch screens don't stick in the hover state. `prefers-reduced-motion: reduce` removes the transitions and the lift.
+
 ## Adding a site
 
 Add one object to the `sites` array. Do not edit the template. The next build draws a card for it. The riverfront drawing does not change.

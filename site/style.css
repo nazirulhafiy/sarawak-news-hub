@@ -490,6 +490,25 @@ html[data-theme="dark"] .group-icon-fill { opacity: 0.45; }
 
 .hub-arrow { display: inline-block; margin-left: 2px; }
 
+/* Card hover (Design Bot spec). The card is not a link, so :hover sits on the
+   card and keyboard focus is shown on the card when its Visit link has
+   :focus-visible. */
+.hub-card { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; position: relative; overflow: hidden; }
+.hub-card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: #f7c948; transform: scaleX(0); transform-origin: left; transition: transform .18s ease; }
+@media (hover: hover) {
+  .hub-card:hover { transform: translateY(-3px); border-color: #f7c948; box-shadow: 0 8px 24px rgba(17,24,39,.08), 0 2px 6px rgba(17,24,39,.06); }
+  .hub-card:hover::before { transform: scaleX(1); }
+  html[data-theme="dark"] .hub-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.45); }
+}
+.hub-card:has(.hub-visit:focus-visible) { transform: translateY(-3px); border-color: #f7c948; box-shadow: 0 8px 24px rgba(17,24,39,.08), 0 2px 6px rgba(17,24,39,.06); outline: 2px solid #111827; outline-offset: 3px; }
+.hub-card:has(.hub-visit:focus-visible)::before { transform: scaleX(1); }
+.hub-card:has(.hub-visit:focus-visible) .hub-visit:focus-visible { outline: none; }
+html[data-theme="dark"] .hub-card:has(.hub-visit:focus-visible) { box-shadow: 0 8px 24px rgba(0,0,0,.45); outline-color: #f7c948; }
+@media (prefers-reduced-motion: reduce) {
+  .hub-card, .hub-card::before { transition: none; }
+  .hub-card:hover, .hub-card:has(.hub-visit:focus-visible) { transform: none; }
+}
+
 .about-page {
   max-width: 760px;
   margin: 36px auto 0;
