@@ -14,7 +14,7 @@ This is not a government website. It is live at [https://sarawak.news/](https://
 
 ## Documentation
 
-- `docs/design.md` — colour, type, theme, the riverfront hero, cards, and the docs check
+- `docs/design.md` — colour, type, theme, the riverfront hero, cards, card hover (ai-style lift and tilt), analytics, build pipeline, and the docs check
 - `AGENTS.md` — docs must ship with design or behaviour changes
 
 ## Run
@@ -44,6 +44,8 @@ One object in `data/sites.json` becomes a card. The fields are `id`, `name`, `ur
 
 ## Build
 
+The hub has a small static build in `scripts/build.py`, not a content-ingestion pipeline like the sister sites: it reads `data/sites.json`, renders HTML, and copies assets. It does not crawl live pages or run on a schedule.
+
 `scripts/build.py` renders `dist/index.html` and `dist/about.html` from `data/sites.json`, and copies `site/style.css`, `site/app.js`, and `site/fonts/` (Geist variable font and the SIL OFL licence). The font is preloaded and uses `font-display: swap`, with system-ui in the fallback stack. It also copies the F1 favicon from `design-handoff/favicon-F1/` to `dist/favicon.ico`, `dist/favicon.svg`, `dist/apple-touch-icon.png`, and `dist/icon-512.png`. The rest of `design-handoff/` is not published. The build does not fetch the sister sites. Cards show the name, the description, and Visit. The home tab title is `Sarawak.News`. The on-page headline is “Sarawak, made easy.” The sub-line is “Aggregating key information, all in one place.” Home and About `description`, `og:description`, and `twitter:description` use that sub-line.
 
 ## Deploy
@@ -57,6 +59,10 @@ One object in `data/sites.json` becomes a card. The fields are `id`, `name`, `ur
 There is no daily schedule. It only refreshed the count lines, and those lines are gone.
 
 GitHub Pages publishes `dist/` at [https://sarawak.news/](https://sarawak.news/). `dist/CNAME` contains `sarawak.news`. Canonical, `og:url`, `robots.txt`, and `sitemap.xml` use that origin.
+
+## Analytics
+
+Google Analytics 4 (`G-SJMJ0R0GJS`) and Cloudflare Web Analytics (manual beacon in the page `<head>`) are injected by `scripts/build.py` on every page. The hub is served from GitHub Pages, not through Cloudflare’s proxy, so the zone Web Analytics token is embedded with `render_cf_beacon()`. Details and CSP notes are in [docs/design.md](docs/design.md) under “Analytics”.
 
 ## Drawing
 

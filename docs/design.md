@@ -41,14 +41,14 @@ The bar is sticky. `.bar` is a full-viewport shell (`position: sticky; top: 0`) 
 
 ## Hero
 
-The home hero is a centred brief. The words are fixed:
+The home hero is a centred brief. The words are fixed (constants `HEADLINE` and `SUBTITLE` in `scripts/build.py`; `DECK` matches `SUBTITLE` for meta tags):
 
 - Sarawak, made easy.
 - Aggregating key information, all in one place.
 
 The headline keeps the comma after Sarawak and the full stop. `.brief` is 760px at most, centred, `text-align: center`, with `padding: 44px 8px 0` and `margin: 32px auto 8px`. The headline is `clamp(36px, 6vw, 48px)`, weight 700, letter-spacing `-1.2px`, line-height `1.02`, `max-width: 680px`, and `margin: 0 auto 12px`. The visible sub-line, `p.brief-deck`, is 18px, line-height `1.62`, `max-width: 620px`, centred, in the copy colour (`#374151` light, `#d2d8df` dark). It uses `text-wrap: balance`, with `text-wrap: pretty` declared first so a browser that does not understand `balance` still avoids a short last line. Below 560px the headline is `clamp(2.15rem, 11vw, 3rem)`, the sub-line is 17px, and the brief padding is `30px 0 0`. The headline wraps on its own. On a 390px screen it breaks after the comma, so the second line is “made easy.” The sub-line stays on one line. The document `<title>`, `og:title`, and `twitter:title` on the home page are `Sarawak.News`. About keeps `<title>About Sarawak.News</title>`.
 
-`description`, `og:description`, and `twitter:description` on Home and About stay “Aggregating key information, all in one place.” The About lede uses that same sentence after “Sarawak, made easy.” The visible homepage subtitle does not replace those.
+`description`, `og:description`, and `twitter:description` on Home and About use the same sentence as `p.brief-deck`: “Aggregating key information, all in one place.” The About lede repeats it after “Sarawak, made easy.”
 
 Under the words is one inline SVG (`svg.hero-art`, viewBox `0 0 760 240`) from `site/hero-art.svg`. It is a line drawing of the Kuching riverfront. The Darul Hana bridge is on the left, the Dewan Undangan Negeri stays in the centre, and Gunung Santubong is on the right. Trees sit on the bank. The kampung houses are gone. Wisma Sanyan, the Sibu tower, stands on the left of the assembly, clear of the trees. Menara Kidurong, the Bintulu tower, is also drawn in. The Grand Old Lady derrick, from Miri, stands on the right. Filled shapes (`.occl`) cover the bank line behind the added buildings. In light mode the fill is `#fff`, the same as the page (`#ffffff`). In dark mode it is `#0f1115`. The river is a few short wave strokes. There is no boat. `aria-hidden="true"` and `focusable="false"` mark it decorative. `pointer-events: none` keeps it off clicks. The drawing sits in the flow, full width of the 760px rail, with `margin-top: 22px`. A horizontal mask fades the outer 10% on each side. Below 560px the drawing is 115% of the column and shifted with `margin: 16px -7.5% 0`, so it bleeds off the screen edges. `html` and `body` use `overflow-x: clip` at that width so the bleed does not scroll. The clip edge is the screen edge, so the drawing still runs off both sides of the column.
 
@@ -66,7 +66,7 @@ Other photos were used only to check general proportions: the rest of the assemb
 
 ## Cards
 
-Cards use the same `data/sites.json` list, in that order. Two columns with a 16px gap, one column below 560px. A third site wraps onto the next row. Each card has the Phosphor tile, the `tag` pill, the name, the `text`, and a Visit link to `url`. The name sits under the icon row, the description follows, and Visit sits on the right of a top border. The description grows to fill the card, so the two Visit rows line up when the paragraphs differ in length.
+Cards use the same `data/sites.json` list, in that order. Two columns with a 16px gap, one column below 560px. A third site wraps onto the next row. Each card has the Phosphor tile, the `tag` pill, the name, the `text`, and a Visit link to `url`. The name sits under the icon row, the description follows, and Visit sits on the right of a top border. The description grows to fill the card, so the two Visit rows line up when the paragraphs differ in length. Pointer hover uses the shared ai-style motion documented under “Card hover” (not a flat static card).
 
 ## Card hover
 
@@ -99,6 +99,10 @@ The control uses the same markup as ai.sarawak.news: a `button.back-to-top` with
 
 The brief uses bantuan’s `hero-reveal`: a rise of 18px over 0.85s, easing `cubic-bezier(.22, 1, .36, 1)`. The headline and sub-line use `hero-content-reveal` (10px, 0.7s), delayed 0.12s and 0.22s. The drawing uses `hero-art-reveal` (10px, 0.7s, delay 0.4s) and ends at opacity 0.6, so it appears last. `prefers-reduced-motion: reduce` removes the motion.
 
+## Build pipeline
+
+`scripts/build.py` is the hub’s static site generator: it validates `data/sites.json`, renders `dist/index.html` and `dist/about.html`, and copies CSS, JS, fonts, favicons, `og.png`, and `CNAME`. There is no discovery, review queue, or scheduled ingestion workflow—only this build step and GitHub Actions on push. Sister-site totals are not fetched at build time.
+
 ## Deploy
 
 `scripts/build.py` writes `dist/` only. It does not fetch live pages. `design-handoff/` stays in the repo and is not copied. The build copies the repo `CNAME` (`sarawak.news`) into `dist/CNAME`. Canonical and `og:url` on the home page are `https://sarawak.news/`. About uses `https://sarawak.news/about.html`. `robots.txt` and `sitemap.xml` use the same origin. Internal links (`index.html`, `about.html`, `style.css`, `app.js`, `fonts/Geist-Variable.woff2`) are relative, so the site works at the domain root.
@@ -111,6 +115,13 @@ The brief uses bantuan’s `hero-reveal`: a rise of 18px over 0.85s, easing `cub
 
 ## Analytics
 
-- Google Analytics 4: measurement ID `G-SJMJ0R0GJS`, emitted in `<head>` of every page by `render_ga_script()` in `scripts/build.py` (edit the build, not `dist/`).
-- Cloudflare Web Analytics: the hub is served by GitHub Pages (not proxied), so `render_cf_beacon()` adds the beacon manually using the sarawak.news zone Web Analytics site token `092a061973fc4d899cd2e4b52952af89` (same site as ai.sarawak.news; filter by hostname in the dashboard).
+Every page `<head>` includes both trackers from `scripts/build.py` (edit the build, not `dist/`).
+
+- Google Analytics 4: measurement ID `G-SJMJ0R0GJS`. `render_ga_script()` loads `https://www.googletagmanager.com/gtag/js?id=G-SJMJ0R0GJS` and runs `gtag('config','G-SJMJ0R0GJS')`.
+- Cloudflare Web Analytics: the hub is served by GitHub Pages (not proxied through Cloudflare), so `render_cf_beacon()` embeds the zone site token manually:
+
+  `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"092a061973fc4d899cd2e4b52952af89"}'></script>`
+
+  Token `092a061973fc4d899cd2e4b52952af89` is the sarawak.news zone Web Analytics site (shared with ai.sarawak.news; filter by hostname in the dashboard).
+
 - No Content-Security-Policy is set; if one is added, allow `www.googletagmanager.com`, `*.google-analytics.com` and `static.cloudflareinsights.com`.
