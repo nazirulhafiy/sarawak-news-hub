@@ -70,7 +70,7 @@ Cards use the same `data/sites.json` list, in that order. Two columns with a 16p
 
 ## Card hover
 
-On devices with hover, a card lifts 3px, its border turns Sarawak yellow `#f7c948`, a 3px yellow bar wipes in from the left along the top edge (`::before`, `scaleX` 0 → 1), and the shadow deepens to `0 8px 24px rgba(17,24,39,.08), 0 2px 6px rgba(17,24,39,.06)` (dark: `0 8px 24px rgba(0,0,0,.45)`). Transitions are 0.18s ease. There is no scaling and no text colour change. The card itself is not a link, so `:hover` sits on `.hub-card` and keyboard focus uses `.hub-card:has(.hub-visit:focus-visible)`: tabbing to Visit gives the card the same lift and bar plus a 2px `#111827` outline at 3px offset (`#f7c948` in dark), replacing the link's own ring. Hover rules are inside `@media (hover: hover)`, so touch screens don't stick in the hover state. `prefers-reduced-motion: reduce` removes the transitions and the lift.
+The hover matches ai.sarawak.news story cards. On devices with hover (`@media (hover: hover)`), a card lifts 3px and tilts a quarter degree: odd cards (`-.25deg`), even cards (`:nth-child(even)`, `.25deg`), so neighbours lean apart. The border goes to `#cbd1da` (dark `#4b5663`) and the shadow to `0 8px 20px rgb(17 24 39 / 8%)` (dark `rgb(0 0 0 / 28%)`). Transform eases over 0.18s, and shadow, border and background over 0.22s. There is no top bar, no yellow border, no scaling and no text colour change. The card is not a link, so keyboard focus uses `.hub-card:has(.hub-visit:focus-visible)`: a 3px `#f7c948` outline at 3px offset in both modes, with no lift or shadow. That outline replaces the link's own ring. `prefers-reduced-motion: reduce` removes transitions and the lift and tilt. The border and shadow still change.
 
 ## Adding a site
 
