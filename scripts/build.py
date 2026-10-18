@@ -233,7 +233,7 @@ def render_header(active: str) -> str:
 
     return f"""  <header class="bar">
     <div class="bar-inner">
-    <span class="brand-lockup"><a class="brand" href="index.html">Sarawak.News</a></span>
+    <span class="brand-lockup"><a class="brand" href="index.html"><img class="brand-mark brand-mark-light" src="icons/nav-mark-transparent.svg" alt="" width="220" height="220" decoding="async" aria-hidden="true" /><img class="brand-mark brand-mark-dark" src="icons/nav-mark-on-black.svg" alt="" width="220" height="220" decoding="async" aria-hidden="true" /><span class="brand-text">Sarawak.News</span></a></span>
     <nav class="site-nav" id="primary-navigation" aria-label="Primary">
       {link("sites", "index.html", "Sites")}
       {link("about", "about.html", "About")}
@@ -389,6 +389,13 @@ def write_dist(home: str, about: str, dist: Path = DIST) -> None:
         raise SystemExit("site/fonts must contain Geist-Variable.woff2 and OFL.txt")
     shutil.copy2(woff, fonts / woff.name)
     shutil.copy2(license_file, fonts / license_file.name)
+    icons_dist = dist / "icons"
+    icons_dist.mkdir()
+    for mark_name in ("nav-mark-transparent.svg", "nav-mark-on-black.svg"):
+        mark_src = SITE / "icons" / mark_name
+        if not mark_src.is_file():
+            raise SystemExit(f"missing nav mark {mark_src.relative_to(ROOT)}")
+        shutil.copy2(mark_src, icons_dist / mark_name)
     handoff = ROOT / "design-handoff" / "favicon-F1"
     for dest_name, src_name in FAVICON_FILES.items():
         src = handoff / src_name

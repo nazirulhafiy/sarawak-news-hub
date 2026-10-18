@@ -137,6 +137,17 @@ class RenderTests(unittest.TestCase):
                 self.assertIn("OFL.txt", names)
                 self.assertIn("Geist-Variable.woff2", names)
                 self.assertIn("CNAME", names)
+                self.assertIn("nav-mark-transparent.svg", names)
+                self.assertIn("nav-mark-on-black.svg", names)
+                icons = Path(__file__).resolve().parents[1] / "site" / "icons"
+                self.assertEqual(
+                    (dist / "icons" / "nav-mark-transparent.svg").read_bytes(),
+                    (icons / "nav-mark-transparent.svg").read_bytes(),
+                )
+                self.assertEqual(
+                    (dist / "icons" / "nav-mark-on-black.svg").read_bytes(),
+                    (icons / "nav-mark-on-black.svg").read_bytes(),
+                )
                 self.assertEqual((dist / "CNAME").read_text(encoding="utf-8").strip(), "sarawak.news")
                 self.assertNotIn("design-handoff", names)
                 self.assertNotIn("preview-f1.png", names)
@@ -162,6 +173,11 @@ class RenderTests(unittest.TestCase):
                     self.assertIn('src="app.js"', page)
                     self.assertIn('href="index.html"', page)
                     self.assertIn('href="about.html"', page)
+                    self.assertIn('src="icons/nav-mark-transparent.svg"', page)
+                    self.assertIn('src="icons/nav-mark-on-black.svg"', page)
+                    self.assertIn('class="brand-text">Sarawak.News</span>', page)
+                    self.assertNotIn("nav-mark-on-white", page)
+                    self.assertNotIn("final-sheet-origami", page)
                 self.assertIn(f'<link rel="canonical" href="{origin}" />', home)
                 self.assertIn(f'<meta property="og:url" content="{origin}" />', home)
                 self.assertIn(f'<link rel="canonical" href="{origin}about.html" />', about)
