@@ -226,6 +226,48 @@ class RenderTests(unittest.TestCase):
                 os.environ["SITE_URL"] = previous
 
 
+class GaScriptTests(unittest.TestCase):
+    def test_ga_script_gates_hosts_and_marks_internal(self):
+        ga = build.render_ga_script()
+        self.assertIn(build.GA_MEASUREMENT_ID, ga)
+        self.assertIn('"sarawak.news"', ga)
+        self.assertIn('"www.sarawak.news"', ga)
+        self.assertIn(build.GA_INTERNAL_COOKIE, ga)
+        self.assertIn("traffic_type", ga)
+        self.assertIn("'internal'", ga)
+        self.assertIn("max-age=31536000", ga)
+        self.assertIn("q.get('internal')==='1'", ga)
+        self.assertIn("q.get('internal')==='0'", ga)
+        self.assertIn("H.indexOf(h)<0", ga)
+        self.assertIn("googletagmanager.com/gtag/js?id=", ga)
+        # No unconditional remote script tag — load only after the host gate.
+        self.assertNotIn('<script async src="https://www.googletagmanager.com/gtag/js', ga)
+
+    def test_cf_beacon_skips_when_internal(self):
+        cf = build.render_cf_beacon()
+        self.assertIn(build.CLOUDFLARE_WEB_ANALYTICS_TOKEN, cf)
+        self.assertIn('"sarawak.news"', cf)
+        self.assertIn(build.GA_INTERNAL_COOKIE, cf)
+        self.assertIn("if(internal)return", cf)
+        self.assertIn("static.cloudflareinsights.com/beacon.min.js", cf)
+        self.assertIn("H.indexOf(h)<0", cf)
+        # No unconditional beacon tag — load only after host + cookie gates.
+        self.assertNotIn(
+            '<script defer src="https://static.cloudflareinsights.com/beacon.min.js"',
+            cf,
+        )
+
+    def test_pages_include_ga_script(self):
+        home = build.render_home()
+        about = build.render_about()
+        for page in (home, about):
+            self.assertIn(build.GA_MEASUREMENT_ID, page)
+            self.assertIn("traffic_type", page)
+            self.assertIn(build.GA_INTERNAL_COOKIE, page)
+            self.assertIn("static.cloudflareinsights.com/beacon.min.js", page)
+            self.assertIn("if(internal)return", page)
+
+
 class DocsCheckTests(unittest.TestCase):
     def test_watch_patterns(self):
         self.assertTrue(docs_check.matches_watch("site/style.css"))

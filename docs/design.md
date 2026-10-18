@@ -117,11 +117,11 @@ The brief uses bantuan’s `hero-reveal`: a rise of 18px over 0.85s, easing `cub
 
 Every page `<head>` includes both trackers from `scripts/build.py` (edit the build, not `dist/`).
 
-- Google Analytics 4: measurement ID `G-SJMJ0R0GJS`. `render_ga_script()` loads `https://www.googletagmanager.com/gtag/js?id=G-SJMJ0R0GJS` and runs `gtag('config','G-SJMJ0R0GJS')`.
-- Cloudflare Web Analytics: the hub is served by GitHub Pages (not proxied through Cloudflare), so `render_cf_beacon()` embeds the zone site token manually:
+- Google Analytics 4: measurement ID `G-SJMJ0R0GJS`. `render_ga_script()` emits one inline script that:
 
-  `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"092a061973fc4d899cd2e4b52952af89"}'></script>`
+  1. **Production host gate** — loads gtag only when `location.hostname` is `sarawak.news` or `www.sarawak.news`. It does not load on localhost, `*.pages.dev`, `*.github.io`, `*.vercel.app`, or any other host.
+  2. **Internal traffic cookie** — `?internal=1` sets a first-party `sn_internal=1` cookie (`path=/`, `max-age=31536000` ≈ 1 year, `SameSite=Lax`, plus `Secure` on HTTPS). `?internal=0` clears it. While the cookie is set, `gtag('config', 'G-SJMJ0R0GJS', { traffic_type: 'internal' })` so GA4 can filter agent/QA hits, and the Cloudflare beacon is not loaded. Agents and automated checks that open the live site must use `?internal=1` (see `AGENTS.md`).
 
-  Token `092a061973fc4d899cd2e4b52952af89` is the sarawak.news zone Web Analytics site (shared with ai.sarawak.news; filter by hostname in the dashboard).
+- Cloudflare Web Analytics: the hub is served by GitHub Pages (not proxied through Cloudflare), so `render_cf_beacon()` embeds the zone site token in the build (not auto-injected by Cloudflare). The emitter is an inline script that loads `https://static.cloudflareinsights.com/beacon.min.js` with `data-cf-beacon` only on `sarawak.news` / `www.sarawak.news`, and **skips** the load when `sn_internal` is set. Token `092a061973fc4d899cd2e4b52952af89` is the sarawak.news zone Web Analytics site (shared with ai.sarawak.news; filter by hostname in the dashboard).
 
 - No Content-Security-Policy is set; if one is added, allow `www.googletagmanager.com`, `*.google-analytics.com` and `static.cloudflareinsights.com`.

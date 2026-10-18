@@ -5,3 +5,12 @@ Design or behaviour changes (CSS, templates, app JS, build scripts, config) must
 See [docs/design.md](docs/design.md) for the live design system.
 
 Pull requests run the **docs check** GitHub Action on design/behaviour paths. If the check fails, update `docs/` or add the **`no-docs-needed`** label when documentation does not need to change.
+
+## Analytics (internal traffic)
+
+When agents, QA, cloud agents, daily scans, or screenshot checks open the **live** site ([https://sarawak.news/](https://sarawak.news/)), append `?internal=1` (for example `https://sarawak.news/?internal=1` or `https://sarawak.news/about.html?internal=1`). That sets a long-lived first-party `sn_internal` cookie so:
+
+- GA4 receives `traffic_type: 'internal'`
+- the Cloudflare Web Analytics beacon is **not** loaded (test visits are not counted there either)
+
+Use `?internal=0` to clear the cookie. Both trackers load only on `sarawak.news` / `www.sarawak.news` — never on localhost or preview hosts. Details: [docs/design.md](docs/design.md) (Analytics).
