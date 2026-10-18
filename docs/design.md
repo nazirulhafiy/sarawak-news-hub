@@ -59,9 +59,8 @@ Light lines use `color: #8b93a1` at opacity 0.6. The building (`.dun`) is `#6b75
 
 Dark mode also changes the line inks. The drawing is `#5f6977` at opacity 0.6 and the building is `#8a94a3`. Page, card, and type colours stay on the theme tokens.
 
-Three shapes were traced from Wikimedia photos. About gives each one line, with the author, the licence, and links to the file and the licence page. The photos are not published.
+Shapes were traced from Wikimedia photos. About credits two of them, each with one line, with the author, the licence, and links to the file and the licence page. The photos are not published.
 
-- The DUN, from [Kuching Sarawak Dewan-Undangan-Negeri-Sarawak-01.jpg](https://commons.wikimedia.org/wiki/File:Kuching_Sarawak_Dewan-Undangan-Negeri-Sarawak-01.jpg) by CEphoto (Uwe Aranas), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 - The Darul Hana pylons, from [Jambatan Darul Hana, di Bandaraya Kuching.jpg](https://commons.wikimedia.org/wiki/File:Jambatan_Darul_Hana,_di_Bandaraya_Kuching.jpg) by Meandkancil2020, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 - Gunung Santubong, from [Mount Santubong from Santubong Bridge.jpg](https://commons.wikimedia.org/wiki/File:Mount_Santubong_from_Santubong_Bridge.jpg) by Matthew Anderson Lockhart, [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5/).
 
