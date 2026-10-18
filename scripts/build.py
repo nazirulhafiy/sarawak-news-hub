@@ -70,13 +70,47 @@ def render_cf_beacon() -> str:
 
 
 GA_MEASUREMENT_ID = "G-SJMJ0R0GJS"
+GA_PRODUCTION_HOSTS = ("sarawak.news", "www.sarawak.news")
+GA_INTERNAL_COOKIE = "sn_internal"
+GA_INTERNAL_MAX_AGE = 31536000  # ~1 year
 
 
 def render_ga_script() -> str:
+    """Emit GA4 loader: production hosts only, with optional internal traffic cookie.
+
+    ``?internal=1`` sets a first-party ``sn_internal`` cookie (~1 year);
+    ``?internal=0`` clears it. While set, ``gtag('config', …)`` sends
+    ``traffic_type: 'internal'``. The tag never loads on localhost, Pages
+    previews, or other non-production hosts.
+    """
+    hosts_js = ",".join(json.dumps(h) for h in GA_PRODUCTION_HOSTS)
+    cookie = json.dumps(GA_INTERNAL_COOKIE)
+    mid = json.dumps(GA_MEASUREMENT_ID)
+    max_age = GA_INTERNAL_MAX_AGE
+    # Single inline script: host gate, cookie toggle, then async gtag load.
     return (
-        f'<script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>'
-        "<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}"
-        f"gtag('js',new Date());gtag('config','{GA_MEASUREMENT_ID}');</script>"
+        "<script>(function(){"
+        f"var H=[{hosts_js}],h=location.hostname;"
+        "if(H.indexOf(h)<0)return;"
+        f"var C={cookie},q=new URLSearchParams(location.search),"
+        "sec=location.protocol==='https:'?';Secure':'';"
+        "if(q.get('internal')==='1')"
+        f"document.cookie=C+'=1;path=/;max-age={max_age};SameSite=Lax'+sec;"
+        "else if(q.get('internal')==='0')"
+        "document.cookie=C+'=;path=/;max-age=0;SameSite=Lax'+sec;"
+        "var internal=document.cookie.split(';').some(function(p){"
+        "return p.trim()===C+'=1';});"
+        "window.dataLayer=window.dataLayer||[];"
+        "function gtag(){dataLayer.push(arguments);}"
+        "window.gtag=gtag;"
+        "gtag('js',new Date());"
+        f"var id={mid},cfg={{}};"
+        "if(internal)cfg.traffic_type='internal';"
+        "gtag('config',id,cfg);"
+        "var s=document.createElement('script');s.async=true;"
+        "s.src='https://www.googletagmanager.com/gtag/js?id='+encodeURIComponent(id);"
+        "document.head.appendChild(s);"
+        "})();</script>"
     )
 
 
