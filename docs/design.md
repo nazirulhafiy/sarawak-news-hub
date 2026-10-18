@@ -14,16 +14,17 @@ Dark mode sets `html[data-theme="dark"]` and swaps the same tokens: canvas `#0f1
 
 ## Favicon
 
-Nazirul picked F1, the yellow Sarawak shape on a black rounded tile. The source files live in `design-handoff/favicon-F1/`. The build copies four of them to the root of `dist/` and does not publish the rest of `design-handoff/`:
+Nazirul approved the Design Bot Sarawak.News mark (`#snfav`): a white Sarawak shape on a black (`#111111`) rounded tile. The source files live in `design-handoff/favicon-F1/`. The build copies them to the root of `dist/` and does not publish the rest of `design-handoff/`:
 
 | Published URL | Source |
 | --- | --- |
 | `favicon.ico` | `favicon.ico` |
-| `favicon.svg` | `f1.svg` |
-| `apple-touch-icon.png` | `f1-180.png` |
-| `icon-512.png` | `f1-512.png` |
+| `favicon.svg` | `favicon.svg` |
+| `apple-touch-icon.png` | `apple-touch-icon.png` |
+| `icon-192.png` | `icon-192.png` |
+| `icon-512.png` | `icon-512.png` |
 
-The head links the SVG icon, the `.ico` with `sizes="any"`, the Apple touch icon, and the 512 PNG. `theme-color` is `#ffffff` for `prefers-color-scheme: light` and `#0f1115` for dark. The 16 and 32 pixel extras stay in the handoff folder. `favicon.ico` already carries the small sizes. The favicon and the app icon stay this rounded F1 tile. They are not the share image.
+The head links the SVG icon, the `.ico` with `sizes="any"`, the Apple touch icon, and the 192 and 512 PNGs. There is no web app manifest. Icon URLs are not cache-busted (same as other static assets). `theme-color` is `#ffffff` for `prefers-color-scheme: light` and `#0f1115` for dark. `favicon.ico` already carries the 16 and 32 pixel sizes. The favicon and the app icons stay this rounded tile. They are not the share image.
 
 ## Social image
 
@@ -62,7 +63,7 @@ Three shapes were traced from Wikimedia photos. About gives each one line, with 
 - The Darul Hana pylons, from [Jambatan Darul Hana, di Bandaraya Kuching.jpg](https://commons.wikimedia.org/wiki/File:Jambatan_Darul_Hana,_di_Bandaraya_Kuching.jpg) by Meandkancil2020, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 - Gunung Santubong, from [Mount Santubong from Santubong Bridge.jpg](https://commons.wikimedia.org/wiki/File:Mount_Santubong_from_Santubong_Bridge.jpg) by Matthew Anderson Lockhart, [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5/).
 
-Other photos were used only to check general proportions: the rest of the assembly views, the Darul Hana promenade view, the Santubong profiles, and the Kuching river scene. The full list, without the tambang photos, is in [docs/SOURCES.md](SOURCES.md). The tambang references are omitted because the boat is not in the drawing. The footer does not carry these credits. The favicon stays the F1 Sarawak tile.
+Other photos were used only to check general proportions: the rest of the assembly views, the Darul Hana promenade view, the Santubong profiles, and the Kuching river scene. The full list, without the tambang photos, is in [docs/SOURCES.md](SOURCES.md). The tambang references are omitted because the boat is not in the drawing. The footer does not carry these credits. The favicon stays the Design Bot Sarawak tile.
 
 ## Cards
 

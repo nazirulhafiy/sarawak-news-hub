@@ -52,9 +52,10 @@ DRAWING_CREDITS = (
 # Published names, copied from design-handoff/favicon-F1/. The handoff folder itself stays unpublished.
 FAVICON_FILES = {
     "favicon.ico": "favicon.ico",
-    "favicon.svg": "f1.svg",
-    "apple-touch-icon.png": "f1-180.png",
-    "icon-512.png": "f1-512.png",
+    "favicon.svg": "favicon.svg",
+    "apple-touch-icon.png": "apple-touch-icon.png",
+    "icon-192.png": "icon-192.png",
+    "icon-512.png": "icon-512.png",
 }
 
 
@@ -296,6 +297,7 @@ def render_head(title: str, description: str, canonical: str) -> str:
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="favicon.ico" sizes="any" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192" />
   <link rel="icon" href="icon-512.png" type="image/png" sizes="512x512" />
   <link rel="preload" href="fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin />
 {theme_boot()}
