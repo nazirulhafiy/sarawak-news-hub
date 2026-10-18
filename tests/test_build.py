@@ -243,6 +243,20 @@ class GaScriptTests(unittest.TestCase):
         # No unconditional remote script tag — load only after the host gate.
         self.assertNotIn('<script async src="https://www.googletagmanager.com/gtag/js', ga)
 
+    def test_cf_beacon_skips_when_internal(self):
+        cf = build.render_cf_beacon()
+        self.assertIn(build.CLOUDFLARE_WEB_ANALYTICS_TOKEN, cf)
+        self.assertIn('"sarawak.news"', cf)
+        self.assertIn(build.GA_INTERNAL_COOKIE, cf)
+        self.assertIn("if(internal)return", cf)
+        self.assertIn("static.cloudflareinsights.com/beacon.min.js", cf)
+        self.assertIn("H.indexOf(h)<0", cf)
+        # No unconditional beacon tag — load only after host + cookie gates.
+        self.assertNotIn(
+            '<script defer src="https://static.cloudflareinsights.com/beacon.min.js"',
+            cf,
+        )
+
     def test_pages_include_ga_script(self):
         home = build.render_home()
         about = build.render_about()
@@ -250,6 +264,8 @@ class GaScriptTests(unittest.TestCase):
             self.assertIn(build.GA_MEASUREMENT_ID, page)
             self.assertIn("traffic_type", page)
             self.assertIn(build.GA_INTERNAL_COOKIE, page)
+            self.assertIn("static.cloudflareinsights.com/beacon.min.js", page)
+            self.assertIn("if(internal)return", page)
 
 
 class DocsCheckTests(unittest.TestCase):

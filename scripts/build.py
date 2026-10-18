@@ -61,35 +61,18 @@ FAVICON_FILES = {
 # Cloudflare Web Analytics token for the sarawak.news zone site (hub is served by GitHub Pages, not proxied).
 CLOUDFLARE_WEB_ANALYTICS_TOKEN = "092a061973fc4d899cd2e4b52952af89"
 
-
-def render_cf_beacon() -> str:
-    return (
-        '<script defer src="https://static.cloudflareinsights.com/beacon.min.js" '
-        f"data-cf-beacon='{{\"token\":\"{CLOUDFLARE_WEB_ANALYTICS_TOKEN}\"}}'></script>"
-    )
-
-
 GA_MEASUREMENT_ID = "G-SJMJ0R0GJS"
 GA_PRODUCTION_HOSTS = ("sarawak.news", "www.sarawak.news")
 GA_INTERNAL_COOKIE = "sn_internal"
 GA_INTERNAL_MAX_AGE = 31536000  # ~1 year
 
 
-def render_ga_script() -> str:
-    """Emit GA4 loader: production hosts only, with optional internal traffic cookie.
-
-    ``?internal=1`` sets a first-party ``sn_internal`` cookie (~1 year);
-    ``?internal=0`` clears it. While set, ``gtag('config', …)`` sends
-    ``traffic_type: 'internal'``. The tag never loads on localhost, Pages
-    previews, or other non-production hosts.
-    """
+def _analytics_host_cookie_js() -> str:
+    """Shared host allowlist + ``?internal=`` cookie toggle (sets ``internal`` bool)."""
     hosts_js = ",".join(json.dumps(h) for h in GA_PRODUCTION_HOSTS)
     cookie = json.dumps(GA_INTERNAL_COOKIE)
-    mid = json.dumps(GA_MEASUREMENT_ID)
     max_age = GA_INTERNAL_MAX_AGE
-    # Single inline script: host gate, cookie toggle, then async gtag load.
     return (
-        "<script>(function(){"
         f"var H=[{hosts_js}],h=location.hostname;"
         "if(H.indexOf(h)<0)return;"
         f"var C={cookie},q=new URLSearchParams(location.search),"
@@ -100,6 +83,42 @@ def render_ga_script() -> str:
         "document.cookie=C+'=;path=/;max-age=0;SameSite=Lax'+sec;"
         "var internal=document.cookie.split(';').some(function(p){"
         "return p.trim()===C+'=1';});"
+    )
+
+
+def render_cf_beacon() -> str:
+    """Emit CF Web Analytics beacon: production hosts only; skip when internal cookie set.
+
+    The hub embeds the beacon in HTML (GitHub Pages is not CF-proxied). While
+    ``sn_internal`` is set (``?internal=1``), the beacon is not loaded so agent/QA
+    visits are not counted in Cloudflare Web Analytics.
+    """
+    token = json.dumps(CLOUDFLARE_WEB_ANALYTICS_TOKEN)
+    return (
+        "<script>(function(){"
+        f"{_analytics_host_cookie_js()}"
+        "if(internal)return;"
+        "var s=document.createElement('script');s.defer=true;"
+        "s.src='https://static.cloudflareinsights.com/beacon.min.js';"
+        f"s.setAttribute('data-cf-beacon',JSON.stringify({{token:{token}}}));"
+        "document.head.appendChild(s);"
+        "})();</script>"
+    )
+
+
+def render_ga_script() -> str:
+    """Emit GA4 loader: production hosts only, with optional internal traffic cookie.
+
+    ``?internal=1`` sets a first-party ``sn_internal`` cookie (~1 year);
+    ``?internal=0`` clears it. While set, ``gtag('config', …)`` sends
+    ``traffic_type: 'internal'``. The tag never loads on localhost, Pages
+    previews, or other non-production hosts.
+    """
+    mid = json.dumps(GA_MEASUREMENT_ID)
+    # Single inline script: host gate, cookie toggle, then async gtag load.
+    return (
+        "<script>(function(){"
+        f"{_analytics_host_cookie_js()}"
         "window.dataLayer=window.dataLayer||[];"
         "function gtag(){dataLayer.push(arguments);}"
         "window.gtag=gtag;"

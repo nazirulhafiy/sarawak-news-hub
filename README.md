@@ -62,7 +62,7 @@ GitHub Pages publishes `dist/` at [https://sarawak.news/](https://sarawak.news/)
 
 ## Analytics
 
-Google Analytics 4 (`G-SJMJ0R0GJS`) and Cloudflare Web Analytics (manual beacon in the page `<head>`) are injected by `scripts/build.py` on every page. GA4 loads only on `sarawak.news` / `www.sarawak.news`. Open the live site with `?internal=1` for agent/QA visits so hits are marked `traffic_type: 'internal'` (see `AGENTS.md`). The hub is served from GitHub Pages, not through Cloudflare’s proxy, so the zone Web Analytics token is embedded with `render_cf_beacon()`. Details and CSP notes are in [docs/design.md](docs/design.md) under “Analytics”.
+Google Analytics 4 (`G-SJMJ0R0GJS`) and Cloudflare Web Analytics (manual beacon in the page `<head>`) are injected by `scripts/build.py`. Both load only on `sarawak.news` / `www.sarawak.news`. Open the live site with `?internal=1` for agent/QA visits: GA4 gets `traffic_type: 'internal'` and the CF beacon is skipped (see `AGENTS.md`). The hub is served from GitHub Pages, not through Cloudflare’s proxy, so the zone Web Analytics token is embedded with `render_cf_beacon()`. Details and CSP notes are in [docs/design.md](docs/design.md) under “Analytics”.
 
 ## Drawing
 
