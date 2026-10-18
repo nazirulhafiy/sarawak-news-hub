@@ -206,6 +206,7 @@ class RenderTests(unittest.TestCase):
                     self.assertIn('<link rel="icon" href="favicon.svg" type="image/svg+xml" />', page)
                     self.assertIn('<link rel="icon" href="favicon.ico" sizes="any" />', page)
                     self.assertIn('<link rel="apple-touch-icon" href="apple-touch-icon.png" />', page)
+                    self.assertIn('<link rel="icon" href="icon-192.png" type="image/png" sizes="192x192" />', page)
                     self.assertIn('<link rel="icon" href="icon-512.png" type="image/png" sizes="512x512" />', page)
                     self.assertIn('<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />', page)
                     self.assertIn('<meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)" />', page)
