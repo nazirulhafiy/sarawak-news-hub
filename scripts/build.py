@@ -58,6 +58,9 @@ FAVICON_FILES = {
     "icon-512.png": "icon-512.png",
 }
 
+# Query string on favicon link hrefs so browsers pick up icon swaps after publish.
+FAVICON_CACHE_BUST = "yellow1"
+
 
 # Cloudflare Web Analytics token for the sarawak.news zone site (hub is served by GitHub Pages, not proxied).
 CLOUDFLARE_WEB_ANALYTICS_TOKEN = "092a061973fc4d899cd2e4b52952af89"
@@ -294,11 +297,11 @@ def render_head(title: str, description: str, canonical: str) -> str:
   <meta name="twitter:description" content="{esc(description)}" />
   <meta name="twitter:image" content="{esc(image)}" />{canonical_tag}
   <title>{esc(title)}</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="icon" href="favicon.ico" sizes="any" />
-  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-  <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192" />
-  <link rel="icon" href="icon-512.png" type="image/png" sizes="512x512" />
+  <link rel="icon" href="favicon.svg?v={FAVICON_CACHE_BUST}" type="image/svg+xml" />
+  <link rel="icon" href="favicon.ico?v={FAVICON_CACHE_BUST}" sizes="any" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v={FAVICON_CACHE_BUST}" />
+  <link rel="icon" href="icon-192.png?v={FAVICON_CACHE_BUST}" type="image/png" sizes="192x192" />
+  <link rel="icon" href="icon-512.png?v={FAVICON_CACHE_BUST}" type="image/png" sizes="512x512" />
   <link rel="preload" href="fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin />
 {theme_boot()}
   <link rel="stylesheet" href="style.css" />

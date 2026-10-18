@@ -203,11 +203,12 @@ class RenderTests(unittest.TestCase):
                 self.assertIn('<meta property="og:title" content="About Sarawak.News" />', about)
                 self.assertIn('<meta name="twitter:title" content="About Sarawak.News" />', about)
                 for page in (home, about):
-                    self.assertIn('<link rel="icon" href="favicon.svg" type="image/svg+xml" />', page)
-                    self.assertIn('<link rel="icon" href="favicon.ico" sizes="any" />', page)
-                    self.assertIn('<link rel="apple-touch-icon" href="apple-touch-icon.png" />', page)
-                    self.assertIn('<link rel="icon" href="icon-192.png" type="image/png" sizes="192x192" />', page)
-                    self.assertIn('<link rel="icon" href="icon-512.png" type="image/png" sizes="512x512" />', page)
+                    bust = build.FAVICON_CACHE_BUST
+                    self.assertIn(f'<link rel="icon" href="favicon.svg?v={bust}" type="image/svg+xml" />', page)
+                    self.assertIn(f'<link rel="icon" href="favicon.ico?v={bust}" sizes="any" />', page)
+                    self.assertIn(f'<link rel="apple-touch-icon" href="apple-touch-icon.png?v={bust}" />', page)
+                    self.assertIn(f'<link rel="icon" href="icon-192.png?v={bust}" type="image/png" sizes="192x192" />', page)
+                    self.assertIn(f'<link rel="icon" href="icon-512.png?v={bust}" type="image/png" sizes="512x512" />', page)
                     self.assertIn('<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />', page)
                     self.assertIn('<meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)" />', page)
                     self.assertIn('<meta property="og:image" content="https://sarawak.news/og.png" />', page)
