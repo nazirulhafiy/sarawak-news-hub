@@ -14,7 +14,7 @@ Dark mode sets `html[data-theme="dark"]` and swaps the same tokens: canvas `#0f1
 
 ## Favicon
 
-Nazirul approved the Design Bot Sarawak.News mark (`#snfav`): a white Sarawak shape on a black (`#111111`) rounded tile. The source files live in `design-handoff/favicon-F1/`. The build copies them to the root of `dist/` and does not publish the rest of `design-handoff/`:
+Nazirul approved the Design Bot yellow Sarawak.News mark (`#snfav2`): a yellow (`#f7c948`) Sarawak shape on a black (`#111111`) rounded tile. The source files live in `design-handoff/favicon-F1/`. The build copies them to the root of `dist/` and does not publish the rest of `design-handoff/`:
 
 | Published URL | Source |
 | --- | --- |
@@ -24,7 +24,7 @@ Nazirul approved the Design Bot Sarawak.News mark (`#snfav`): a white Sarawak sh
 | `icon-192.png` | `icon-192.png` |
 | `icon-512.png` | `icon-512.png` |
 
-The head links the SVG icon, the `.ico` with `sizes="any"`, the Apple touch icon, and the 192 and 512 PNGs. There is no web app manifest. Icon URLs are not cache-busted (same as other static assets). `theme-color` is `#ffffff` for `prefers-color-scheme: light` and `#0f1115` for dark. `favicon.ico` already carries the 16 and 32 pixel sizes. The favicon and the app icons stay this rounded tile. They are not the share image.
+The head links the SVG icon, the `.ico` with `sizes="any"`, the Apple touch icon, and the 192 and 512 PNGs. There is no web app manifest. Icon `href`s append `?v=yellow1` (`FAVICON_CACHE_BUST` in `scripts/build.py`) so browsers pick up icon swaps after publish. `theme-color` is `#ffffff` for `prefers-color-scheme: light` and `#0f1115` for dark. `favicon.ico` already carries the 16 and 32 pixel sizes. The favicon and the app icons stay this rounded tile. They are not the share image.
 
 ## Social image
 
