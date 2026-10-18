@@ -27,13 +27,6 @@ PHOTO_LICENCE_25 = "https://creativecommons.org/licenses/by-sa/2.5/"
 # One line each for a shape that was traced. Other references are proportions only.
 DRAWING_CREDITS = (
     (
-        "The DUN is traced from a",
-        "CEphoto (Uwe Aranas)",
-        "https://commons.wikimedia.org/wiki/File:Kuching_Sarawak_Dewan-Undangan-Negeri-Sarawak-01.jpg",
-        PHOTO_LICENCE,
-        "CC BY-SA 4.0",
-    ),
-    (
         "The Darul Hana pylons are traced from a",
         "Meandkancil2020",
         "https://commons.wikimedia.org/wiki/File:Jambatan_Darul_Hana,_di_Bandaraya_Kuching.jpg",
