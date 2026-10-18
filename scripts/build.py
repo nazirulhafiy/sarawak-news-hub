@@ -22,25 +22,6 @@ HEADLINE = "Sarawak, made easy."
 DECK = "Aggregating key information, all in one place."
 SUBTITLE = "Aggregating key information, all in one place."
 PAGE_TITLE = "Sarawak.News"
-PHOTO_LICENCE = "https://creativecommons.org/licenses/by-sa/4.0/"
-PHOTO_LICENCE_25 = "https://creativecommons.org/licenses/by-sa/2.5/"
-# One line each for a shape that was traced. Other references are proportions only.
-DRAWING_CREDITS = (
-    (
-        "The Darul Hana pylons are traced from a",
-        "Meandkancil2020",
-        "https://commons.wikimedia.org/wiki/File:Jambatan_Darul_Hana,_di_Bandaraya_Kuching.jpg",
-        PHOTO_LICENCE,
-        "CC BY-SA 4.0",
-    ),
-    (
-        "Gunung Santubong is traced from a",
-        "Matthew Anderson Lockhart",
-        "https://commons.wikimedia.org/wiki/File:Mount_Santubong_from_Santubong_Bridge.jpg",
-        PHOTO_LICENCE_25,
-        "CC BY-SA 2.5",
-    ),
-)
 
 # Published names, copied from design-handoff/favicon-F1/. The handoff folder itself stays unpublished.
 FAVICON_FILES = {
@@ -353,12 +334,6 @@ def render_about(sites: list[dict] | None = None) -> str:
       <h2 id="about-independence">Independence</h2>
       <p>Built by <a href="https://hafiy.my">hafiy.my</a>, an independent publication. Not affiliated with the Sarawak Government.</p>
     </section>
-    <div class="about-credits">
-      {"".join(
-          f'<p class="about-credit">{esc(lead)} <a href="{esc(photo)}">reference photo</a> by {esc(author)}, <a href="{esc(licence)}">{esc(name)}</a>.</p>'
-          for lead, author, photo, licence, name in DRAWING_CREDITS
-      )}
-    </div>
   </main>
 {render_footer()}
 {render_back_to_top()}
