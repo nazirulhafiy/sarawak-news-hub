@@ -33,7 +33,7 @@ FAVICON_FILES = {
 }
 
 # Query string on favicon link hrefs so browsers pick up icon swaps after publish.
-FAVICON_CACHE_BUST = "yellow1"
+FAVICON_CACHE_BUST = "solid3"
 
 
 # Cloudflare Web Analytics token for the sarawak.news zone site (hub is served by GitHub Pages, not proxied).
