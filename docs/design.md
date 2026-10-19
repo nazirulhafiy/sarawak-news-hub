@@ -14,7 +14,7 @@ Dark mode sets `html[data-theme="dark"]` and swaps the same tokens: canvas `#0f1
 
 ## Favicon
 
-Nazirul approved the Design Bot yellow Sarawak.News mark (`#snfav2`): a yellow (`#f7c948`) Sarawak shape on a black (`#111111`) rounded tile. The source files live in `design-handoff/favicon-F1/`. The build copies them to the root of `dist/` and does not publish the rest of `design-handoff/`:
+Nazirul approved the Design Bot solid3 Sarawak.News favicon (Chief `#fav-s3live`, approved 19 Oct 2026): the yellow (`#f7c948`) origami hornbill on a near-black (`#111111`) rounded tile. The source files live in `design-handoff/favicon-F1/` with `?v=solid3`. The build copies them to the root of `dist/` and does not publish the rest of `design-handoff/`:
 
 | Published URL | Source |
 | --- | --- |
@@ -61,7 +61,7 @@ Dark mode also changes the line inks. The drawing is `#5f6977` at opacity 0.6 an
 
 Shapes were traced from Wikimedia photos. About does not list those photo credits on the page. The photos are not published.
 
-Other photos were used only to check general proportions: the rest of the assembly views, the Darul Hana promenade view, the Santubong profiles, and the Kuching river scene. The full list, without the tambang photos, is in [docs/SOURCES.md](SOURCES.md). The tambang references are omitted because the boat is not in the drawing. The footer does not carry these credits. The favicon stays the Design Bot Sarawak tile.
+Other photos were used only to check general proportions: the rest of the assembly views, the Darul Hana promenade view, the Santubong profiles, and the Kuching river scene. The full list, without the tambang photos, is in [docs/SOURCES.md](SOURCES.md). The tambang references are omitted because the boat is not in the drawing. The footer does not carry these credits. The favicon stays the Design Bot solid3 Sarawak.News favicon (Chief `#fav-s3live`): the yellow (`#f7c948`) origami hornbill on a near-black (`#111111`) rounded tile in `design-handoff/favicon-F1/` with `?v=solid3`.
 
 ## Cards
 
