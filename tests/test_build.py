@@ -61,6 +61,17 @@ class RenderTests(unittest.TestCase):
         )
         self.assertNotIn("Explore Sarawak-focused sites", home)
         self.assertNotIn("Each site links to its sources.", home)
+        self.assertIn('<nav aria-label="Explore" class="site-footer-nav">', home)
+        self.assertIn('<h2>Explore</h2>', home)
+        self.assertIn(
+            '<a class="site-footer-link" href="index.html" aria-current="page">Home</a>',
+            home,
+        )
+        self.assertIn('<a class="site-footer-link" href="about.html">About</a>', home)
+        self.assertIn(
+            '<a class="site-footer-link" href="mailto:contact@sarawak.news">Contact</a>',
+            home,
+        )
         self.assertIn("<title>Sarawak.News</title>", home)
         self.assertIn('<meta property="og:title" content="Sarawak.News" />', home)
         self.assertIn('<meta name="twitter:title" content="Sarawak.News" />', home)
@@ -202,6 +213,16 @@ class RenderTests(unittest.TestCase):
                     about,
                 )
                 self.assertNotIn("Explore Sarawak-focused sites", about)
+                self.assertIn('<nav aria-label="Explore" class="site-footer-nav">', about)
+                self.assertIn('<a class="site-footer-link" href="index.html">Home</a>', about)
+                self.assertIn(
+                    '<a class="site-footer-link" href="about.html" aria-current="page">About</a>',
+                    about,
+                )
+                self.assertIn(
+                    '<a class="site-footer-link" href="mailto:contact@sarawak.news">Contact</a>',
+                    about,
+                )
                 self.assertNotIn("Sarawak, made easy..", about)
                 self.assertNotIn("Each site links to its sources.", about)
                 self.assertNotIn("Sarawak News made easy", about)
