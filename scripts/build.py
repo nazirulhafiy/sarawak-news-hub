@@ -237,8 +237,24 @@ def render_back_to_top() -> str:
     return """  <button class="back-to-top" type="button" data-back-to-top aria-label="Back to top" hidden><span class="back-to-top-label">Back to top</span> <span class="back-to-top-arrow" aria-hidden="true">↑</span></button>"""
 
 
-def render_footer() -> str:
-    return """  <footer class="site-footer">
+def render_footer(active_page: str) -> str:
+    home_current = ' aria-current="page"' if active_page == "home" else ""
+    about_current = ' aria-current="page"' if active_page == "about" else ""
+    return f"""  <footer class="site-footer">
+    <div class="site-footer-main">
+      <div class="site-footer-summary">
+        <p class="site-footer-brand">Sarawak.News</p>
+        <p class="site-footer-note">{esc(DECK)}</p>
+      </div>
+      <nav aria-label="Explore" class="site-footer-nav">
+        <h2>Explore</h2>
+        <ul>
+          <li><a class="site-footer-link" href="index.html"{home_current}>Home</a></li>
+          <li><a class="site-footer-link" href="about.html"{about_current}>About</a></li>
+          <li><a class="site-footer-link" href="mailto:contact@sarawak.news">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
     <div class="site-footer-bottom">
       <p>Built by <a class="site-footer-link site-footer-credit-link" href="https://hafiy.my">hafiy.my</a>, an independent publication. Not affiliated with the Sarawak Government.</p>
     </div>
@@ -300,7 +316,7 @@ def render_home(sites: list[dict] | None = None) -> str:
       {cards}
     </section>
   </main>
-{render_footer()}
+{render_footer("home")}
 {render_back_to_top()}
 </body>"""
     return render_head(PAGE_TITLE, description, canonical) + "\n" + body + "\n</html>\n"
@@ -335,7 +351,7 @@ def render_about(sites: list[dict] | None = None) -> str:
       <p>Built by <a href="https://hafiy.my">hafiy.my</a>, an independent publication. Not affiliated with the Sarawak Government.</p>
     </section>
   </main>
-{render_footer()}
+{render_footer("about")}
 {render_back_to_top()}
 </body>"""
     return render_head(title, description, canonical) + "\n" + body + "\n</html>\n"

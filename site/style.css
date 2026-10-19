@@ -576,15 +576,80 @@ html[data-theme="dark"] .site-footer {
   background: #161c24;
 }
 
-.site-footer-bottom {
-  padding: 16px 28px;
-  border-top: 0;
-  font-size: 12px;
-  line-height: 1.65;
-  text-align: center;
+.site-footer-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(180px, 1fr);
+  align-items: stretch;
+  padding: 0;
 }
 
+.site-footer-summary { padding: 28px; }
+
+.site-footer-brand,
+.site-footer-note,
 .site-footer-bottom p { margin: 0; }
+
+.site-footer-brand {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  line-height: 1.65;
+}
+
+.site-footer-note {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.site-footer-nav {
+  --footer-nav-inline-padding: 28px;
+  padding: 28px var(--footer-nav-inline-padding);
+  border-left: 1px solid var(--line);
+}
+
+.site-footer-nav h2 {
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  line-height: 1.4;
+  padding-top: 2px;
+  text-transform: uppercase;
+}
+
+.site-footer-nav ul {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-footer-link {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  text-underline-offset: .2em;
+}
+
+.site-footer-nav .site-footer-link:hover,
+.site-footer-nav .site-footer-link:focus-visible {
+  color: var(--sarawak-red);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--sarawak-red);
+}
+
+.site-footer-bottom {
+  padding: 16px 28px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  line-height: 1.65;
+}
 
 .back-to-top{position:fixed;right:24px;bottom:24px;z-index:5;display:inline-flex;align-items:center;justify-content:center;gap:3.08px;padding:8px 12px;border:1px solid #111;border-radius:999px;background:#111;color:#f7c948;cursor:pointer;font-family:"Geist",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:11px;font-weight:850;line-height:1.3;letter-spacing:normal;box-shadow:0 4px 14px rgb(17 24 39 / 10%);opacity:0;visibility:hidden;pointer-events:none;transform:translateY(6px);transition:opacity .18s ease,transform .18s ease,visibility .18s ease}
 html[data-theme="dark"] .back-to-top{border-color:#f7c948;background:#111;color:#f7c948}
@@ -711,6 +776,14 @@ html[data-theme="dark"] .back-to-top:hover{border-color:#f7c948}
 
   .hub-grid { grid-template-columns: 1fr; gap: 12px; margin-top: 18px; }
 
+  .site-footer-main { grid-template-columns: 1fr; gap: 0; }
+  .site-footer-summary { padding: 24px 20px; }
+  .site-footer-nav {
+    --footer-nav-inline-padding: 20px;
+    padding: 24px var(--footer-nav-inline-padding);
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
   .site-footer-bottom { padding: 14px 18px; }
 }
 

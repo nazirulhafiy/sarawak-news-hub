@@ -88,7 +88,7 @@ Those six fields are the whole entry. There is no `map` field and no `counts` fi
 
 ## Footer
 
-A rounded credit box with one centred line: “Built by hafiy.my, an independent publication. Not affiliated with the Sarawak Government.”
+Structured, contained footer on the 760px rail: a summary column (brand **Sarawak.News** and the deck line), an **Explore** column with vertical Home / About / Contact links (Contact uses `mailto:contact@sarawak.news`, same `site-footer-link` styling as Home and About), and a full-width builder and independence attribution row (“Built by hafiy.my, an independent publication. Not affiliated with the Sarawak Government.”).
 
 ## Back to top
 
