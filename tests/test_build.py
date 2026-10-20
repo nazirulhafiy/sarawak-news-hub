@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import os
 import sys
 import tempfile
@@ -250,21 +251,27 @@ class RenderTests(unittest.TestCase):
                 self.assertNotIn("commons.wikimedia.org", home)
                 self.assertIn(f'<meta property="og:title" content="{about_title}" />', about)
                 self.assertIn(f'<meta name="twitter:title" content="{about_title}" />', about)
+                og_src = Path(__file__).resolve().parents[1] / "site" / "og.png"
+                og_hash = hashlib.sha256(og_src.read_bytes()).hexdigest()[:12]
+                og_url = "https://sarawak.news/og.png?v=" + og_hash
+                icon_hashes = []
                 for page in (home, about):
-                    bust = build.FAVICON_CACHE_BUST
-                    self.assertIn(f'<link rel="icon" href="favicon.svg?v={bust}" type="image/svg+xml" />', page)
-                    self.assertIn(f'<link rel="icon" href="favicon.ico?v={bust}" sizes="any" />', page)
-                    self.assertIn(f'<link rel="apple-touch-icon" href="apple-touch-icon.png?v={bust}" />', page)
-                    self.assertIn(f'<link rel="icon" href="icon-192.png?v={bust}" type="image/png" sizes="192x192" />', page)
-                    self.assertIn(f'<link rel="icon" href="icon-512.png?v={bust}" type="image/png" sizes="512x512" />', page)
+                    for dest_name, src_name in build.FAVICON_FILES.items():
+                        src = handoff / src_name
+                        file_hash = hashlib.sha256(src.read_bytes()).hexdigest()[:12]
+                        icon_hashes.append(file_hash)
+                        stamped = dest_name + "?v=" + file_hash
+                        self.assertIn(stamped, page)
+                    self.assertNotIn("solid3", page)
                     self.assertIn('<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />', page)
                     self.assertIn('<meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)" />', page)
-                    self.assertIn('<meta property="og:image" content="https://sarawak.news/og.png" />', page)
+                    self.assertIn(f'<meta property="og:image" content="{og_url}" />', page)
                     self.assertIn('<meta property="og:image:width" content="1200" />', page)
                     self.assertIn('<meta property="og:image:height" content="630" />', page)
                     self.assertIn('<meta name="twitter:card" content="summary_large_image" />', page)
-                    self.assertIn('<meta name="twitter:image" content="https://sarawak.news/og.png" />', page)
+                    self.assertIn(f'<meta name="twitter:image" content="{og_url}" />', page)
                     self.assertNotIn('<meta name="twitter:card" content="summary" />', page)
+                self.assertEqual(len(set(icon_hashes)), len(build.FAVICON_FILES))
                 robots = (dist / "robots.txt").read_text(encoding="utf-8")
                 sitemap = (dist / "sitemap.xml").read_text(encoding="utf-8")
                 self.assertIn(f"Sitemap: {origin}sitemap.xml", robots)

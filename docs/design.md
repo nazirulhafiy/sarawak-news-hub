@@ -14,7 +14,7 @@ Dark mode sets `html[data-theme="dark"]` and swaps the same tokens: canvas `#0f1
 
 ## Favicon
 
-Nazirul approved the Design Bot solid3 hub favicon (Chief `#fav-s3live`, approved 19 Oct 2026): the yellow (`#f7c948`) origami hornbill on a near-black (`#111111`) rounded tile. The source files live in `design-handoff/favicon-F1/` with `?v=solid3`. The build copies them to the root of `dist/` and does not publish the rest of `design-handoff/`:
+Nazirul approved the Design Bot solid3 hub favicon (Chief `#fav-s3live`, approved 19 Oct 2026): the yellow (`#f7c948`) origami hornbill on a near-black (`#111111`) rounded tile. The source files live in `design-handoff/favicon-F1/`. The build copies them to the root of `dist/` and does not publish the rest of `design-handoff/`:
 
 | Published URL | Source |
 | --- | --- |
@@ -24,13 +24,13 @@ Nazirul approved the Design Bot solid3 hub favicon (Chief `#fav-s3live`, approve
 | `icon-192.png` | `icon-192.png` |
 | `icon-512.png` | `icon-512.png` |
 
-The head links the SVG icon, the `.ico` with `sizes="any"`, the Apple touch icon, and the 192 and 512 PNGs. There is no web app manifest. Icon `href`s append `?v=solid3` (`FAVICON_CACHE_BUST` in `scripts/build.py`) so browsers pick up icon swaps after publish. `theme-color` is `#ffffff` for `prefers-color-scheme: light` and `#0f1115` for dark. `favicon.ico` already carries the 16 and 32 pixel sizes. The favicon and the app icons stay this rounded tile. They are not the share image.
+The head links the SVG icon, the `.ico` with `sizes="any"`, the Apple touch icon, and the 192 and 512 PNGs. There is no web app manifest. Each icon `href` gets a content hash query string from `versioned_href` in `kit/python/asset_urls.py`. The value is the first 12 hex characters of the SHA-256 of that file. `og:image` and `twitter:image` use the same function on `site/og.png`. Replacing a file changes its query string, so browsers fetch the new bytes after publish. `tests/test_asset_urls.py` fails if `scripts/`, `kit/`, `docs/`, `README.md`, `AGENTS.md`, or site HTML, JS, CSS, or SVG contain a hand-typed asset query stamp outside a generated block. `theme-color` is `#ffffff` for `prefers-color-scheme: light` and `#0f1115` for dark. `favicon.ico` already carries the 16 and 32 pixel sizes. The favicon and the app icons stay this rounded tile. They are not the share image.
 
 ## Social image
 
 `site/og.png` is a 1200×630 PNG. The build copies it to `dist/og.png`. The background is the dark canvas `#0f1115` and runs to every edge. The file is RGB, with no alpha and no rounded corners. Centred in the frame are the yellow Sarawak map from the F1 mark (`#f7c948`) and, beside it, the hub title from `data/site.json` in Geist (`#f3f5f7`). There is no tagline on the card.
 
-Home and About point `og:image` and `twitter:image` at `https://sarawak.news/og.png`. `og:image:width` is 1200 and `og:image:height` is 630. `twitter:card` is `summary_large_image`.
+Home and About point `og:image` and `twitter:image` at `https://sarawak.news/og.png` plus the content hash query string of `site/og.png`. `og:image:width` is 1200 and `og:image:height` is 630. `twitter:card` is `summary_large_image`.
 
 ## Theme
 
@@ -61,7 +61,7 @@ Dark mode also changes the line inks. The drawing is `#5f6977` at opacity 0.6 an
 
 Shapes were traced from Wikimedia photos. About does not list those photo credits on the page. The photos are not published.
 
-Other photos were used only to check general proportions: the rest of the assembly views, the Darul Hana promenade view, the Santubong profiles, and the Kuching river scene. The full list, without the tambang photos, is in [docs/SOURCES.md](SOURCES.md). The tambang references are omitted because the boat is not in the drawing. The footer does not carry these credits. The favicon stays the Design Bot solid3 hub favicon (Chief `#fav-s3live`): the yellow (`#f7c948`) origami hornbill on a near-black (`#111111`) rounded tile in `design-handoff/favicon-F1/` with `?v=solid3`.
+Other photos were used only to check general proportions: the rest of the assembly views, the Darul Hana promenade view, the Santubong profiles, and the Kuching river scene. The full list, without the tambang photos, is in [docs/SOURCES.md](SOURCES.md). The tambang references are omitted because the boat is not in the drawing. The footer does not carry these credits. The favicon stays the Design Bot solid3 hub favicon (Chief `#fav-s3live`): the yellow (`#f7c948`) origami hornbill on a near-black (`#111111`) rounded tile in `design-handoff/favicon-F1/`. Icon links use a content hash query string.
 
 ## Cards
 
@@ -95,6 +95,7 @@ Fleet chrome that every sarawak.news site should share lives in `kit/` in this h
 | `kit/python/shell.py` | Header, footer (always includes Contact `mailto:contact@sarawak.news`), back-to-top markup |
 | `kit/python/analytics_loader.py` | Registry-driven production loader (`data-sn-analytics-loader`) |
 | `kit/python/analytics_registry.py` | `data/analytics.json` validation (each site keeps its own registry file) |
+| `kit/python/asset_urls.py` | Content-hash query strings for icon and share-image URLs |
 | `kit/assets/icons/` | Origami hornbill nav marks |
 | `kit/css/back-to-top.css` / `kit/js/back-to-top.js` | Back-to-top rules and behaviour (mirrored into `site/style.css` / `site/app.js` inside `sn-kit:back-to-top` markers) |
 

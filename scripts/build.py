@@ -28,6 +28,7 @@ from kit.python.analytics_loader import (  # noqa: E402
     render_analytics_loader as kit_render_analytics_loader,
 )
 from kit.python.analytics_registry import AnalyticsRegistry, load_analytics  # noqa: E402
+from kit.python.asset_urls import versioned_href  # noqa: E402
 from kit.python.shell import (  # noqa: E402
     NavItem,
     render_back_to_top,
@@ -50,8 +51,9 @@ FAVICON_FILES = {
     "icon-512.png": "icon-512.png",
 }
 
-# Query string on favicon link hrefs so browsers pick up icon swaps after publish.
-FAVICON_CACHE_BUST = "solid3"
+def versioned_icon(public_name: str) -> str:
+    src_name = FAVICON_FILES[public_name]
+    return versioned_href(public_name, ROOT / "design-handoff" / "favicon-F1" / src_name)
 
 
 def analytics_registry() -> AnalyticsRegistry:
@@ -216,7 +218,13 @@ def render_head(
     canonical_tag = f'\n  <link rel="canonical" href="{esc(canonical)}" />' if canonical else ""
     og_url = f'\n  <meta property="og:url" content="{esc(canonical)}" />' if canonical else ""
     url = site_url()
-    image = f"{url}og.png" if url else "og.png"
+    image_href = f"{url}og.png" if url else "og.png"
+    image = versioned_href(image_href, SITE / "og.png")
+    icon_svg = versioned_icon("favicon.svg")
+    icon_ico = versioned_icon("favicon.ico")
+    icon_apple = versioned_icon("apple-touch-icon.png")
+    icon_192 = versioned_icon("icon-192.png")
+    icon_512 = versioned_icon("icon-512.png")
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -238,11 +246,11 @@ def render_head(
   <meta name="twitter:description" content="{esc(description)}" />
   <meta name="twitter:image" content="{esc(image)}" />{canonical_tag}
   <title>{esc(title)}</title>
-  <link rel="icon" href="favicon.svg?v={FAVICON_CACHE_BUST}" type="image/svg+xml" />
-  <link rel="icon" href="favicon.ico?v={FAVICON_CACHE_BUST}" sizes="any" />
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v={FAVICON_CACHE_BUST}" />
-  <link rel="icon" href="icon-192.png?v={FAVICON_CACHE_BUST}" type="image/png" sizes="192x192" />
-  <link rel="icon" href="icon-512.png?v={FAVICON_CACHE_BUST}" type="image/png" sizes="512x512" />
+  <link rel="icon" href="{esc(icon_svg)}" type="image/svg+xml" />
+  <link rel="icon" href="{esc(icon_ico)}" sizes="any" />
+  <link rel="apple-touch-icon" href="{esc(icon_apple)}" />
+  <link rel="icon" href="{esc(icon_192)}" type="image/png" sizes="192x192" />
+  <link rel="icon" href="{esc(icon_512)}" type="image/png" sizes="512x512" />
   <link rel="preload" href="fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin />
 {theme_boot()}
   <link rel="stylesheet" href="style.css" />

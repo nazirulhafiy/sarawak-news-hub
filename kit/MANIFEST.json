@@ -8,6 +8,7 @@
     "python/shell.py",
     "python/analytics_registry.py",
     "python/analytics_loader.py",
+    "python/asset_urls.py",
     "assets/icons/nav-mark-transparent.svg",
     "assets/icons/nav-mark-transparent-dark.svg",
     "css/back-to-top.css",
