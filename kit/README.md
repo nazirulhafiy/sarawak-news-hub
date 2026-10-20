@@ -14,6 +14,7 @@ Sisters vendor the files and record the hub commit in `kit/PIN`. `python3 kit/sy
 | `python/asset_urls.py` | `content_hash`, `versioned_href` |
 | `python/docs_facts.py` | Generated fact blocks |
 | `generate_docs.py` | Write or `--check` those blocks |
+| `favicon_sheet.py` | 16, 32, and 48 pixel contact sheet |
 | `assets/icons/nav-mark-transparent.svg` | Light nav mark |
 | `assets/icons/nav-mark-transparent-dark.svg` | Dark nav mark |
 | `css/back-to-top.css` | Back-to-top rules |
@@ -93,6 +94,13 @@ python3 kit/generate_docs.py --check
 
 `--check` exits 1 when a marker interior does not match a fresh render, or when a marker pair is missing. Hub CI runs that command after `kit/sync.py --check`.
 
+`favicon_sheet.py` writes one PNG of the icon at 16, 32, and 48 pixels. It is a proof script, not a CI check. Omit `--src` to use `design-handoff/favicon-F1/apple-touch-icon.png`, or `icon-192.png` in that folder when the apple touch file is absent.
+
+```bash
+python3 kit/favicon_sheet.py --src design-handoff/favicon-F1/apple-touch-icon.png \
+  --out /tmp/favicon-sheet.png
+```
+
 Hosting facts come from `data/hosting.json` when that file exists. The keys are `target` and `hostname`. Otherwise the hostname is the text of `CNAME` and the target is GitHub Pages.
 
 After a sister vendors a new pin, add the marker pairs, then regenerate.
@@ -104,4 +112,6 @@ echo "$PIN" > kit/PIN
 python3 kit/sync.py --check --hub-path "$SN_HUB_PATH"
 python3 kit/generate_docs.py
 python3 kit/generate_docs.py --check
+python3 kit/favicon_sheet.py --src design-handoff/favicon-F1/apple-touch-icon.png \
+  --out /tmp/favicon-sheet.png
 ```

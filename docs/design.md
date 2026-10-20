@@ -128,6 +128,7 @@ Fleet chrome that every sarawak.news site should share lives in `kit/` in this h
 | `kit/python/asset_urls.py` | Content-hash query strings for icon and share-image URLs |
 | `kit/python/docs_facts.py` | Fact blocks for site copy, analytics, hosting, and colour tokens |
 | `kit/generate_docs.py` | Writes those blocks, or checks them with `--check` |
+| `kit/favicon_sheet.py` | Proof contact sheet of the favicon at 16, 32, and 48 pixels. Not published. |
 | `kit/assets/icons/` | Origami hornbill nav marks |
 | `kit/css/back-to-top.css` / `kit/js/back-to-top.js` | Back-to-top rules and behaviour (mirrored into `site/style.css` / `site/app.js` inside `sn-kit:back-to-top` markers) |
 

@@ -5,6 +5,7 @@
     "MANIFEST.json",
     "sync.py",
     "generate_docs.py",
+    "favicon_sheet.py",
     "python/__init__.py",
     "python/shell.py",
     "python/analytics_registry.py",
