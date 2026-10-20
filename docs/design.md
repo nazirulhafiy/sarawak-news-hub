@@ -14,7 +14,7 @@ Dark mode sets `html[data-theme="dark"]` and swaps the same tokens: canvas `#0f1
 
 ## Favicon
 
-Nazirul approved the Design Bot solid3 Sarawak.News favicon (Chief `#fav-s3live`, approved 19 Oct 2026): the yellow (`#f7c948`) origami hornbill on a near-black (`#111111`) rounded tile. The source files live in `design-handoff/favicon-F1/` with `?v=solid3`. The build copies them to the root of `dist/` and does not publish the rest of `design-handoff/`:
+Nazirul approved the Design Bot solid3 hub favicon (Chief `#fav-s3live`, approved 19 Oct 2026): the yellow (`#f7c948`) origami hornbill on a near-black (`#111111`) rounded tile. The source files live in `design-handoff/favicon-F1/` with `?v=solid3`. The build copies them to the root of `dist/` and does not publish the rest of `design-handoff/`:
 
 | Published URL | Source |
 | --- | --- |
@@ -28,7 +28,7 @@ The head links the SVG icon, the `.ico` with `sizes="any"`, the Apple touch icon
 
 ## Social image
 
-`site/og.png` is a 1200×630 PNG. The build copies it to `dist/og.png`. The background is the dark canvas `#0f1115` and runs to every edge. The file is RGB, with no alpha and no rounded corners. Centred in the frame are the yellow Sarawak map from the F1 mark (`#f7c948`) and, beside it, the name Sarawak.News in Geist (`#f3f5f7`). There is no tagline on the card.
+`site/og.png` is a 1200×630 PNG. The build copies it to `dist/og.png`. The background is the dark canvas `#0f1115` and runs to every edge. The file is RGB, with no alpha and no rounded corners. Centred in the frame are the yellow Sarawak map from the F1 mark (`#f7c948`) and, beside it, the hub title from `data/site.json` in Geist (`#f3f5f7`). There is no tagline on the card.
 
 Home and About point `og:image` and `twitter:image` at `https://sarawak.news/og.png`. `og:image:width` is 1200 and `og:image:height` is 630. `twitter:card` is `summary_large_image`.
 
@@ -38,20 +38,20 @@ Home and About point `og:image` and `twitter:image` at `https://sarawak.news/og.
 
 The header is bantuan’s bar: wordmark, red / yellow / black rule, Sites and About, sun-and-moon toggle. Below 560px the links collapse into a menu button. The theme control stays visible.
 
-The home link (`.brand`) starts with Design Bot’s origami line hornbill (`#snnav`), then “Sarawak.News”, with a small gap. Sources are `site/icons/nav-mark-transparent.svg` (light) and `site/icons/nav-mark-transparent-dark.svg` (dark; transparent, no `#111` square). The build copies both to `dist/icons/`. Images use `alt=""`; the text labels the link. Mark height matches the wordmark line (`1.15em`). The brand stays on one line (`white-space: nowrap`) down to 375px. SVGs are used as supplied — no recolouring.
+The home link (`.brand`) starts with Design Bot’s origami line hornbill (`#snnav`), then the hub `title` from `data/site.json`, with a small gap. Sources are `site/icons/nav-mark-transparent.svg` (light) and `site/icons/nav-mark-transparent-dark.svg` (dark; transparent, no `#111` square). The build copies both to `dist/icons/`. Images use `alt=""`; the text labels the link. Mark height matches the wordmark line (`1.15em`). The brand stays on one line (`white-space: nowrap`) down to 375px. SVGs are used as supplied — no recolouring.
 
 The bar is sticky. `.bar` is a full-viewport shell (`position: sticky; top: 0`) with a solid page-colour background in light and dark mode, so the page scrolls underneath it. The wordmark, Sites, About, the theme toggle, and the menu stay on the 760px rail inside `.bar-inner`. On viewports wider than 560px the tri-colour rule stays on that rail: red under the wordmark, yellow and black splitting the rest, including under the theme control. From 560px down the rule runs edge to edge, from the left of the viewport to the right (`0` to `100vw`), including behind the theme and menu icons. `site/app.js` adds `.is-scrolled` after any scroll. That class paints a thin bottom edge and a soft shadow. At the top of the page there is no shadow. Light mode uses `0 6px 16px rgb(17 24 39 / 8%)`. Dark mode uses `0 6px 16px rgb(0 0 0 / 35%)`. `html` uses `overflow-x: clip`, and from 560px down the body does too, so the full-bleed bar and the mobile drawing do not widen the page (`scrollWidth` stays the viewport width). `scroll-padding-top` is 72px, and 76px from 560px down, so a jump to `#content` clears the bar. The skip link stacks above the bar.
 
 ## Hero
 
-The home hero is a centred brief. The words are fixed (constants `HEADLINE` and `SUBTITLE` in `scripts/build.py`; `DECK` matches `SUBTITLE` for meta tags):
+The home hero is a centred brief. Hub wording is owned by `data/site.json` (`title`, `tagline`, `description`, `about_lead`). The build fills every surface from that file; do not hand-type those strings in `scripts/`, `tests/`, `docs/`, or `README.md`. `tests/test_site_copy.py` fails if they appear elsewhere in source.
 
-- Sarawak, made easy.
-- Aggregating key information, all in one place.
+- `tagline` → home `<h1>`
+- `description` → `p.brief-deck`, meta / og / twitter descriptions on Home and About, and the footer note
+- `title` → home `<title>` / `og:title` / `twitter:title`, header and footer brand, `og:site_name`
+- About page title is `About` plus `title`; the lede is `about_lead` (must equal `tagline` + space + `description`)
 
-The headline keeps the comma after Sarawak and the full stop. `.brief` is 760px at most, centred, `text-align: center`, with `padding: 44px 8px 0` and `margin: 32px auto 8px`. The headline is `clamp(36px, 6vw, 48px)`, weight 700, letter-spacing `-1.2px`, line-height `1.02`, `max-width: 680px`, and `margin: 0 auto 12px`. The visible sub-line, `p.brief-deck`, is 18px, line-height `1.62`, `max-width: 620px`, centred, in the copy colour (`#374151` light, `#d2d8df` dark). It uses `text-wrap: balance`, with `text-wrap: pretty` declared first so a browser that does not understand `balance` still avoids a short last line. Below 560px the headline is `clamp(2.15rem, 11vw, 3rem)`, the sub-line is 17px, and the brief padding is `30px 0 0`. The headline wraps on its own. On a 390px screen it breaks after the comma, so the second line is “made easy.” The sub-line stays on one line. The document `<title>`, `og:title`, and `twitter:title` on the home page are `Sarawak.News`. About keeps `<title>About Sarawak.News</title>`.
-
-`description`, `og:description`, and `twitter:description` on Home and About use the same sentence as `p.brief-deck`: “Aggregating key information, all in one place.” The About lede repeats it after “Sarawak, made easy.”
+The headline keeps the comma after Sarawak and the full stop when the tagline uses that form. `.brief` is 760px at most, centred, `text-align: center`, with `padding: 44px 8px 0` and `margin: 32px auto 8px`. The headline is `clamp(36px, 6vw, 48px)`, weight 700, letter-spacing `-1.2px`, line-height `1.02`, `max-width: 680px`, and `margin: 0 auto 12px`. The visible sub-line, `p.brief-deck`, is 18px, line-height `1.62`, `max-width: 620px`, centred, in the copy colour (`#374151` light, `#d2d8df` dark). It uses `text-wrap: balance`, with `text-wrap: pretty` declared first so a browser that does not understand `balance` still avoids a short last line. Below 560px the headline is `clamp(2.15rem, 11vw, 3rem)`, the sub-line is 17px, and the brief padding is `30px 0 0`. The headline wraps on its own. On a 390px screen the current tagline breaks after the comma, so the second line is “made easy.” The sub-line stays on one line.
 
 Under the words is one inline SVG (`svg.hero-art`, viewBox `0 0 760 240`) from `site/hero-art.svg`. It is a line drawing of the Kuching riverfront. The Darul Hana bridge is on the left, the Dewan Undangan Negeri stays in the centre, and Gunung Santubong is on the right. Trees sit on the bank. The kampung houses are gone. Wisma Sanyan, the Sibu tower, stands on the left of the assembly, clear of the trees. Menara Kidurong, the Bintulu tower, is also drawn in. The Grand Old Lady derrick, from Miri, stands on the right. Filled shapes (`.occl`) cover the bank line behind the added buildings. In light mode the fill is `#fff`, the same as the page (`#ffffff`). In dark mode it is `#0f1115`. The river is a few short wave strokes. There is no boat. `aria-hidden="true"` and `focusable="false"` mark it decorative. `pointer-events: none` keeps it off clicks. The drawing sits in the flow, full width of the 760px rail, with `margin-top: 22px`. A horizontal mask fades the outer 10% on each side. Below 560px the drawing is 115% of the column and shifted with `margin: 16px -7.5% 0`, so it bleeds off the screen edges. `html` and `body` use `overflow-x: clip` at that width so the bleed does not scroll. The clip edge is the screen edge, so the drawing still runs off both sides of the column.
 
@@ -61,7 +61,7 @@ Dark mode also changes the line inks. The drawing is `#5f6977` at opacity 0.6 an
 
 Shapes were traced from Wikimedia photos. About does not list those photo credits on the page. The photos are not published.
 
-Other photos were used only to check general proportions: the rest of the assembly views, the Darul Hana promenade view, the Santubong profiles, and the Kuching river scene. The full list, without the tambang photos, is in [docs/SOURCES.md](SOURCES.md). The tambang references are omitted because the boat is not in the drawing. The footer does not carry these credits. The favicon stays the Design Bot solid3 Sarawak.News favicon (Chief `#fav-s3live`): the yellow (`#f7c948`) origami hornbill on a near-black (`#111111`) rounded tile in `design-handoff/favicon-F1/` with `?v=solid3`.
+Other photos were used only to check general proportions: the rest of the assembly views, the Darul Hana promenade view, the Santubong profiles, and the Kuching river scene. The full list, without the tambang photos, is in [docs/SOURCES.md](SOURCES.md). The tambang references are omitted because the boat is not in the drawing. The footer does not carry these credits. The favicon stays the Design Bot solid3 hub favicon (Chief `#fav-s3live`): the yellow (`#f7c948`) origami hornbill on a near-black (`#111111`) rounded tile in `design-handoff/favicon-F1/` with `?v=solid3`.
 
 ## Cards
 
@@ -88,7 +88,7 @@ Those six fields are the whole entry. There is no `map` field and no `counts` fi
 
 ## Footer
 
-Structured, contained footer on the 760px rail: a summary column (brand **Sarawak.News** and the deck line), an **Explore** column with vertical Home / About / Contact links (Contact uses `mailto:contact@sarawak.news`, same `site-footer-link` styling as Home and About), and a full-width builder and independence attribution row (“Built by hafiy.my, an independent publication. Not affiliated with the Sarawak Government.”).
+Structured, contained footer on the 760px rail: a summary column (brand from `data/site.json` `title` and the deck line from `description`), an **Explore** column with vertical Home / About / Contact links (Contact uses `mailto:contact@sarawak.news`, same `site-footer-link` styling as Home and About), and a full-width builder and independence attribution row (“Built by hafiy.my, an independent publication. Not affiliated with the Sarawak Government.”).
 
 ## Back to top
 

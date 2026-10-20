@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the static Sarawak.News hub."""
+"""Build the static hub at sarawak.news."""
 
 from __future__ import annotations
 
@@ -14,14 +14,13 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 SITE = ROOT / "site"
 DIST = ROOT / "dist"
+SITE_META_PATH = DATA / "site.json"
 
 # Live origin. Pages serves the site at the domain root. SITE_URL overrides this.
 DEFAULT_SITE_URL = "https://sarawak.news/"
 
-HEADLINE = "Sarawak, made easy."
-DECK = "Aggregating key information, all in one place."
-SUBTITLE = "Aggregating key information, all in one place."
-PAGE_TITLE = "Sarawak.News"
+# Site title, tagline, description, and About lead live only in data/site.json.
+SITE_COPY_FIELDS = ("title", "tagline", "description", "about_lead")
 
 # Published names, copied from design-handoff/favicon-F1/. The handoff folder itself stays unpublished.
 FAVICON_FILES = {
@@ -124,6 +123,27 @@ def esc(value: object) -> str:
     return html.escape(str(value), quote=True)
 
 
+def load_site(path: Path = SITE_META_PATH) -> dict[str, str]:
+    """Load hub title/tagline/description/about_lead from data/site.json."""
+    if not path.is_file():
+        raise SystemExit(f"missing site copy file: {path.relative_to(ROOT)}")
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise SystemExit("data/site.json must be an object")
+    site: dict[str, str] = {}
+    for field in SITE_COPY_FIELDS:
+        value = payload.get(field)
+        if not isinstance(value, str) or not value.strip():
+            raise SystemExit(f"data/site.json is missing {field}")
+        site[field] = value.strip()
+    expected_lead = f"{site['tagline']} {site['description']}"
+    if site["about_lead"] != expected_lead:
+        raise SystemExit(
+            "data/site.json about_lead must equal tagline + space + description"
+        )
+    return site
+
+
 def load_sites(path: Path = DATA / "sites.json") -> list[dict]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     sites = payload.get("sites")
@@ -165,15 +185,16 @@ def tile_icon(name: str) -> str:
     )
 
 
-def render_hero() -> str:
+def render_hero(site: dict[str, str] | None = None) -> str:
+    site = load_site() if site is None else site
     art = (SITE / "hero-art.svg").read_text(encoding="utf-8").strip()
     if 'class="hero-art"' not in art or "aria-hidden" not in art:
         raise SystemExit("site/hero-art.svg is missing the decorative riverfront drawing")
     if "art-boat" in art:
         raise SystemExit("site/hero-art.svg still contains the tambang")
     return f"""<header class="brief">
-      <h1>{esc(HEADLINE)}</h1>
-      <p class="brief-deck">{esc(SUBTITLE)}</p>
+      <h1>{esc(site["tagline"])}</h1>
+      <p class="brief-deck">{esc(site["description"])}</p>
       {art}
     </header>"""
 
@@ -199,7 +220,9 @@ def theme_boot() -> str:
   </script>"""
 
 
-def render_header(active: str) -> str:
+def render_header(active: str, site: dict[str, str] | None = None) -> str:
+    site = load_site() if site is None else site
+
     def link(page: str, href: str, label: str) -> str:
         current = ' aria-current="page"' if active == page else ""
         klass = "site-nav-link is-active" if active == page else "site-nav-link"
@@ -207,7 +230,7 @@ def render_header(active: str) -> str:
 
     return f"""  <header class="bar">
     <div class="bar-inner">
-    <span class="brand-lockup"><a class="brand" href="index.html"><img class="brand-mark brand-mark-light" src="icons/nav-mark-transparent.svg" alt="" width="220" height="220" decoding="async" aria-hidden="true" /><img class="brand-mark brand-mark-dark" src="icons/nav-mark-transparent-dark.svg" alt="" width="220" height="220" decoding="async" aria-hidden="true" /><span class="brand-text">Sarawak.News</span></a></span>
+    <span class="brand-lockup"><a class="brand" href="index.html"><img class="brand-mark brand-mark-light" src="icons/nav-mark-transparent.svg" alt="" width="220" height="220" decoding="async" aria-hidden="true" /><img class="brand-mark brand-mark-dark" src="icons/nav-mark-transparent-dark.svg" alt="" width="220" height="220" decoding="async" aria-hidden="true" /><span class="brand-text">{esc(site["title"])}</span></a></span>
     <nav class="site-nav" id="primary-navigation" aria-label="Primary">
       {link("sites", "index.html", "Sites")}
       {link("about", "about.html", "About")}
@@ -237,14 +260,15 @@ def render_back_to_top() -> str:
     return """  <button class="back-to-top" type="button" data-back-to-top aria-label="Back to top" hidden><span class="back-to-top-label">Back to top</span> <span class="back-to-top-arrow" aria-hidden="true">↑</span></button>"""
 
 
-def render_footer(active_page: str) -> str:
+def render_footer(active_page: str, site: dict[str, str] | None = None) -> str:
+    site = load_site() if site is None else site
     home_current = ' aria-current="page"' if active_page == "home" else ""
     about_current = ' aria-current="page"' if active_page == "about" else ""
     return f"""  <footer class="site-footer">
     <div class="site-footer-main">
       <div class="site-footer-summary">
-        <p class="site-footer-brand">Sarawak.News</p>
-        <p class="site-footer-note">{esc(DECK)}</p>
+        <p class="site-footer-brand">{esc(site["title"])}</p>
+        <p class="site-footer-note">{esc(site["description"])}</p>
       </div>
       <nav aria-label="Explore" class="site-footer-nav">
         <h2>Explore</h2>
@@ -261,7 +285,13 @@ def render_footer(active_page: str) -> str:
   </footer>"""
 
 
-def render_head(title: str, description: str, canonical: str) -> str:
+def render_head(
+    title: str,
+    description: str,
+    canonical: str,
+    site: dict[str, str] | None = None,
+) -> str:
+    site = load_site() if site is None else site
     canonical_tag = f'\n  <link rel="canonical" href="{esc(canonical)}" />' if canonical else ""
     og_url = f'\n  <meta property="og:url" content="{esc(canonical)}" />' if canonical else ""
     url = site_url()
@@ -278,7 +308,7 @@ def render_head(title: str, description: str, canonical: str) -> str:
   <meta property="og:type" content="website" />
   <meta property="og:title" content="{esc(title)}" />
   <meta property="og:description" content="{esc(description)}" />
-  <meta property="og:site_name" content="Sarawak.News" />{og_url}
+  <meta property="og:site_name" content="{esc(site["title"])}" />{og_url}
   <meta property="og:image" content="{esc(image)}" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -302,32 +332,34 @@ def render_head(title: str, description: str, canonical: str) -> str:
 
 
 def render_home(sites: list[dict] | None = None) -> str:
+    copy = load_site()
     sites = load_sites() if sites is None else sites
     url = site_url()
     canonical = url or ""
-    description = DECK
+    description = copy["description"]
     cards = "\n".join(render_card(site) for site in sites)
     body = f"""<body>
   <a class="skip-link" href="#content">Skip to content</a>
-{render_header("sites")}
+{render_header("sites", copy)}
   <main id="content">
-    {render_hero()}
+    {render_hero(copy)}
     <section class="hub-grid" aria-label="Sites">
       {cards}
     </section>
   </main>
-{render_footer("home")}
+{render_footer("home", copy)}
 {render_back_to_top()}
 </body>"""
-    return render_head(PAGE_TITLE, description, canonical) + "\n" + body + "\n</html>\n"
+    return render_head(copy["title"], description, canonical, copy) + "\n" + body + "\n</html>\n"
 
 
 def render_about(sites: list[dict] | None = None) -> str:
+    copy = load_site()
     sites = load_sites() if sites is None else sites
     url = site_url()
     canonical = f"{url}about.html" if url else ""
-    title = "About Sarawak.News"
-    description = DECK
+    title = f"About {copy['title']}"
+    description = copy["description"]
     sections = []
     for site in sites:
         sections.append(
@@ -339,11 +371,11 @@ def render_about(sites: list[dict] | None = None) -> str:
         )
     body = f"""<body>
   <a class="skip-link" href="#content">Skip to content</a>
-{render_header("about")}
+{render_header("about", copy)}
   <main id="content" class="about-page">
     <header class="about-hero">
-      <h1>About Sarawak.News</h1>
-      <p class="about-lede">{esc(HEADLINE)} {esc(DECK)}</p>
+      <h1>{esc(title)}</h1>
+      <p class="about-lede">{esc(copy["about_lead"])}</p>
     </header>
 {chr(10).join(sections)}
     <section class="about-section" aria-labelledby="about-independence">
@@ -351,10 +383,10 @@ def render_about(sites: list[dict] | None = None) -> str:
       <p>Built by <a href="https://hafiy.my">hafiy.my</a>, an independent publication. Not affiliated with the Sarawak Government.</p>
     </section>
   </main>
-{render_footer("about")}
+{render_footer("about", copy)}
 {render_back_to_top()}
 </body>"""
-    return render_head(title, description, canonical) + "\n" + body + "\n</html>\n"
+    return render_head(title, description, canonical, copy) + "\n" + body + "\n</html>\n"
 
 
 def write_dist(home: str, about: str, dist: Path = DIST) -> None:

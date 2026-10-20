@@ -15,6 +15,10 @@ import scripts.build as build
 import scripts.docs_check_pr as docs_check
 
 
+def site_copy() -> dict[str, str]:
+    return build.load_site()
+
+
 # Fixture only. Not an entry in data/sites.json.
 DUMMY_SITE = {
     "id": "dummy",
@@ -28,19 +32,20 @@ DUMMY_SITE = {
 
 class RenderTests(unittest.TestCase):
     def test_home_has_two_cards_and_hero(self):
+        copy = site_copy()
         home = build.render_home()
-        self.assertIn("<h1>Sarawak, made easy.</h1>", home)
+        self.assertIn(f"<h1>{copy['tagline']}</h1>", home)
         self.assertNotIn("Sarawak News made easy", home)
         self.assertIn(
-            '<meta name="description" content="Aggregating key information, all in one place." />',
+            f'<meta name="description" content="{copy["description"]}" />',
             home,
         )
         self.assertIn(
-            '<meta property="og:description" content="Aggregating key information, all in one place." />',
+            f'<meta property="og:description" content="{copy["description"]}" />',
             home,
         )
         self.assertIn(
-            '<meta name="twitter:description" content="Aggregating key information, all in one place." />',
+            f'<meta name="twitter:description" content="{copy["description"]}" />',
             home,
         )
         self.assertNotIn("Independent Sarawak sites", home)
@@ -56,7 +61,7 @@ class RenderTests(unittest.TestCase):
         self.assertNotIn("brief-map", home)
         self.assertNotIn("<br>", home)
         self.assertIn(
-            '<p class="brief-deck">Aggregating key information, all in one place.</p>',
+            f'<p class="brief-deck">{copy["description"]}</p>',
             home,
         )
         self.assertNotIn("Explore Sarawak-focused sites", home)
@@ -72,9 +77,9 @@ class RenderTests(unittest.TestCase):
             '<a class="site-footer-link" href="mailto:contact@sarawak.news">Contact</a>',
             home,
         )
-        self.assertIn("<title>Sarawak.News</title>", home)
-        self.assertIn('<meta property="og:title" content="Sarawak.News" />', home)
-        self.assertIn('<meta name="twitter:title" content="Sarawak.News" />', home)
+        self.assertIn(f"<title>{copy['title']}</title>", home)
+        self.assertIn(f'<meta property="og:title" content="{copy["title"]}" />', home)
+        self.assertIn(f'<meta name="twitter:title" content="{copy["title"]}" />', home)
         self.assertNotIn("<title>Independent", home)
         self.assertIn("AI.Sarawak.News", home)
         self.assertIn("Bantuan.Sarawak.News", home)
@@ -139,6 +144,7 @@ class RenderTests(unittest.TestCase):
 
     def test_dist_publishes_root_domain(self):
         previous = os.environ.pop("SITE_URL", None)
+        copy = site_copy()
         try:
             with tempfile.TemporaryDirectory() as tmp:
                 dist = Path(tmp)
@@ -187,7 +193,7 @@ class RenderTests(unittest.TestCase):
                     self.assertIn('href="about.html"', page)
                     self.assertIn('src="icons/nav-mark-transparent.svg"', page)
                     self.assertIn('src="icons/nav-mark-transparent-dark.svg"', page)
-                    self.assertIn('class="brand-text">Sarawak.News</span>', page)
+                    self.assertIn(f'class="brand-text">{copy["title"]}</span>', page)
                     self.assertNotIn("nav-mark-on-black", page)
                     self.assertNotIn("nav-mark-on-white", page)
                     self.assertNotIn("final-sheet-origami", page)
@@ -195,23 +201,21 @@ class RenderTests(unittest.TestCase):
                 self.assertIn(f'<meta property="og:url" content="{origin}" />', home)
                 self.assertIn(f'<link rel="canonical" href="{origin}about.html" />', about)
                 self.assertIn(f'<meta property="og:url" content="{origin}about.html" />', about)
-                self.assertIn("<title>About Sarawak.News</title>", about)
+                about_title = f"About {copy['title']}"
+                self.assertIn(f"<title>{about_title}</title>", about)
                 self.assertIn(
-                    '<meta name="description" content="Aggregating key information, all in one place." />',
+                    f'<meta name="description" content="{copy["description"]}" />',
                     about,
                 )
                 self.assertIn(
-                    '<meta property="og:description" content="Aggregating key information, all in one place." />',
+                    f'<meta property="og:description" content="{copy["description"]}" />',
                     about,
                 )
                 self.assertIn(
-                    '<meta name="twitter:description" content="Aggregating key information, all in one place." />',
+                    f'<meta name="twitter:description" content="{copy["description"]}" />',
                     about,
                 )
-                self.assertIn(
-                    "Sarawak, made easy. Aggregating key information, all in one place.",
-                    about,
-                )
+                self.assertIn(copy["about_lead"], about)
                 self.assertNotIn("Explore Sarawak-focused sites", about)
                 self.assertIn('<nav aria-label="Explore" class="site-footer-nav">', about)
                 self.assertIn('<a class="site-footer-link" href="index.html">Home</a>', about)
@@ -223,7 +227,8 @@ class RenderTests(unittest.TestCase):
                     '<a class="site-footer-link" href="mailto:contact@sarawak.news">Contact</a>',
                     about,
                 )
-                self.assertNotIn("Sarawak, made easy..", about)
+                # No doubled full stop after the tagline when composing the About lead.
+                self.assertNotIn("..", about.split("about-lede", 1)[-1][:120])
                 self.assertNotIn("Each site links to its sources.", about)
                 self.assertNotIn("Sarawak News made easy", about)
                 self.assertNotIn("about-credits", about)
@@ -243,8 +248,8 @@ class RenderTests(unittest.TestCase):
                 self.assertNotIn("CEphoto", home)
                 self.assertNotIn(".jpg", home)
                 self.assertNotIn("commons.wikimedia.org", home)
-                self.assertIn('<meta property="og:title" content="About Sarawak.News" />', about)
-                self.assertIn('<meta name="twitter:title" content="About Sarawak.News" />', about)
+                self.assertIn(f'<meta property="og:title" content="{about_title}" />', about)
+                self.assertIn(f'<meta name="twitter:title" content="{about_title}" />', about)
                 for page in (home, about):
                     bust = build.FAVICON_CACHE_BUST
                     self.assertIn(f'<link rel="icon" href="favicon.svg?v={bust}" type="image/svg+xml" />', page)
@@ -322,6 +327,7 @@ class DocsCheckTests(unittest.TestCase):
         self.assertFalse(docs_check.matches_watch("data/sarawak-path.txt"))
         self.assertFalse(docs_check.matches_watch("data/sarawak-proj.json"))
         self.assertTrue(docs_check.matches_watch("data/sites.json"))
+        self.assertTrue(docs_check.matches_watch("data/site.json"))
         self.assertFalse(docs_check.matches_watch("README.md"))
 
     def test_label_skips_requirement(self):
