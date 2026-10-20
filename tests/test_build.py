@@ -277,45 +277,43 @@ class RenderTests(unittest.TestCase):
 
 
 class GaScriptTests(unittest.TestCase):
-    def test_ga_script_gates_hosts_and_marks_internal(self):
-        ga = build.render_ga_script()
-        self.assertIn(build.GA_MEASUREMENT_ID, ga)
-        self.assertIn('"sarawak.news"', ga)
-        self.assertIn('"www.sarawak.news"', ga)
-        self.assertIn(build.GA_INTERNAL_COOKIE, ga)
-        self.assertIn("traffic_type", ga)
-        self.assertIn("'internal'", ga)
-        self.assertIn("max-age=31536000", ga)
-        self.assertIn("q.get('internal')==='1'", ga)
-        self.assertIn("q.get('internal')==='0'", ga)
-        self.assertIn("H.indexOf(h)<0", ga)
-        self.assertIn("googletagmanager.com/gtag/js?id=", ga)
-        # No unconditional remote script tag — load only after the host gate.
-        self.assertNotIn('<script async src="https://www.googletagmanager.com/gtag/js', ga)
-
-    def test_cf_beacon_skips_when_internal(self):
-        cf = build.render_cf_beacon()
-        self.assertIn(build.CLOUDFLARE_WEB_ANALYTICS_TOKEN, cf)
-        self.assertIn('"sarawak.news"', cf)
-        self.assertIn(build.GA_INTERNAL_COOKIE, cf)
-        self.assertIn("if(internal)return", cf)
-        self.assertIn("static.cloudflareinsights.com/beacon.min.js", cf)
-        self.assertIn("H.indexOf(h)<0", cf)
-        # No unconditional beacon tag — load only after host + cookie gates.
+    def test_analytics_loader_gates_hosts_and_marks_internal(self):
+        loader = build.render_analytics_loader()
+        self.assertIn(build.ANALYTICS_LOADER_ATTR, loader)
+        self.assertEqual(loader.count(build.ANALYTICS_LOADER_ATTR), 1)
+        self.assertIn(build.GA_MEASUREMENT_ID, loader)
+        self.assertIn(build.CLOUDFLARE_WEB_ANALYTICS_TOKEN, loader)
+        self.assertIn('"sarawak.news"', loader)
+        self.assertIn('"www.sarawak.news"', loader)
+        self.assertIn(build.GA_INTERNAL_COOKIE, loader)
+        self.assertIn("traffic_type", loader)
+        self.assertIn("'internal'", loader)
+        self.assertIn("max-age=31536000", loader)
+        self.assertIn("q.get('internal')==='1'", loader)
+        self.assertIn("q.get('internal')==='0'", loader)
+        self.assertIn("H.indexOf(h)<0", loader)
+        self.assertIn("googletagmanager.com/gtag/js?id=", loader)
+        self.assertIn("static.cloudflareinsights.com/beacon.min.js", loader)
+        self.assertIn("if(internal)return", loader)
+        self.assertIn("spa:false", loader)
+        # No unconditional remote script tags — load only after the host gate.
+        self.assertNotIn('<script async src="https://www.googletagmanager.com/gtag/js', loader)
         self.assertNotIn(
             '<script defer src="https://static.cloudflareinsights.com/beacon.min.js"',
-            cf,
+            loader,
         )
 
-    def test_pages_include_ga_script(self):
+    def test_pages_include_one_analytics_loader(self):
         home = build.render_home()
         about = build.render_about()
         for page in (home, about):
+            self.assertEqual(page.count(build.ANALYTICS_LOADER_ATTR), 1)
             self.assertIn(build.GA_MEASUREMENT_ID, page)
             self.assertIn("traffic_type", page)
             self.assertIn(build.GA_INTERNAL_COOKIE, page)
             self.assertIn("static.cloudflareinsights.com/beacon.min.js", page)
             self.assertIn("if(internal)return", page)
+            self.assertIn("spa:false", page)
 
 
 class DocsCheckTests(unittest.TestCase):
@@ -323,11 +321,14 @@ class DocsCheckTests(unittest.TestCase):
         self.assertTrue(docs_check.matches_watch("site/style.css"))
         self.assertTrue(docs_check.matches_watch("site/fonts/OFL.txt"))
         self.assertTrue(docs_check.matches_watch("scripts/build.py"))
+        self.assertTrue(docs_check.matches_watch("scripts/analytics_registry.py"))
+        self.assertTrue(docs_check.matches_watch("scripts/check_analytics_dist.py"))
         self.assertTrue(docs_check.matches_watch(".github/workflows/build.yml"))
         self.assertFalse(docs_check.matches_watch("data/sarawak-path.txt"))
         self.assertFalse(docs_check.matches_watch("data/sarawak-proj.json"))
         self.assertTrue(docs_check.matches_watch("data/sites.json"))
         self.assertTrue(docs_check.matches_watch("data/site.json"))
+        self.assertTrue(docs_check.matches_watch("data/analytics.json"))
         self.assertFalse(docs_check.matches_watch("README.md"))
 
     def test_label_skips_requirement(self):
