@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import importlib.util
-import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -29,23 +28,50 @@ build = _load_module("build", "scripts/build.py")
 class AnalyticsRegistryTests(unittest.TestCase):
     def test_load_repo_registry(self):
         reg = analytics_registry.load_analytics()
+        self.assertEqual(reg.version, 1)
         self.assertEqual(reg.internal_cookie, "sn_internal")
-        self.assertEqual(reg.legacy_cookies, ["sn_internal"])
         self.assertIs(reg.spa, False)
+        self.assertEqual(list(reg.hosts), ["sarawak.news"])
+        entry = reg.hosts["sarawak.news"]
+        self.assertEqual(entry.ga4_measurement_id, "G-SJMJ0R0GJS")
+        self.assertEqual(entry.cf_beacon_token, "092a061973fc4d899cd2e4b52952af89")
+        self.assertEqual(entry.aliases, ["www.sarawak.news"])
+        self.assertEqual(entry.legacy_internal_cookies, ["sn_internal"])
         self.assertEqual(reg.primary_ga4_id(), "G-SJMJ0R0GJS")
         self.assertEqual(reg.primary_cf_token(), "092a061973fc4d899cd2e4b52952af89")
-        self.assertEqual(set(reg.hostnames), {"sarawak.news", "www.sarawak.news"})
+        self.assertEqual(reg.hostnames, ("sarawak.news", "www.sarawak.news"))
         self.assertEqual(reg.honour_cookies, ("sn_internal",))
+        self.assertEqual(reg.legacy_internal_cookies, ["sn_internal"])
 
     def test_rejects_bad_ga4(self):
         payload = {
+            "version": 1,
             "internal_cookie": "sn_internal",
-            "legacy_cookies": [],
             "spa": False,
             "hosts": {
                 "sarawak.news": {
-                    "ga4_id": "not-a-id",
+                    "ga4_measurement_id": "not-a-id",
                     "cf_beacon_token": "092a061973fc4d899cd2e4b52952af89",
+                    "aliases": [],
+                    "legacy_internal_cookies": [],
+                }
+            },
+        }
+        with self.assertRaises(SystemExit):
+            analytics_registry.validate_analytics_payload(payload)
+
+    def test_rejects_top_level_legacy_cookies(self):
+        payload = {
+            "version": 1,
+            "internal_cookie": "sn_internal",
+            "spa": False,
+            "legacy_cookies": ["sn_internal"],
+            "hosts": {
+                "sarawak.news": {
+                    "ga4_measurement_id": "G-SJMJ0R0GJS",
+                    "cf_beacon_token": "092a061973fc4d899cd2e4b52952af89",
+                    "aliases": ["www.sarawak.news"],
+                    "legacy_internal_cookies": ["sn_internal"],
                 }
             },
         }
@@ -64,7 +90,6 @@ class AnalyticsDistCheckTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             dist = Path(tmp)
             (dist / "index.html").write_text("<html><head></head></html>", encoding="utf-8")
-            # Provide a valid registry path (repo file).
             code = check_analytics_dist.main(["--dist", str(dist)])
             self.assertEqual(code, 1)
 

@@ -1,15 +1,13 @@
 {
+  "version": 1,
   "internal_cookie": "sn_internal",
-  "legacy_cookies": ["sn_internal"],
   "spa": false,
   "hosts": {
     "sarawak.news": {
-      "ga4_id": "G-SJMJ0R0GJS",
-      "cf_beacon_token": "092a061973fc4d899cd2e4b52952af89"
-    },
-    "www.sarawak.news": {
-      "ga4_id": "G-SJMJ0R0GJS",
-      "cf_beacon_token": "092a061973fc4d899cd2e4b52952af89"
+      "ga4_measurement_id": "G-SJMJ0R0GJS",
+      "cf_beacon_token": "092a061973fc4d899cd2e4b52952af89",
+      "aliases": ["www.sarawak.news"],
+      "legacy_internal_cookies": ["sn_internal"]
     }
   }
 }

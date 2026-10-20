@@ -13,4 +13,4 @@ When agents, QA, cloud agents, daily scans, or screenshot checks open the **live
 - GA4 receives `traffic_type: 'internal'`
 - the Cloudflare Web Analytics beacon is **not** loaded (test visits are not counted there either)
 
-Use `?internal=0` to clear the primary and listed legacy cookies. The loader also treats any `legacy_cookies` entry as internal (on hub that list is `["sn_internal"]` — same as primary). Both trackers load only on `sarawak.news` / `www.sarawak.news` — never on localhost or preview hosts. Details: [docs/design.md](docs/design.md) (Analytics).
+Use `?internal=0` to clear the primary and listed `legacy_internal_cookies`. The loader also treats any per-host `legacy_internal_cookies` entry as internal (on hub that list is `["sn_internal"]` — same as primary). Both trackers load only on `sarawak.news` / `www.sarawak.news` — never on localhost or preview hosts. Details: [docs/design.md](docs/design.md) (Analytics).

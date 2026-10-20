@@ -5,7 +5,8 @@ Checks each built ``*.html`` page:
 
 - exactly one ``data-sn-analytics-loader`` script (zero or two+ fails; names the file)
 - every GA4 id and CF beacon token found must appear in the registry
-- every internal-cookie name referenced must be the registry primary or a listed legacy
+- every internal-cookie name referenced must be the registry primary or a
+  per-host ``legacy_internal_cookies`` entry
 - CF beacon ``spa`` must match the registry boolean
 """
 
@@ -96,7 +97,8 @@ def check_page(path: Path, registry) -> list[str]:
         if name not in allowed_cookies:
             errors.append(
                 f"{rel}: cookie name {name!r} is not registry internal_cookie "
-                f"({registry.internal_cookie!r}) or legacy_cookies {registry.legacy_cookies!r}"
+                f"({registry.internal_cookie!r}) or legacy_internal_cookies "
+                f"{registry.legacy_internal_cookies!r}"
             )
     has_spa_true = bool(SPA_TRUE_RE.search(text))
     has_spa_false = bool(SPA_FALSE_RE.search(text))
@@ -146,9 +148,10 @@ def main(argv: list[str] | None = None) -> int:
     pages = html_pages(args.dist)
     print(
         f"Analytics dist check OK: {len(pages)} page(s), "
-        f"cookie={registry.internal_cookie!r}, spa={registry.spa}, "
-        f"ga4={sorted(registry.ga4_ids())}, "
-        f"legacy={registry.legacy_cookies!r}"
+        f"version={registry.version}, cookie={registry.internal_cookie!r}, "
+        f"spa={registry.spa}, ga4={sorted(registry.ga4_ids())}, "
+        f"hosts={list(registry.hosts)}, "
+        f"legacy_internal_cookies={registry.legacy_internal_cookies!r}"
     )
     return 0
 

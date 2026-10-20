@@ -60,13 +60,18 @@ GA_INTERNAL_COOKIE = _ANALYTICS.internal_cookie
 def render_analytics_loader(registry: AnalyticsRegistry | None = None) -> str:
     """Emit one production analytics loader from ``data/analytics.json``.
 
-    - Host gate: only registry hostnames (never localhost / preview hosts).
+    Kit shape v1: top-level ``internal_cookie`` / ``spa``; per-host
+    ``ga4_measurement_id``, ``cf_beacon_token``, ``aliases``,
+    ``legacy_internal_cookies``.
+
+    - Host gate: primary host keys plus ``aliases`` (never localhost / preview).
     - ``?internal=1`` sets the registry ``internal_cookie`` (~1 year);
-      ``?internal=0`` clears the primary and every listed legacy cookie.
-    - ``internal`` is true when the primary **or** any ``legacy_cookies`` name
-      is set to ``1``. On hub the historical cookie is already ``sn_internal``
-      (primary == legacy); honouring legacy keeps already-marked devices
-      excluded if the names ever diverge on sister sites.
+      ``?internal=0`` clears the primary and every listed
+      ``legacy_internal_cookies`` name.
+    - ``internal`` is true when the primary **or** any per-host
+      ``legacy_internal_cookies`` name is ``=1``. On hub the historical cookie
+      is already ``sn_internal`` (listed under the primary host); honouring
+      legacy keeps already-marked devices excluded.
     - GA4 always loads on production hosts; when ``internal``, config includes
       ``traffic_type: 'internal'``.
     - CF Web Analytics beacon loads only when not ``internal``, with ``spa``

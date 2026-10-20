@@ -62,7 +62,7 @@ GitHub Pages publishes `dist/` at [https://sarawak.news/](https://sarawak.news/)
 
 ## Analytics
 
-GA4 ID, CF beacon token, shared `internal_cookie` (`sn_internal`), `legacy_cookies`, and `spa` (`false`) live in `data/analytics.json`. `scripts/build.py` emits one `data-sn-analytics-loader` script per page from that registry. Both trackers load only on `sarawak.news` / `www.sarawak.news`. Open the live site with `?internal=1` for agent/QA visits: GA4 gets `traffic_type: 'internal'` and the CF beacon is skipped (see `AGENTS.md`). CI runs `scripts/check_analytics_dist.py` after the build. Measurement ID `G-SJMJ0R0GJS` and CF token `092a061973fc4d899cd2e4b52952af89` are unchanged. Details are in [docs/design.md](docs/design.md) under “Analytics”.
+GA4 ID, CF beacon token, shared `internal_cookie` (`sn_internal`), per-host `legacy_internal_cookies` / `aliases`, and `spa` (`false`) live in `data/analytics.json` (kit shape `version: 1`). `scripts/build.py` emits one `data-sn-analytics-loader` script per page from that registry. Both trackers load only on `sarawak.news` / `www.sarawak.news`. Open the live site with `?internal=1` for agent/QA visits: GA4 gets `traffic_type: 'internal'` and the CF beacon is skipped (see `AGENTS.md`). CI runs `scripts/check_analytics_dist.py` after the build. Measurement ID `G-SJMJ0R0GJS` and CF token `092a061973fc4d899cd2e4b52952af89` are unchanged. Details are in [docs/design.md](docs/design.md) under “Analytics”.
 
 ## Drawing
 

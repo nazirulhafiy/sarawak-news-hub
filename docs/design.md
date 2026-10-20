@@ -114,23 +114,25 @@ The brief uses bantuan’s `hero-reveal`: a rise of 18px over 0.85s, easing `cub
 
 ## Analytics
 
-IDs, cookie name, and CF `spa` live in `data/analytics.json` (fleet-shared shape). `scripts/build.py` → `render_analytics_loader()` emits **one** inline `<script data-sn-analytics-loader>` per page (edit the registry / build, not `dist/`). CI runs `scripts/check_analytics_dist.py` so each built HTML page has exactly one loader, only registry GA4 / CF tokens, only the registry cookie (plus documented legacy honour), and CF `spa` matching the registry (`false` here).
+IDs, cookie name, and CF `spa` live in `data/analytics.json` (fleet kit-aligned shape, `version: 1`, same as bantuan). `scripts/build.py` → `render_analytics_loader()` emits **one** inline `<script data-sn-analytics-loader>` per page (edit the registry / build, not `dist/`). CI runs `scripts/check_analytics_dist.py` so each built HTML page has exactly one loader, only registry GA4 / CF tokens, only the registry cookie (plus per-host `legacy_internal_cookies` honour), and CF `spa` matching the registry (`false` here).
 
 Registry fields for this site:
 
 | Field | Value |
 | --- | --- |
+| `version` | `1` |
 | `internal_cookie` | `sn_internal` |
-| `legacy_cookies` | `["sn_internal"]` (hub’s historical name is already the primary; the loader still honours the list so already-marked devices stay excluded) |
 | `spa` | `false` |
-| Hosts | `sarawak.news`, `www.sarawak.news` |
-| `ga4_id` | `G-SJMJ0R0GJS` |
+| Primary host | `sarawak.news` |
+| `aliases` | `["www.sarawak.news"]` |
+| `ga4_measurement_id` | `G-SJMJ0R0GJS` |
 | `cf_beacon_token` | `092a061973fc4d899cd2e4b52952af89` |
+| `legacy_internal_cookies` | `["sn_internal"]` (hub’s historical name is already the primary; the loader still honours the list so already-marked devices stay excluded) |
 
 Loader behaviour:
 
-1. **Production host gate** — runs only when `location.hostname` is a registry host. It does not load on localhost, `*.pages.dev`, `*.github.io`, `*.vercel.app`, or any other host.
-2. **Internal traffic cookie** — `?internal=1` sets the registry `internal_cookie` (`sn_internal=1`; `path=/`, `max-age=31536000` ≈ 1 year, `SameSite=Lax`, plus `Secure` on HTTPS). `?internal=0` clears the primary and every listed legacy cookie. A visit counts as internal when the primary **or** any legacy cookie is `=1`. While internal, `gtag('config', …, { traffic_type: 'internal' })` and the Cloudflare beacon is not loaded. Agents and automated checks that open the live site must use `?internal=1` (see `AGENTS.md`).
+1. **Production host gate** — runs only when `location.hostname` is the primary host or an alias. It does not load on localhost, `*.pages.dev`, `*.github.io`, `*.vercel.app`, or any other host.
+2. **Internal traffic cookie** — `?internal=1` sets the registry `internal_cookie` (`sn_internal=1`; `path=/`, `max-age=31536000` ≈ 1 year, `SameSite=Lax`, plus `Secure` on HTTPS). `?internal=0` clears the primary and every listed `legacy_internal_cookies` name. A visit counts as internal when the primary **or** any legacy cookie is `=1`. While internal, `gtag('config', …, { traffic_type: 'internal' })` and the Cloudflare beacon is not loaded. Agents and automated checks that open the live site must use `?internal=1` (see `AGENTS.md`).
 3. **Google Analytics 4** — measurement ID from the registry (`G-SJMJ0R0GJS`), loaded asynchronously after the host gate.
 4. **Cloudflare Web Analytics** — the hub is served by GitHub Pages (not proxied through Cloudflare), so the loader embeds the zone site token (`092a061973fc4d899cd2e4b52952af89`, shared with ai.sarawak.news; filter by hostname in the dashboard) with `spa: false`. The beacon loads only on registry hosts and only when the visit is not internal.
 
