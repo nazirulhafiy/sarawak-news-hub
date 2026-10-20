@@ -74,11 +74,13 @@ class KitSyncTests(unittest.TestCase):
             )
             if not tracked.stdout.strip():
                 self.skipTest("kit/ not committed yet")
-            subprocess.check_call(
-                ["git", "archive", pin, "kit"],
-                cwd=ROOT,
-                stdout=open(sister / "kit.tar", "wb"),
-            )
+            archive = sister / "kit.tar"
+            with archive.open("wb") as fh:
+                subprocess.check_call(
+                    ["git", "archive", pin, "kit"],
+                    cwd=ROOT,
+                    stdout=fh,
+                )
             subprocess.check_call(["tar", "-xf", "kit.tar"], cwd=sister)
             (sister / "kit" / "PIN").write_text(pin + "\n", encoding="utf-8")
             result = subprocess.run(
