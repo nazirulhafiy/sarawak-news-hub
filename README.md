@@ -31,8 +31,13 @@ Open `http://127.0.0.1:43123/`.
 Checks:
 
 ```bash
+python3 kit/sync.py --check
 python3 -m unittest discover -s tests -v
+python3 scripts/build.py
+python3 scripts/check_analytics_dist.py
 ```
+
+Shared header, footer Contact, nav marks, back-to-top, and analytics loader live in [`kit/`](kit/README.md). Sister sites vendor that tree at a pinned hub commit.
 
 The default canonical origin is `https://sarawak.news/`. `SITE_URL` overrides it. An empty `SITE_URL` omits the canonical and `og:url` tags.
 

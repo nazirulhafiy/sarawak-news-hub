@@ -11,6 +11,8 @@ import sys
 # Design or behaviour.
 WATCH_PATTERNS = (
     "site/*",
+    "kit/*",
+    "kit/**/*",
     "scripts/build.py",
     "scripts/analytics_registry.py",
     "scripts/check_analytics_dist.py",

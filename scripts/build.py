@@ -17,10 +17,20 @@ SITE = ROOT / "site"
 DIST = ROOT / "dist"
 SITE_META_PATH = DATA / "site.json"
 
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 _SCRIPTS = Path(__file__).resolve().parent
 if str(_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS))
-from analytics_registry import AnalyticsRegistry, load_analytics  # noqa: E402
+
+from kit.analytics_loader import (  # noqa: E402
+    ANALYTICS_LOADER_ATTR,
+    ANALYTICS_MAX_AGE,
+    render_analytics_loader as kit_render_analytics_loader,
+)
+from kit.analytics_registry import AnalyticsRegistry, load_analytics  # noqa: E402
+from kit.shell import NavItem, render_back_to_top, render_footer as kit_render_footer  # noqa: E402
+from kit.shell import render_header as kit_render_header  # noqa: E402
 
 # Live origin. Pages serves the site at the domain root. SITE_URL overrides this.
 DEFAULT_SITE_URL = "https://sarawak.news/"
@@ -40,10 +50,6 @@ FAVICON_FILES = {
 # Query string on favicon link hrefs so browsers pick up icon swaps after publish.
 FAVICON_CACHE_BUST = "solid3"
 
-# Analytics IDs, cookie name, and spa live only in data/analytics.json.
-ANALYTICS_MAX_AGE = 31536000  # ~1 year
-ANALYTICS_LOADER_ATTR = "data-sn-analytics-loader"
-
 
 def analytics_registry() -> AnalyticsRegistry:
     return load_analytics()
@@ -58,63 +64,8 @@ GA_INTERNAL_COOKIE = _ANALYTICS.internal_cookie
 
 
 def render_analytics_loader(registry: AnalyticsRegistry | None = None) -> str:
-    """Emit one production analytics loader from ``data/analytics.json``.
-
-    Kit shape v1: top-level ``internal_cookie`` / ``spa``; per-host
-    ``ga4_measurement_id``, ``cf_beacon_token``, ``aliases``,
-    ``legacy_internal_cookies``.
-
-    - Host gate: primary host keys plus ``aliases`` (never localhost / preview).
-    - ``?internal=1`` sets the registry ``internal_cookie`` (~1 year);
-      ``?internal=0`` clears the primary and every listed
-      ``legacy_internal_cookies`` name.
-    - ``internal`` is true when the primary **or** any per-host
-      ``legacy_internal_cookies`` name is ``=1``. On hub the historical cookie
-      is already ``sn_internal`` (listed under the primary host); honouring
-      legacy keeps already-marked devices excluded.
-    - GA4 always loads on production hosts; when ``internal``, config includes
-      ``traffic_type: 'internal'``.
-    - CF Web Analytics beacon loads only when not ``internal``, with ``spa``
-      from the registry (``false`` for this static hub).
-    """
-    reg = registry if registry is not None else analytics_registry()
-    hosts_js = ",".join(json.dumps(h) for h in reg.hostnames)
-    primary = json.dumps(reg.internal_cookie)
-    honour = ",".join(json.dumps(c) for c in reg.honour_cookies)
-    mid = json.dumps(reg.primary_ga4_id())
-    token = json.dumps(reg.primary_cf_token())
-    spa_js = "true" if reg.spa else "false"
-    max_age = ANALYTICS_MAX_AGE
-    # Single inline script marked for dist checks (exactly one per page).
-    return (
-        f"<script {ANALYTICS_LOADER_ATTR}>(function(){{"
-        f"var H=[{hosts_js}],h=location.hostname;"
-        "if(H.indexOf(h)<0)return;"
-        f"var C={primary},L=[{honour}],q=new URLSearchParams(location.search),"
-        "sec=location.protocol==='https:'?';Secure':'';"
-        "if(q.get('internal')==='1')"
-        f"document.cookie=C+'=1;path=/;max-age={max_age};SameSite=Lax'+sec;"
-        "else if(q.get('internal')==='0')"
-        "L.forEach(function(n){document.cookie=n+'=;path=/;max-age=0;SameSite=Lax'+sec;});"
-        "var internal=L.some(function(n){return document.cookie.split(';').some(function(p){"
-        "return p.trim()===n+'=1';});});"
-        "window.dataLayer=window.dataLayer||[];"
-        "function gtag(){dataLayer.push(arguments);}"
-        "window.gtag=gtag;"
-        "gtag('js',new Date());"
-        f"var id={mid},cfg={{}};"
-        "if(internal)cfg.traffic_type='internal';"
-        "gtag('config',id,cfg);"
-        "var gs=document.createElement('script');gs.async=true;"
-        "gs.src='https://www.googletagmanager.com/gtag/js?id='+encodeURIComponent(id);"
-        "document.head.appendChild(gs);"
-        "if(internal)return;"
-        "var s=document.createElement('script');s.defer=true;"
-        "s.src='https://static.cloudflareinsights.com/beacon.min.js';"
-        f"s.setAttribute('data-cf-beacon',JSON.stringify({{token:{token},spa:{spa_js}}}));"
-        "document.head.appendChild(s);"
-        "})();</script>"
-    )
+    """Emit the shared kit analytics loader from ``data/analytics.json``."""
+    return kit_render_analytics_loader(registry if registry is not None else analytics_registry())
 
 def site_url() -> str:
     import os
@@ -228,67 +179,28 @@ def theme_boot() -> str:
 
 def render_header(active: str, site: dict[str, str] | None = None) -> str:
     site = load_site() if site is None else site
-
-    def link(page: str, href: str, label: str) -> str:
-        current = ' aria-current="page"' if active == page else ""
-        klass = "site-nav-link is-active" if active == page else "site-nav-link"
-        return f'<a class="{klass}" href="{href}"{current}>{label}</a>'
-
-    return f"""  <header class="bar">
-    <div class="bar-inner">
-    <span class="brand-lockup"><a class="brand" href="index.html"><img class="brand-mark brand-mark-light" src="icons/nav-mark-transparent.svg" alt="" width="220" height="220" decoding="async" aria-hidden="true" /><img class="brand-mark brand-mark-dark" src="icons/nav-mark-transparent-dark.svg" alt="" width="220" height="220" decoding="async" aria-hidden="true" /><span class="brand-text">{esc(site["title"])}</span></a></span>
-    <nav class="site-nav" id="primary-navigation" aria-label="Primary">
-      {link("sites", "index.html", "Sites")}
-      {link("about", "about.html", "About")}
-    </nav>
-    <span class="bar-rule-tail" aria-hidden="true"></span>
-    <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="primary-navigation" aria-label="Open navigation" title="Open navigation">
-      <span></span><span></span><span></span>
-    </button>
-    <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark mode" title="Switch to dark mode">
-      <svg class="theme-icon-morph" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24">
-        <mask id="theme-toggle-moon-mask"><rect width="24" height="24" fill="#fff"></rect><circle cx="17" cy="7" r="7" fill="#000"></circle></mask>
-        <circle class="theme-icon-moon" cx="12" cy="12" r="9" mask="url(#theme-toggle-moon-mask)"></circle>
-        <circle class="theme-icon-sun" cx="12" cy="12" r="5"></circle>
-        <g class="theme-icon-rays">
-          <line x1="12" y1="1.6" x2="12" y2="3.8"></line><line x1="12" y1="20.2" x2="12" y2="22.4"></line>
-          <line x1="1.6" y1="12" x2="3.8" y2="12"></line><line x1="20.2" y1="12" x2="22.4" y2="12"></line>
-          <line x1="4.6" y1="4.6" x2="6.2" y2="6.2"></line><line x1="17.8" y1="17.8" x2="19.4" y2="19.4"></line>
-          <line x1="4.6" y1="19.4" x2="6.2" y2="17.8"></line><line x1="17.8" y1="6.2" x2="19.4" y2="4.6"></line>
-        </g>
-      </svg>
-    </button>
-    </div>
-  </header>"""
-
-
-def render_back_to_top() -> str:
-    return """  <button class="back-to-top" type="button" data-back-to-top aria-label="Back to top" hidden><span class="back-to-top-label">Back to top</span> <span class="back-to-top-arrow" aria-hidden="true">↑</span></button>"""
+    return kit_render_header(
+        brand_title=site["title"],
+        brand_href="index.html",
+        active=active,
+        nav_items=(
+            NavItem("sites", "index.html", "Sites"),
+            NavItem("about", "about.html", "About"),
+        ),
+    )
 
 
 def render_footer(active_page: str, site: dict[str, str] | None = None) -> str:
     site = load_site() if site is None else site
-    home_current = ' aria-current="page"' if active_page == "home" else ""
-    about_current = ' aria-current="page"' if active_page == "about" else ""
-    return f"""  <footer class="site-footer">
-    <div class="site-footer-main">
-      <div class="site-footer-summary">
-        <p class="site-footer-brand">{esc(site["title"])}</p>
-        <p class="site-footer-note">{esc(site["description"])}</p>
-      </div>
-      <nav aria-label="Explore" class="site-footer-nav">
-        <h2>Explore</h2>
-        <ul>
-          <li><a class="site-footer-link" href="index.html"{home_current}>Home</a></li>
-          <li><a class="site-footer-link" href="about.html"{about_current}>About</a></li>
-          <li><a class="site-footer-link" href="mailto:contact@sarawak.news">Contact</a></li>
-        </ul>
-      </nav>
-    </div>
-    <div class="site-footer-bottom">
-      <p>Built by <a class="site-footer-link site-footer-credit-link" href="https://hafiy.my">hafiy.my</a>, an independent publication. Not affiliated with the Sarawak Government.</p>
-    </div>
-  </footer>"""
+    return kit_render_footer(
+        brand_title=site["title"],
+        brand_note=site["description"],
+        active=active_page,
+        explore_items=(
+            NavItem("home", "index.html", "Home"),
+            NavItem("about", "about.html", "About"),
+        ),
+    )
 
 
 def render_head(
@@ -413,9 +325,11 @@ def write_dist(home: str, about: str, dist: Path = DIST) -> None:
     icons_dist = dist / "icons"
     icons_dist.mkdir()
     for mark_name in ("nav-mark-transparent.svg", "nav-mark-transparent-dark.svg"):
-        mark_src = SITE / "icons" / mark_name
+        mark_src = ROOT / "kit" / "assets" / "icons" / mark_name
         if not mark_src.is_file():
-            raise SystemExit(f"missing nav mark {mark_src.relative_to(ROOT)}")
+            mark_src = SITE / "icons" / mark_name
+        if not mark_src.is_file():
+            raise SystemExit(f"missing nav mark {mark_name}")
         shutil.copy2(mark_src, icons_dist / mark_name)
     handoff = ROOT / "design-handoff" / "favicon-F1"
     for dest_name, src_name in FAVICON_FILES.items():

@@ -25,6 +25,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Check shared kit sync
+        run: python kit/sync.py --check
       - name: Run tests
         # Discovers tests/test_build.py, including test_third_site_renders_card_without_map_tile.
         run: python -m unittest discover -s tests -v
