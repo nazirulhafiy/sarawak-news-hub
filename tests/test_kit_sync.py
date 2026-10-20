@@ -130,6 +130,26 @@ class KitSyncTests(unittest.TestCase):
             self.assertIn("back-to-top-arrow", page)
             self.assertEqual(page.count("data-sn-analytics-loader"), 1)
             self.assertIn("sn_internal", page)
+            # Hub uses a single brand_note; no mid-note break.
+            self.assertNotIn("site-footer-note-break", page)
+
+    def test_footer_note_parts_emit_kit_break(self):
+        from kit.python.shell import FOOTER_NOTE_BREAK, NavItem, render_footer
+
+        html = render_footer(
+            brand_title="AI.Sarawak.News",
+            active="home",
+            explore_items=(NavItem("home", "/", "Home"),),
+            brand_note_parts=(
+                "First sentence.",
+                "Second sentence.",
+            ),
+        )
+        self.assertIn(FOOTER_NOTE_BREAK, html)
+        self.assertIn(
+            f'<p class="site-footer-note">First sentence.{FOOTER_NOTE_BREAK}Second sentence.</p>',
+            html,
+        )
 
 
 if __name__ == "__main__":
