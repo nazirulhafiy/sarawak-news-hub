@@ -1,6 +1,6 @@
-# Sarawak.News
+# sarawak.news hub
 
-Hub for [Sarawak.News](https://sarawak.news/). The home headline is “Sarawak, made easy.” The sub-line is “Aggregating key information, all in one place.”
+Hub for [sarawak.news](https://sarawak.news/). Site title, tagline, description, and About lead live only in [`data/site.json`](data/site.json); the build fills every page surface from that file.
 
 Three cards:
 
@@ -44,9 +44,9 @@ One object in `data/sites.json` becomes a card. The fields are `id`, `name`, `ur
 
 ## Build
 
-The hub has a small static build in `scripts/build.py`, not a content-ingestion pipeline like the sister sites: it reads `data/sites.json`, renders HTML, and copies assets. It does not crawl live pages or run on a schedule.
+The hub has a small static build in `scripts/build.py`, not a content-ingestion pipeline like the sister sites: it reads `data/site.json` (hub copy) and `data/sites.json` (cards), renders HTML, and copies assets. It does not crawl live pages or run on a schedule.
 
-`scripts/build.py` renders `dist/index.html` and `dist/about.html` from `data/sites.json`, and copies `site/style.css`, `site/app.js`, and `site/fonts/` (Geist variable font and the SIL OFL licence). The font is preloaded and uses `font-display: swap`, with system-ui in the fallback stack. It also copies the Design Bot favicon from `design-handoff/favicon-F1/` to `dist/favicon.ico`, `dist/favicon.svg`, `dist/apple-touch-icon.png`, `dist/icon-192.png`, and `dist/icon-512.png`. The rest of `design-handoff/` is not published. The build does not fetch the sister sites. Cards show the name, the description, and Visit. The home tab title is `Sarawak.News`. The on-page headline is “Sarawak, made easy.” The sub-line is “Aggregating key information, all in one place.” Home and About `description`, `og:description`, and `twitter:description` use that sub-line.
+`scripts/build.py` renders `dist/index.html` and `dist/about.html` from those data files, and copies `site/style.css`, `site/app.js`, and `site/fonts/` (Geist variable font and the SIL OFL licence). The font is preloaded and uses `font-display: swap`, with system-ui in the fallback stack. It also copies the Design Bot favicon from `design-handoff/favicon-F1/` to `dist/favicon.ico`, `dist/favicon.svg`, `dist/apple-touch-icon.png`, `dist/icon-192.png`, and `dist/icon-512.png`. The rest of `design-handoff/` is not published. The build does not fetch the sister sites. Cards show the name, the description, and Visit. Home and About `<title>`, meta description, `og:*`, `twitter:*`, visible header brand, hero tagline, brief deck, footer brand/note, and About lead all come from `data/site.json`. `tests/test_site_copy.py` fails CI if those strings are hand-typed anywhere else in source.
 
 ## Deploy
 
@@ -66,4 +66,4 @@ Google Analytics 4 (`G-SJMJ0R0GJS`) and Cloudflare Web Analytics (manual beacon 
 
 ## Drawing
 
-The hero drawing is the Kuching riverfront, inlined from `site/hero-art.svg`. The Darul Hana bridge is on the left, the Dewan Undangan Negeri is in the middle, and Gunung Santubong is on the right. There is no boat. It is decorative. Dark mode changes only the line colours. About does not list photo credits for the drawing; reference photos and licences stay in [docs/SOURCES.md](docs/SOURCES.md) and [docs/design.md](docs/design.md). No photo is published. The footer Explore column lists Home, About, and Contact (`mailto:contact@sarawak.news`), plus the unaffiliated credit row. The favicon is the Design Bot solid3 Sarawak.News favicon (Chief `#fav-s3live`, approved 19 Oct 2026): the yellow (`#f7c948`) origami hornbill on a near-black (`#111111`) rounded tile in `design-handoff/favicon-F1/` (`?v=solid3` on icon links).
+The hero drawing is the Kuching riverfront, inlined from `site/hero-art.svg`. The Darul Hana bridge is on the left, the Dewan Undangan Negeri is in the middle, and Gunung Santubong is on the right. There is no boat. It is decorative. Dark mode changes only the line colours. About does not list photo credits for the drawing; reference photos and licences stay in [docs/SOURCES.md](docs/SOURCES.md) and [docs/design.md](docs/design.md). No photo is published. The footer Explore column lists Home, About, and Contact (`mailto:contact@sarawak.news`), plus the unaffiliated credit row. The favicon is the Design Bot solid3 hub favicon (Chief `#fav-s3live`, approved 19 Oct 2026): the yellow (`#f7c948`) origami hornbill on a near-black (`#111111`) rounded tile in `design-handoff/favicon-F1/` (`?v=solid3` on icon links).

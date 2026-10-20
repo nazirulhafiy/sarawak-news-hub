@@ -15,6 +15,7 @@ WATCH_PATTERNS = (
     "scripts/docs_check_pr.py",
     ".github/workflows/*",
     "data/sites.json",
+    "data/site.json",
 )
 
 FAIL_MESSAGE = (
