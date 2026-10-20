@@ -1,6 +1,14 @@
 # sarawak.news hub
 
-Hub for [sarawak.news](https://sarawak.news/). Site title, tagline, description, and About lead live only in [`data/site.json`](data/site.json); the build fills every page surface from that file.
+Hub for [sarawak.news](https://sarawak.news/). Site title, tagline, description, and About lead live in [`data/site.json`](data/site.json). The build fills every page surface from that file. The table below is generated from the same file.
+
+<!-- BEGIN GENERATED: site-copy -->
+| Field | Value |
+| --- | --- |
+| `title` | Sarawak.News |
+| `tagline` | Sarawak, made easy. |
+| `description` | Aggregating key information, all in one place. |
+<!-- END GENERATED: site-copy -->
 
 Three cards:
 
@@ -32,6 +40,7 @@ Checks:
 
 ```bash
 python3 kit/sync.py --check
+python3 kit/generate_docs.py --check
 python3 -m unittest discover -s tests -v
 python3 scripts/build.py
 python3 scripts/check_analytics_dist.py
@@ -57,6 +66,13 @@ The hub has a small static build in `scripts/build.py`, not a content-ingestion 
 
 `.github/workflows/build.yml` runs the tests, builds `dist/`, and deploys that folder with GitHub Pages.
 
+<!-- BEGIN GENERATED: hosting -->
+| Field | Value |
+| --- | --- |
+| `hostname` | `sarawak.news` |
+| `target` | GitHub Pages |
+<!-- END GENERATED: hosting -->
+
 - Push to `main` deploys.
 - Pull requests build and test, and do not deploy.
 - `workflow_dispatch` rebuilds `main` by hand.
@@ -67,8 +83,17 @@ GitHub Pages publishes `dist/` at [https://sarawak.news/](https://sarawak.news/)
 
 ## Analytics
 
-GA4 ID, CF beacon token, shared `internal_cookie` (`sn_internal`), per-host `legacy_internal_cookies` / `aliases`, and `spa` (`false`) live in `data/analytics.json` (kit shape `version: 1`). `scripts/build.py` emits one `data-sn-analytics-loader` script per page from that registry. Both trackers load only on `sarawak.news` / `www.sarawak.news`. Open the live site with `?internal=1` for agent/QA visits: GA4 gets `traffic_type: 'internal'` and the CF beacon is skipped (see `AGENTS.md`). CI runs `scripts/check_analytics_dist.py` after the build. Measurement ID `G-SJMJ0R0GJS` and CF token `092a061973fc4d899cd2e4b52952af89` are unchanged. Details are in [docs/design.md](docs/design.md) under “Analytics”.
+GA4 ID, CF beacon token, shared `internal_cookie` (`sn_internal`), per-host `legacy_internal_cookies` and `aliases`, and `spa` (`false`) live in `data/analytics.json` (kit shape `version: 1`). `scripts/build.py` emits one `data-sn-analytics-loader` script per page from that registry. Both trackers load only on the hosts in the table below. Open the live site with `?internal=1` for agent and QA visits. GA4 gets `traffic_type: 'internal'` and the CF beacon is skipped (see `AGENTS.md`). CI runs `scripts/check_analytics_dist.py` after the build. Details are in [docs/design.md](docs/design.md) under “Analytics”.
+
+<!-- BEGIN GENERATED: analytics -->
+| Field | Value |
+| --- | --- |
+| `ga4_measurement_id` | `G-SJMJ0R0GJS` |
+| `cf_beacon_token` | `092a061973fc4d899cd2e4b52952af89` |
+| `internal_cookie` | `sn_internal` |
+| `hosts` | `sarawak.news`, `www.sarawak.news` |
+<!-- END GENERATED: analytics -->
 
 ## Drawing
 
-The hero drawing is the Kuching riverfront, inlined from `site/hero-art.svg`. The Darul Hana bridge is on the left, the Dewan Undangan Negeri is in the middle, and Gunung Santubong is on the right. There is no boat. It is decorative. Dark mode changes only the line colours. About does not list photo credits for the drawing; reference photos and licences stay in [docs/SOURCES.md](docs/SOURCES.md) and [docs/design.md](docs/design.md). No photo is published. The footer Explore column lists Home, About, and Contact (`mailto:contact@sarawak.news`), plus the unaffiliated credit row. The favicon is the Design Bot solid3 hub favicon (Chief `#fav-s3live`, approved 19 Oct 2026): the yellow (`#f7c948`) origami hornbill on a near-black (`#111111`) rounded tile in `design-handoff/favicon-F1/` (`?v=solid3` on icon links).
+The hero drawing is the Kuching riverfront, inlined from `site/hero-art.svg`. The Darul Hana bridge is on the left, the Dewan Undangan Negeri is in the middle, and Gunung Santubong is on the right. There is no boat. It is decorative. Dark mode changes only the line colours. About does not list photo credits for the drawing; reference photos and licences stay in [docs/SOURCES.md](docs/SOURCES.md) and [docs/design.md](docs/design.md). No photo is published. The footer Explore column lists Home, About, and Contact (`mailto:contact@sarawak.news`), plus the unaffiliated credit row. The favicon is the Design Bot solid3 hub favicon (Chief `#fav-s3live`, approved 19 Oct 2026): the yellow (`#f7c948`) origami hornbill on a near-black (`#111111`) rounded tile in `design-handoff/favicon-F1/`. Icon links use a content hash query string.

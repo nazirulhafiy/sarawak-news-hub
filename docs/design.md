@@ -12,9 +12,31 @@ Colours are the same tokens as [bantuan.sarawak.news](https://bantuan.sarawak.ne
 
 Dark mode sets `html[data-theme="dark"]` and swaps the same tokens: canvas `#0f1115`, card `#171b22`, ink `#f3f5f7`, muted `#aeb6c2`, line `#2c333d`, red `#f15b61`, red ink `#ff8d92`. Icon tiles use a translucent yellow fill and a yellow border. Card description copy is `#374151` in light mode and `#d2d8df` in dark mode.
 
+The table is generated from `:root` and `html[data-theme="dark"]` in `site/style.css`.
+
+<!-- BEGIN GENERATED: design-tokens -->
+| Token | `:root` | `html[data-theme="dark"]` |
+| --- | --- | --- |
+| `--canvas` | #ffffff | #0f1115 |
+| `--page` | #ffffff | #0f1115 |
+| `--card` | #ffffff | #171b22 |
+| `--ink` | #111827 | #f3f5f7 |
+| `--muted` | #6b7280 | #aeb6c2 |
+| `--line` | #e2e4e9 | #2c333d |
+| `--sarawak-red` | #d22630 | #f15b61 |
+| `--sarawak-red-ink` | #9f1d26 | #ff8d92 |
+| `--sarawak-yellow` | #f7c948 | #f7c948 |
+| `--sarawak-yellow-soft` | #fffbea | #3a3110 |
+| `--sarawak-black` | #111111 | #111111 |
+| `--group-icon-tile` | #fff6d2 | rgba(247, 201, 72, 0.16) |
+| `--group-icon-border` | #f7c948 | rgba(247, 201, 72, 0.7) |
+| `--copy` | #374151 | #d2d8df |
+| `--page-gutter` | 20px |  |
+<!-- END GENERATED: design-tokens -->
+
 ## Favicon
 
-Nazirul approved the Design Bot solid3 hub favicon (Chief `#fav-s3live`, approved 19 Oct 2026): the yellow (`#f7c948`) origami hornbill on a near-black (`#111111`) rounded tile. The source files live in `design-handoff/favicon-F1/` with `?v=solid3`. The build copies them to the root of `dist/` and does not publish the rest of `design-handoff/`:
+Nazirul approved the Design Bot solid3 hub favicon (Chief `#fav-s3live`, approved 19 Oct 2026): the yellow (`#f7c948`) origami hornbill on a near-black (`#111111`) rounded tile. The source files live in `design-handoff/favicon-F1/`. The build copies them to the root of `dist/` and does not publish the rest of `design-handoff/`:
 
 | Published URL | Source |
 | --- | --- |
@@ -24,13 +46,13 @@ Nazirul approved the Design Bot solid3 hub favicon (Chief `#fav-s3live`, approve
 | `icon-192.png` | `icon-192.png` |
 | `icon-512.png` | `icon-512.png` |
 
-The head links the SVG icon, the `.ico` with `sizes="any"`, the Apple touch icon, and the 192 and 512 PNGs. There is no web app manifest. Icon `href`s append `?v=solid3` (`FAVICON_CACHE_BUST` in `scripts/build.py`) so browsers pick up icon swaps after publish. `theme-color` is `#ffffff` for `prefers-color-scheme: light` and `#0f1115` for dark. `favicon.ico` already carries the 16 and 32 pixel sizes. The favicon and the app icons stay this rounded tile. They are not the share image.
+The head links the SVG icon, the `.ico` with `sizes="any"`, the Apple touch icon, and the 192 and 512 PNGs. There is no web app manifest. Each icon `href` gets a content hash query string from `versioned_href` in `kit/python/asset_urls.py`. The value is the first 12 hex characters of the SHA-256 of that file. `og:image` and `twitter:image` use the same function on `site/og.png`. Replacing a file changes its query string, so browsers fetch the new bytes after publish. `tests/test_asset_urls.py` fails if `scripts/`, `kit/`, `docs/`, `README.md`, `AGENTS.md`, or site HTML, JS, CSS, or SVG contain a hand-typed asset query stamp outside a generated block. `theme-color` is `#ffffff` for `prefers-color-scheme: light` and `#0f1115` for dark. `favicon.ico` already carries the 16 and 32 pixel sizes. The favicon and the app icons stay this rounded tile. They are not the share image.
 
 ## Social image
 
 `site/og.png` is a 1200×630 PNG. The build copies it to `dist/og.png`. The background is the dark canvas `#0f1115` and runs to every edge. The file is RGB, with no alpha and no rounded corners. Centred in the frame are the yellow Sarawak map from the F1 mark (`#f7c948`) and, beside it, the hub title from `data/site.json` in Geist (`#f3f5f7`). There is no tagline on the card.
 
-Home and About point `og:image` and `twitter:image` at `https://sarawak.news/og.png`. `og:image:width` is 1200 and `og:image:height` is 630. `twitter:card` is `summary_large_image`.
+Home and About point `og:image` and `twitter:image` at `https://sarawak.news/og.png` plus the content hash query string of `site/og.png`. `og:image:width` is 1200 and `og:image:height` is 630. `twitter:card` is `summary_large_image`.
 
 ## Theme
 
@@ -44,7 +66,15 @@ The bar is sticky. `.bar` is a full-viewport shell (`position: sticky; top: 0`) 
 
 ## Hero
 
-The home hero is a centred brief. Hub wording is owned by `data/site.json` (`title`, `tagline`, `description`, `about_lead`). The build fills every surface from that file; do not hand-type those strings in `scripts/`, `tests/`, `docs/`, or `README.md`. `tests/test_site_copy.py` fails if they appear elsewhere in source.
+The home hero is a centred brief. Hub wording is owned by `data/site.json` (`title`, `tagline`, `description`, `about_lead`). The build fills every surface from that file. Do not hand-type those strings outside `data/site.json`, except inside a generated block. `tests/test_site_copy.py` fails if they appear elsewhere. `python3 kit/generate_docs.py` writes the table from `data/site.json`.
+
+<!-- BEGIN GENERATED: site-copy -->
+| Field | Value |
+| --- | --- |
+| `title` | Sarawak.News |
+| `tagline` | Sarawak, made easy. |
+| `description` | Aggregating key information, all in one place. |
+<!-- END GENERATED: site-copy -->
 
 - `tagline` → home `<h1>`
 - `description` → `p.brief-deck`, meta / og / twitter descriptions on Home and About, and the footer note
@@ -61,7 +91,7 @@ Dark mode also changes the line inks. The drawing is `#5f6977` at opacity 0.6 an
 
 Shapes were traced from Wikimedia photos. About does not list those photo credits on the page. The photos are not published.
 
-Other photos were used only to check general proportions: the rest of the assembly views, the Darul Hana promenade view, the Santubong profiles, and the Kuching river scene. The full list, without the tambang photos, is in [docs/SOURCES.md](SOURCES.md). The tambang references are omitted because the boat is not in the drawing. The footer does not carry these credits. The favicon stays the Design Bot solid3 hub favicon (Chief `#fav-s3live`): the yellow (`#f7c948`) origami hornbill on a near-black (`#111111`) rounded tile in `design-handoff/favicon-F1/` with `?v=solid3`.
+Other photos were used only to check general proportions: the rest of the assembly views, the Darul Hana promenade view, the Santubong profiles, and the Kuching river scene. The full list, without the tambang photos, is in [docs/SOURCES.md](SOURCES.md). The tambang references are omitted because the boat is not in the drawing. The footer does not carry these credits. The favicon stays the Design Bot solid3 hub favicon (Chief `#fav-s3live`): the yellow (`#f7c948`) origami hornbill on a near-black (`#111111`) rounded tile in `design-handoff/favicon-F1/`. Icon links use a content hash query string.
 
 ## Cards
 
@@ -95,6 +125,10 @@ Fleet chrome that every sarawak.news site should share lives in `kit/` in this h
 | `kit/python/shell.py` | Header, footer (always includes Contact `mailto:contact@sarawak.news`), back-to-top markup |
 | `kit/python/analytics_loader.py` | Registry-driven production loader (`data-sn-analytics-loader`) |
 | `kit/python/analytics_registry.py` | `data/analytics.json` validation (each site keeps its own registry file) |
+| `kit/python/asset_urls.py` | Content-hash query strings for icon and share-image URLs |
+| `kit/python/docs_facts.py` | Fact blocks for site copy, analytics, hosting, and colour tokens |
+| `kit/generate_docs.py` | Writes those blocks, or checks them with `--check` |
+| `kit/favicon_sheet.py` | Proof contact sheet of the favicon at 16, 32, and 48 pixels. Not published. |
 | `kit/assets/icons/` | Origami hornbill nav marks |
 | `kit/css/back-to-top.css` / `kit/js/back-to-top.js` | Back-to-top rules and behaviour (mirrored into `site/style.css` / `site/app.js` inside `sn-kit:back-to-top` markers) |
 
@@ -114,40 +148,45 @@ The brief uses bantuan’s `hero-reveal`: a rise of 18px over 0.85s, easing `cub
 
 ## Build pipeline
 
-`scripts/build.py` is the hub’s static site generator: it validates `data/sites.json`, renders `dist/index.html` and `dist/about.html` from `kit/python`, and copies CSS, JS, fonts, favicons, `og.png`, and `CNAME`. Nav marks are copied from `kit/assets/icons/`. `python3 kit/sync.py --check` runs in CI before the tests. There is no discovery, review queue, or scheduled ingestion workflow—only this build step and GitHub Actions on push. Sister-site totals are not fetched at build time.
+`scripts/build.py` is the hub’s static site generator: it validates `data/sites.json`, renders `dist/index.html` and `dist/about.html` from `kit/python`, and copies CSS, JS, fonts, favicons, `og.png`, and `CNAME`. Nav marks are copied from `kit/assets/icons/`. `python3 kit/sync.py --check` runs in CI before the tests. `python3 kit/generate_docs.py --check` runs after that. It fails when a generated block in `docs/design.md` or `README.md` does not match `data/site.json`, the analytics registry, `CNAME` or `data/hosting.json`, or the custom properties in `site/style.css`. There is no discovery, review queue, or scheduled ingestion workflow. The only publish path is this build step and GitHub Actions on push. Sister-site totals are not fetched at build time.
 
 ## Deploy
 
-`scripts/build.py` writes `dist/` only. It does not fetch live pages. `design-handoff/` stays in the repo and is not copied. The build copies the repo `CNAME` (`sarawak.news`) into `dist/CNAME`. Canonical and `og:url` on the home page are `https://sarawak.news/`. About uses `https://sarawak.news/about.html`. `robots.txt` and `sitemap.xml` use the same origin. Internal links (`index.html`, `about.html`, `style.css`, `app.js`, `fonts/Geist-Variable.woff2`) are relative, so the site works at the domain root.
+`scripts/build.py` writes `dist/` only. It does not fetch live pages. `design-handoff/` stays in the repo and is not copied. The build copies the repo `CNAME` into `dist/CNAME`. Canonical and `og:url` on the home page are `https://sarawak.news/`. About uses `https://sarawak.news/about.html`. `robots.txt` and `sitemap.xml` use the same origin. Internal links (`index.html`, `about.html`, `style.css`, `app.js`, `fonts/Geist-Variable.woff2`) are relative, so the site works at the domain root.
+
+<!-- BEGIN GENERATED: hosting -->
+| Field | Value |
+| --- | --- |
+| `hostname` | `sarawak.news` |
+| `target` | GitHub Pages |
+<!-- END GENERATED: hosting -->
 
 `.github/workflows/build.yml` tests and builds on every pull request. A push to `main` deploys that build with GitHub Pages. `workflow_dispatch` can rebuild `main` by hand. The daily schedule is gone. It only existed to refresh counts, and the cards no longer show counts.
 
 ## Docs check
 
-`.github/workflows/docs-check.yml` runs job `docs-check` on pull requests (`opened`, `synchronize`, `reopened`, `labeled`, `unlabeled`). It diffs the PR with three dots (`base...head`). Watched paths are `site/*`, `kit/*` / `kit/**/*`, `scripts/build.py`, `scripts/analytics_registry.py`, `scripts/check_analytics_dist.py`, `scripts/docs_check_pr.py`, `.github/workflows/*`, `data/sites.json`, `data/site.json`, and `data/analytics.json`. A change there fails unless `docs/` also changes, or the PR has the `no-docs-needed` label.
+`.github/workflows/docs-check.yml` runs job `docs-check` on pull requests (`opened`, `synchronize`, `reopened`, `labeled`, `unlabeled`). It diffs the PR with three dots (`base...head`). Watched paths are `site/*`, `kit/*` / `kit/**/*`, `scripts/build.py`, `scripts/analytics_registry.py`, `scripts/check_analytics_dist.py`, `scripts/docs_check_pr.py`, `.github/workflows/*`, `data/sites.json`, `data/site.json`, and `data/analytics.json`. A change there fails unless `docs/` also changes, or the PR has the `no-docs-needed` label. That prose check stays. `python3 kit/generate_docs.py --check` is a separate check. It only compares generated blocks to their source files.
 
 ## Analytics
 
 IDs, cookie name, and CF `spa` live in `data/analytics.json` (fleet kit shape, `version: 1`, same as bantuan). The loader implementation lives in `kit/python/analytics_loader.py`. The registry implementation lives in `kit/python/analytics_registry.py`, and `scripts/analytics_registry.py` re-exports it. `scripts/build.py` calls `render_analytics_loader()` and emits one inline `<script data-sn-analytics-loader>` per page (edit the registry or the kit, not `dist/`). CI runs `scripts/check_analytics_dist.py` so each built HTML page has exactly one loader, only registry GA4 / CF tokens, only the registry cookie (plus per-host `legacy_internal_cookies` honour), and CF `spa` matching the registry (`false` here).
 
-Registry fields for this site:
+Registry fields for this site come from `data/analytics.json`. Per-host `legacy_internal_cookies` repeats the primary cookie name, and the loader still honours that list so already-marked devices stay excluded.
 
+<!-- BEGIN GENERATED: analytics -->
 | Field | Value |
 | --- | --- |
-| `version` | `1` |
-| `internal_cookie` | `sn_internal` |
-| `spa` | `false` |
-| Primary host | `sarawak.news` |
-| `aliases` | `["www.sarawak.news"]` |
 | `ga4_measurement_id` | `G-SJMJ0R0GJS` |
 | `cf_beacon_token` | `092a061973fc4d899cd2e4b52952af89` |
-| `legacy_internal_cookies` | `["sn_internal"]` (hub’s historical name is already the primary; the loader still honours the list so already-marked devices stay excluded) |
+| `internal_cookie` | `sn_internal` |
+| `hosts` | `sarawak.news`, `www.sarawak.news` |
+<!-- END GENERATED: analytics -->
 
 Loader behaviour:
 
 1. **Production host gate** — runs only when `location.hostname` is the primary host or an alias. It does not load on localhost, `*.pages.dev`, `*.github.io`, `*.vercel.app`, or any other host.
 2. **Internal traffic cookie** — `?internal=1` sets the registry `internal_cookie` (`sn_internal=1`; `path=/`, `max-age=31536000` ≈ 1 year, `SameSite=Lax`, plus `Secure` on HTTPS). `?internal=0` clears the primary and every listed `legacy_internal_cookies` name. A visit counts as internal when the primary **or** any legacy cookie is `=1`. While internal, `gtag('config', …, { traffic_type: 'internal' })` and the Cloudflare beacon is not loaded. Agents and automated checks that open the live site must use `?internal=1` (see `AGENTS.md`).
-3. **Google Analytics 4** — measurement ID from the registry (`G-SJMJ0R0GJS`), loaded asynchronously after the host gate.
-4. **Cloudflare Web Analytics** — the hub is served by GitHub Pages (not proxied through Cloudflare), so the loader embeds the zone site token (`092a061973fc4d899cd2e4b52952af89`, shared with ai.sarawak.news; filter by hostname in the dashboard) with `spa: false`. The beacon loads only on registry hosts and only when the visit is not internal.
+3. **Google Analytics 4.** After the host gate, the loader loads the measurement ID shown in the table above.
+4. **Cloudflare Web Analytics.** The hub is served by GitHub Pages, not proxied through Cloudflare, so the loader embeds the zone site token from the table above. That token is shared with ai.sarawak.news. Filter by hostname in the dashboard. `spa` is false. The beacon loads only on registry hosts and only when the visit is not internal.
 
 - No Content-Security-Policy is set; if one is added, allow `www.googletagmanager.com`, `*.google-analytics.com` and `static.cloudflareinsights.com`.
