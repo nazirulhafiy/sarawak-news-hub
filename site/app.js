@@ -75,6 +75,7 @@
     updateStickyBar();
   }
 
+/* sn-kit:back-to-top:begin */
   const backToTop = document.querySelector("[data-back-to-top]");
   if (backToTop) {
     const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)");
@@ -109,4 +110,5 @@
     window.addEventListener("scroll", updateBackToTop, { passive: true });
     updateBackToTop();
   }
+/* sn-kit:back-to-top:end */
 })();

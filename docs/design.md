@@ -38,7 +38,7 @@ Home and About point `og:image` and `twitter:image` at `https://sarawak.news/og.
 
 The header is bantuan’s bar: wordmark, red / yellow / black rule, Sites and About, sun-and-moon toggle. Below 560px the links collapse into a menu button. The theme control stays visible.
 
-The home link (`.brand`) starts with Design Bot’s origami line hornbill (`#snnav`), then the hub `title` from `data/site.json`, with a small gap. Sources are `site/icons/nav-mark-transparent.svg` (light) and `site/icons/nav-mark-transparent-dark.svg` (dark; transparent, no `#111` square). The build copies both to `dist/icons/`. Images use `alt=""`; the text labels the link. Mark height matches the wordmark line (`1.15em`). The brand stays on one line (`white-space: nowrap`) down to 375px. SVGs are used as supplied — no recolouring.
+The home link (`.brand`) starts with Design Bot’s origami line hornbill (`#snnav`), then the hub `title` from `data/site.json`, with a small gap. Canonical mark files live in `kit/assets/icons/` (`nav-mark-transparent.svg` light, `nav-mark-transparent-dark.svg` dark; transparent, no `#111` square). Matching copies under `site/icons/` are kept in sync by `python3 kit/sync.py`. The build copies the kit marks to `dist/icons/`. Images use `alt=""`; the text labels the link. Mark height matches the wordmark line (`1.15em`). The brand stays on one line (`white-space: nowrap`) down to 375px. SVGs are used as supplied — no recolouring.
 
 The bar is sticky. `.bar` is a full-viewport shell (`position: sticky; top: 0`) with a solid page-colour background in light and dark mode, so the page scrolls underneath it. The wordmark, Sites, About, the theme toggle, and the menu stay on the 760px rail inside `.bar-inner`. On viewports wider than 560px the tri-colour rule stays on that rail: red under the wordmark, yellow and black splitting the rest, including under the theme control. From 560px down the rule runs edge to edge, from the left of the viewport to the right (`0` to `100vw`), including behind the theme and menu icons. `site/app.js` adds `.is-scrolled` after any scroll. That class paints a thin bottom edge and a soft shadow. At the top of the page there is no shadow. Light mode uses `0 6px 16px rgb(17 24 39 / 8%)`. Dark mode uses `0 6px 16px rgb(0 0 0 / 35%)`. `html` uses `overflow-x: clip`, and from 560px down the body does too, so the full-bleed bar and the mobile drawing do not widen the page (`scrollWidth` stays the viewport width). `scroll-padding-top` is 72px, and 76px from 560px down, so a jump to `#content` clears the bar. The skip link stacks above the bar.
 
@@ -86,13 +86,27 @@ Add one object to the `sites` array. Do not edit the template. The next build dr
 
 Those six fields are the whole entry. There is no `map` field and no `counts` field. The build does not fetch story or scheme totals.
 
+## Shared kit
+
+Fleet chrome that every sarawak.news site should share lives in `kit/` in this hub repo (source of truth). Sisters vendor that tree at a pinned hub commit; see `kit/README.md`. Delivery is a **vendored copy + `kit/PIN` + `python3 kit/sync.py --check`**, not a git submodule and not a separate kit repository.
+
+| Kit path | Provides |
+| --- | --- |
+| `kit/python/shell.py` | Header, footer (always includes Contact `mailto:contact@sarawak.news`), back-to-top markup |
+| `kit/python/analytics_loader.py` | Registry-driven production loader (`data-sn-analytics-loader`) |
+| `kit/python/analytics_registry.py` | `data/analytics.json` validation (each site keeps its own registry file) |
+| `kit/assets/icons/` | Origami hornbill nav marks |
+| `kit/css/back-to-top.css` / `kit/js/back-to-top.js` | Back-to-top rules and behaviour (mirrored into `site/style.css` / `site/app.js` inside `sn-kit:back-to-top` markers) |
+
+Hub CI runs `python3 kit/sync.py --check` before tests. That check fails on invariant breaks (for example removing Contact or hand-editing back-to-top) and on consumer drift.
+
 ## Footer
 
-Structured, contained footer on the 760px rail: a summary column (brand from `data/site.json` `title` and the deck line from `description`), an **Explore** column with vertical Home / About / Contact links (Contact uses `mailto:contact@sarawak.news`, same `site-footer-link` styling as Home and About), and a full-width builder and independence attribution row (“Built by hafiy.my, an independent publication. Not affiliated with the Sarawak Government.”).
+Structured, contained footer on the 760px rail, rendered by `kit.python.shell.render_footer`: a summary column (brand from `data/site.json` `title` and the deck line from `description`), an **Explore** column with vertical Home / About / Contact links (Contact uses `mailto:contact@sarawak.news`, same `site-footer-link` styling as Home and About), and a full-width builder and independence attribution row (“Built by hafiy.my, an independent publication. Not affiliated with the Sarawak Government.”). Hub passes a single `brand_note` string (no mid-note break). Sites that need a forced line break in the footer note (AI.Sarawak.News) pass `brand_note_parts` so the kit inserts `<br class="site-footer-note-break" />` between escaped sentences; that markup lives only in `kit/python/shell.py` (`FOOTER_NOTE_BREAK`).
 
 ## Back to top
 
-The control uses the same markup as ai.sarawak.news: a `button.back-to-top` with `type="button"`, `aria-label="Back to top"`, a “Back to top” label, and an `↑` arrow. It starts `hidden`, so it is not focusable. `site/app.js` shows it only when `scrollY` is at least 600, and hides it again below that. The home page cannot scroll that far, so the control stays absent there. Wider than 560px it is the ai.sarawak.news pill: “Back to top ↑” in Geist at 11px, weight 850, line-height 1.3, padding `8px 12px`, a 3.08px gap, and a 999px radius. It is fixed 24px from the viewport’s right and bottom edges, with a `0 4px 14px rgb(17 24 39 / 10%)` shadow, and it rises 6px as it fades. From 560px down it is a 44px circle (`border-radius: 50%`), arrow only, at 18px, inset with `max(14px, env(safe-area-inset-*) + 14px)`. The chip is `#111` and the label and arrow are `#f7c948` in both themes. Those colours are written on the control, not taken from the page tokens. Light mode’s border is 1px `#111`. Dark mode’s border is 1px `#f7c948`. The same Geist variable face already on the page supplies weight 850. It fades over 180ms. `prefers-reduced-motion: reduce` drops the fade and scrolls to the top instantly; otherwise the click scrolls smoothly. The focus ring is 3px `#f7c948` with a 2px offset. The control sits in the screen corner, under the sticky bar (`z-index` 5, bar 40), and does not cover the header.
+Markup comes from `kit.python.shell.render_back_to_top`. CSS and JS are owned by `kit/css/back-to-top.css` and `kit/js/back-to-top.js`, mirrored into `site/style.css` / `site/app.js` between `/* sn-kit:back-to-top:begin|end */` markers. The shared `prefers-reduced-motion` rule in `site/style.css` still includes `.back-to-top` with the other motion resets. The control matches ai.sarawak.news: a `button.back-to-top` with `type="button"`, `aria-label="Back to top"`, a “Back to top” label, and an `↑` arrow. It starts `hidden`, so it is not focusable. The kit JS shows it only when `scrollY` is at least 600, and hides it again below that. The home page cannot scroll that far, so the control stays absent there. Wider than 560px it is the ai.sarawak.news pill: “Back to top ↑” in Geist at 11px, weight 850, line-height 1.3, padding `8px 12px`, a 3.08px gap, and a 999px radius. It is fixed 24px from the viewport’s right and bottom edges, with a `0 4px 14px rgb(17 24 39 / 10%)` shadow, and it rises 6px as it fades. From 560px down it is a 44px circle (`border-radius: 50%`), arrow only, at 18px, inset with `max(14px, env(safe-area-inset-*) + 14px)`. The chip is `#111` and the label and arrow are `#f7c948` in both themes. Those colours are written on the control, not taken from the page tokens. Light mode’s border is 1px `#111`. Dark mode’s border is 1px `#f7c948`. The same Geist variable face already on the page supplies weight 850. It fades over 180ms. `prefers-reduced-motion: reduce` drops the fade and scrolls to the top instantly; otherwise the click scrolls smoothly. The focus ring is 3px `#f7c948` with a 2px offset. The control sits in the screen corner, under the sticky bar (`z-index` 5, bar 40), and does not cover the header.
 
 ## Motion
 
@@ -100,7 +114,7 @@ The brief uses bantuan’s `hero-reveal`: a rise of 18px over 0.85s, easing `cub
 
 ## Build pipeline
 
-`scripts/build.py` is the hub’s static site generator: it validates `data/sites.json`, renders `dist/index.html` and `dist/about.html`, and copies CSS, JS, fonts, favicons, `og.png`, and `CNAME`. There is no discovery, review queue, or scheduled ingestion workflow—only this build step and GitHub Actions on push. Sister-site totals are not fetched at build time.
+`scripts/build.py` is the hub’s static site generator: it validates `data/sites.json`, renders `dist/index.html` and `dist/about.html` from `kit/python`, and copies CSS, JS, fonts, favicons, `og.png`, and `CNAME`. Nav marks are copied from `kit/assets/icons/`. `python3 kit/sync.py --check` runs in CI before the tests. There is no discovery, review queue, or scheduled ingestion workflow—only this build step and GitHub Actions on push. Sister-site totals are not fetched at build time.
 
 ## Deploy
 
@@ -110,11 +124,11 @@ The brief uses bantuan’s `hero-reveal`: a rise of 18px over 0.85s, easing `cub
 
 ## Docs check
 
-`.github/workflows/docs-check.yml` runs job `docs-check` on pull requests (`opened`, `synchronize`, `reopened`, `labeled`, `unlabeled`). It diffs the PR with three dots (`base...head`). Watched paths are `site/*`, `scripts/build.py`, `scripts/analytics_registry.py`, `scripts/check_analytics_dist.py`, `scripts/docs_check_pr.py`, `.github/workflows/*`, `data/sites.json`, `data/site.json`, and `data/analytics.json`. A change there fails unless `docs/` also changes, or the PR has the `no-docs-needed` label.
+`.github/workflows/docs-check.yml` runs job `docs-check` on pull requests (`opened`, `synchronize`, `reopened`, `labeled`, `unlabeled`). It diffs the PR with three dots (`base...head`). Watched paths are `site/*`, `kit/*` / `kit/**/*`, `scripts/build.py`, `scripts/analytics_registry.py`, `scripts/check_analytics_dist.py`, `scripts/docs_check_pr.py`, `.github/workflows/*`, `data/sites.json`, `data/site.json`, and `data/analytics.json`. A change there fails unless `docs/` also changes, or the PR has the `no-docs-needed` label.
 
 ## Analytics
 
-IDs, cookie name, and CF `spa` live in `data/analytics.json` (fleet kit-aligned shape, `version: 1`, same as bantuan). `scripts/build.py` → `render_analytics_loader()` emits **one** inline `<script data-sn-analytics-loader>` per page (edit the registry / build, not `dist/`). CI runs `scripts/check_analytics_dist.py` so each built HTML page has exactly one loader, only registry GA4 / CF tokens, only the registry cookie (plus per-host `legacy_internal_cookies` honour), and CF `spa` matching the registry (`false` here).
+IDs, cookie name, and CF `spa` live in `data/analytics.json` (fleet kit shape, `version: 1`, same as bantuan). The loader implementation lives in `kit/python/analytics_loader.py`. The registry implementation lives in `kit/python/analytics_registry.py`, and `scripts/analytics_registry.py` re-exports it. `scripts/build.py` calls `render_analytics_loader()` and emits one inline `<script data-sn-analytics-loader>` per page (edit the registry or the kit, not `dist/`). CI runs `scripts/check_analytics_dist.py` so each built HTML page has exactly one loader, only registry GA4 / CF tokens, only the registry cookie (plus per-host `legacy_internal_cookies` honour), and CF `spa` matching the registry (`false` here).
 
 Registry fields for this site:
 
