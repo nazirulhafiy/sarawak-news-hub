@@ -39,7 +39,7 @@ class KitSyncTests(unittest.TestCase):
             target.write_text(original, encoding="utf-8")
 
     def test_missing_contact_invariant_fails(self):
-        target = ROOT / "kit" / "shell.py"
+        target = ROOT / "kit" / "python" / "shell.py"
         original = target.read_text(encoding="utf-8")
         try:
             target.write_text(
@@ -63,9 +63,6 @@ class KitSyncTests(unittest.TestCase):
         ).strip()
         with tempfile.TemporaryDirectory() as tmp:
             sister = Path(tmp)
-            # Vendor current kit tree + PIN (simulates sister at this commit).
-            # Use working tree copy; pin check compares to git show, so files
-            # must match HEAD. Skip if kit is not yet committed.
             tracked = subprocess.run(
                 ["git", "ls-files", "kit/MANIFEST.json"],
                 cwd=ROOT,
@@ -90,10 +87,8 @@ class KitSyncTests(unittest.TestCase):
                 capture_output=True,
             )
             self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
-            # Hand-edit like the 18 Oct / BTT incident
             btt = sister / "kit" / "js" / "back-to-top.js"
             btt.write_text(btt.read_text(encoding="utf-8") + "\n", encoding="utf-8")
-            # ensure real drift: append comment
             btt.write_text(btt.read_text(encoding="utf-8") + "// edited\n", encoding="utf-8")
             bad = subprocess.run(
                 ["python3", "kit/sync.py", "--check", "--hub-path", str(ROOT)],
@@ -103,6 +98,38 @@ class KitSyncTests(unittest.TestCase):
             )
             self.assertNotEqual(bad.returncode, 0)
             self.assertIn("local edit or stale vendor", bad.stderr)
+
+    def test_hub_sync_leaves_mirrors_unchanged(self):
+        paths = [
+            ROOT / "site" / "style.css",
+            ROOT / "site" / "app.js",
+            ROOT / "site" / "icons" / "nav-mark-transparent.svg",
+            ROOT / "site" / "icons" / "nav-mark-transparent-dark.svg",
+        ]
+        before = {path: path.read_bytes() for path in paths}
+        result = subprocess.run(
+            ["python3", "kit/sync.py", "--sync"],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        after = {path: path.read_bytes() for path in paths}
+        self.assertEqual(before, after)
+
+    def test_pages_emit_contact_back_to_top_and_loader(self):
+        import scripts.build as build
+
+        for page in (build.render_home(), build.render_about()):
+            self.assertIn(
+                '<a class="site-footer-link" href="mailto:contact@sarawak.news">Contact</a>',
+                page,
+            )
+            self.assertIn("data-back-to-top", page)
+            self.assertIn("back-to-top-label", page)
+            self.assertIn("back-to-top-arrow", page)
+            self.assertEqual(page.count("data-sn-analytics-loader"), 1)
+            self.assertIn("sn_internal", page)
 
 
 if __name__ == "__main__":

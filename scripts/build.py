@@ -23,14 +23,17 @@ _SCRIPTS = Path(__file__).resolve().parent
 if str(_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS))
 
-from kit.analytics_loader import (  # noqa: E402
+from kit.python.analytics_loader import (  # noqa: E402
     ANALYTICS_LOADER_ATTR,
-    ANALYTICS_MAX_AGE,
     render_analytics_loader as kit_render_analytics_loader,
 )
-from kit.analytics_registry import AnalyticsRegistry, load_analytics  # noqa: E402
-from kit.shell import NavItem, render_back_to_top, render_footer as kit_render_footer  # noqa: E402
-from kit.shell import render_header as kit_render_header  # noqa: E402
+from kit.python.analytics_registry import AnalyticsRegistry, load_analytics  # noqa: E402
+from kit.python.shell import (  # noqa: E402
+    NavItem,
+    render_back_to_top,
+    render_footer as kit_render_footer,
+    render_header as kit_render_header,
+)
 
 # Live origin. Pages serves the site at the domain root. SITE_URL overrides this.
 DEFAULT_SITE_URL = "https://sarawak.news/"
@@ -327,9 +330,7 @@ def write_dist(home: str, about: str, dist: Path = DIST) -> None:
     for mark_name in ("nav-mark-transparent.svg", "nav-mark-transparent-dark.svg"):
         mark_src = ROOT / "kit" / "assets" / "icons" / mark_name
         if not mark_src.is_file():
-            mark_src = SITE / "icons" / mark_name
-        if not mark_src.is_file():
-            raise SystemExit(f"missing nav mark {mark_name}")
+            raise SystemExit(f"missing nav mark {mark_src.relative_to(ROOT)}")
         shutil.copy2(mark_src, icons_dist / mark_name)
     handoff = ROOT / "design-handoff" / "favicon-F1"
     for dest_name, src_name in FAVICON_FILES.items():

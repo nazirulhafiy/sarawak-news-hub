@@ -92,9 +92,9 @@ Fleet chrome that every sarawak.news site should share lives in `kit/` in this h
 
 | Kit path | Provides |
 | --- | --- |
-| `kit/shell.py` | Header, footer (always includes Contact `mailto:contact@sarawak.news`), back-to-top markup |
-| `kit/analytics_loader.py` | Registry-driven production loader (`data-sn-analytics-loader`) |
-| `kit/analytics_registry.py` | `data/analytics.json` validation (each site keeps its own registry file) |
+| `kit/python/shell.py` | Header, footer (always includes Contact `mailto:contact@sarawak.news`), back-to-top markup |
+| `kit/python/analytics_loader.py` | Registry-driven production loader (`data-sn-analytics-loader`) |
+| `kit/python/analytics_registry.py` | `data/analytics.json` validation (each site keeps its own registry file) |
 | `kit/assets/icons/` | Origami hornbill nav marks |
 | `kit/css/back-to-top.css` / `kit/js/back-to-top.js` | Back-to-top rules and behaviour (mirrored into `site/style.css` / `site/app.js` inside `sn-kit:back-to-top` markers) |
 
@@ -102,11 +102,11 @@ Hub CI runs `python3 kit/sync.py --check` before tests. That check fails on inva
 
 ## Footer
 
-Structured, contained footer on the 760px rail, rendered by `kit.shell.render_footer`: a summary column (brand from `data/site.json` `title` and the deck line from `description`), an **Explore** column with vertical Home / About / Contact links (Contact uses `mailto:contact@sarawak.news`, same `site-footer-link` styling as Home and About), and a full-width builder and independence attribution row (“Built by hafiy.my, an independent publication. Not affiliated with the Sarawak Government.”).
+Structured, contained footer on the 760px rail, rendered by `kit.python.shell.render_footer`: a summary column (brand from `data/site.json` `title` and the deck line from `description`), an **Explore** column with vertical Home / About / Contact links (Contact uses `mailto:contact@sarawak.news`, same `site-footer-link` styling as Home and About), and a full-width builder and independence attribution row (“Built by hafiy.my, an independent publication. Not affiliated with the Sarawak Government.”).
 
 ## Back to top
 
-Markup comes from `kit.shell.render_back_to_top`. CSS and JS are owned by `kit/css/back-to-top.css` and `kit/js/back-to-top.js`, mirrored into `site/style.css` / `site/app.js` between `/* sn-kit:back-to-top:begin|end */` markers. The control matches ai.sarawak.news: a `button.back-to-top` with `type="button"`, `aria-label="Back to top"`, a “Back to top” label, and an `↑` arrow. It starts `hidden`, so it is not focusable. The kit JS shows it only when `scrollY` is at least 600, and hides it again below that. The home page cannot scroll that far, so the control stays absent there. Wider than 560px it is the ai.sarawak.news pill: “Back to top ↑” in Geist at 11px, weight 850, line-height 1.3, padding `8px 12px`, a 3.08px gap, and a 999px radius. It is fixed 24px from the viewport’s right and bottom edges, with a `0 4px 14px rgb(17 24 39 / 10%)` shadow, and it rises 6px as it fades. From 560px down it is a 44px circle (`border-radius: 50%`), arrow only, at 18px, inset with `max(14px, env(safe-area-inset-*) + 14px)`. The chip is `#111` and the label and arrow are `#f7c948` in both themes. Those colours are written on the control, not taken from the page tokens. Light mode’s border is 1px `#111`. Dark mode’s border is 1px `#f7c948`. The same Geist variable face already on the page supplies weight 850. It fades over 180ms. `prefers-reduced-motion: reduce` drops the fade and scrolls to the top instantly; otherwise the click scrolls smoothly. The focus ring is 3px `#f7c948` with a 2px offset. The control sits in the screen corner, under the sticky bar (`z-index` 5, bar 40), and does not cover the header.
+Markup comes from `kit.python.shell.render_back_to_top`. CSS and JS are owned by `kit/css/back-to-top.css` and `kit/js/back-to-top.js`, mirrored into `site/style.css` / `site/app.js` between `/* sn-kit:back-to-top:begin|end */` markers. The shared `prefers-reduced-motion` rule in `site/style.css` still includes `.back-to-top` with the other motion resets. The control matches ai.sarawak.news: a `button.back-to-top` with `type="button"`, `aria-label="Back to top"`, a “Back to top” label, and an `↑` arrow. It starts `hidden`, so it is not focusable. The kit JS shows it only when `scrollY` is at least 600, and hides it again below that. The home page cannot scroll that far, so the control stays absent there. Wider than 560px it is the ai.sarawak.news pill: “Back to top ↑” in Geist at 11px, weight 850, line-height 1.3, padding `8px 12px`, a 3.08px gap, and a 999px radius. It is fixed 24px from the viewport’s right and bottom edges, with a `0 4px 14px rgb(17 24 39 / 10%)` shadow, and it rises 6px as it fades. From 560px down it is a 44px circle (`border-radius: 50%`), arrow only, at 18px, inset with `max(14px, env(safe-area-inset-*) + 14px)`. The chip is `#111` and the label and arrow are `#f7c948` in both themes. Those colours are written on the control, not taken from the page tokens. Light mode’s border is 1px `#111`. Dark mode’s border is 1px `#f7c948`. The same Geist variable face already on the page supplies weight 850. It fades over 180ms. `prefers-reduced-motion: reduce` drops the fade and scrolls to the top instantly; otherwise the click scrolls smoothly. The focus ring is 3px `#f7c948` with a 2px offset. The control sits in the screen corner, under the sticky bar (`z-index` 5, bar 40), and does not cover the header.
 
 ## Motion
 
@@ -114,7 +114,7 @@ The brief uses bantuan’s `hero-reveal`: a rise of 18px over 0.85s, easing `cub
 
 ## Build pipeline
 
-`scripts/build.py` is the hub’s static site generator: it validates `data/sites.json`, renders `dist/index.html` and `dist/about.html`, and copies CSS, JS, fonts, favicons, `og.png`, and `CNAME`. There is no discovery, review queue, or scheduled ingestion workflow—only this build step and GitHub Actions on push. Sister-site totals are not fetched at build time.
+`scripts/build.py` is the hub’s static site generator: it validates `data/sites.json`, renders `dist/index.html` and `dist/about.html` from `kit/python`, and copies CSS, JS, fonts, favicons, `og.png`, and `CNAME`. Nav marks are copied from `kit/assets/icons/`. `python3 kit/sync.py --check` runs in CI before the tests. There is no discovery, review queue, or scheduled ingestion workflow—only this build step and GitHub Actions on push. Sister-site totals are not fetched at build time.
 
 ## Deploy
 
@@ -128,7 +128,7 @@ The brief uses bantuan’s `hero-reveal`: a rise of 18px over 0.85s, easing `cub
 
 ## Analytics
 
-IDs, cookie name, and CF `spa` live in `data/analytics.json` (fleet kit shape, `version: 1`, same as bantuan). The loader implementation lives in `kit/analytics_loader.py`; `scripts/build.py` → `render_analytics_loader()` calls it and emits **one** inline `<script data-sn-analytics-loader>` per page (edit the registry / kit, not `dist/`). CI runs `scripts/check_analytics_dist.py` so each built HTML page has exactly one loader, only registry GA4 / CF tokens, only the registry cookie (plus per-host `legacy_internal_cookies` honour), and CF `spa` matching the registry (`false` here).
+IDs, cookie name, and CF `spa` live in `data/analytics.json` (fleet kit shape, `version: 1`, same as bantuan). The loader implementation lives in `kit/python/analytics_loader.py`. The registry implementation lives in `kit/python/analytics_registry.py`, and `scripts/analytics_registry.py` re-exports it. `scripts/build.py` calls `render_analytics_loader()` and emits one inline `<script data-sn-analytics-loader>` per page (edit the registry or the kit, not `dist/`). CI runs `scripts/check_analytics_dist.py` so each built HTML page has exactly one loader, only registry GA4 / CF tokens, only the registry cookie (plus per-host `legacy_internal_cookies` honour), and CF `spa` matching the registry (`false` here).
 
 Registry fields for this site:
 

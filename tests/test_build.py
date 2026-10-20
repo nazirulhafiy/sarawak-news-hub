@@ -320,7 +320,7 @@ class DocsCheckTests(unittest.TestCase):
     def test_watch_patterns(self):
         self.assertTrue(docs_check.matches_watch("site/style.css"))
         self.assertTrue(docs_check.matches_watch("site/fonts/OFL.txt"))
-        self.assertTrue(docs_check.matches_watch("kit/shell.py"))
+        self.assertTrue(docs_check.matches_watch("kit/python/shell.py"))
         self.assertTrue(docs_check.matches_watch("kit/css/back-to-top.css"))
         self.assertTrue(docs_check.matches_watch("scripts/build.py"))
         self.assertTrue(docs_check.matches_watch("scripts/analytics_registry.py"))
