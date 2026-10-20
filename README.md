@@ -1,6 +1,14 @@
 # sarawak.news hub
 
-Hub for [sarawak.news](https://sarawak.news/). Site title, tagline, description, and About lead live only in [`data/site.json`](data/site.json); the build fills every page surface from that file.
+Hub for [sarawak.news](https://sarawak.news/). Site title, tagline, description, and About lead live in [`data/site.json`](data/site.json). The build fills every page surface from that file. The table below is generated from the same file.
+
+<!-- BEGIN GENERATED: site-copy -->
+| Field | Value |
+| --- | --- |
+| `title` | Sarawak.News |
+| `tagline` | Sarawak, made easy. |
+| `description` | Aggregating key information, all in one place. |
+<!-- END GENERATED: site-copy -->
 
 Three cards:
 
@@ -32,6 +40,7 @@ Checks:
 
 ```bash
 python3 kit/sync.py --check
+python3 kit/generate_docs.py --check
 python3 -m unittest discover -s tests -v
 python3 scripts/build.py
 python3 scripts/check_analytics_dist.py
@@ -57,6 +66,13 @@ The hub has a small static build in `scripts/build.py`, not a content-ingestion 
 
 `.github/workflows/build.yml` runs the tests, builds `dist/`, and deploys that folder with GitHub Pages.
 
+<!-- BEGIN GENERATED: hosting -->
+| Field | Value |
+| --- | --- |
+| `hostname` | `sarawak.news` |
+| `target` | GitHub Pages |
+<!-- END GENERATED: hosting -->
+
 - Push to `main` deploys.
 - Pull requests build and test, and do not deploy.
 - `workflow_dispatch` rebuilds `main` by hand.
@@ -67,7 +83,16 @@ GitHub Pages publishes `dist/` at [https://sarawak.news/](https://sarawak.news/)
 
 ## Analytics
 
-GA4 ID, CF beacon token, shared `internal_cookie` (`sn_internal`), per-host `legacy_internal_cookies` / `aliases`, and `spa` (`false`) live in `data/analytics.json` (kit shape `version: 1`). `scripts/build.py` emits one `data-sn-analytics-loader` script per page from that registry. Both trackers load only on `sarawak.news` / `www.sarawak.news`. Open the live site with `?internal=1` for agent/QA visits: GA4 gets `traffic_type: 'internal'` and the CF beacon is skipped (see `AGENTS.md`). CI runs `scripts/check_analytics_dist.py` after the build. Measurement ID `G-SJMJ0R0GJS` and CF token `092a061973fc4d899cd2e4b52952af89` are unchanged. Details are in [docs/design.md](docs/design.md) under “Analytics”.
+GA4 ID, CF beacon token, shared `internal_cookie` (`sn_internal`), per-host `legacy_internal_cookies` and `aliases`, and `spa` (`false`) live in `data/analytics.json` (kit shape `version: 1`). `scripts/build.py` emits one `data-sn-analytics-loader` script per page from that registry. Both trackers load only on the hosts in the table below. Open the live site with `?internal=1` for agent and QA visits. GA4 gets `traffic_type: 'internal'` and the CF beacon is skipped (see `AGENTS.md`). CI runs `scripts/check_analytics_dist.py` after the build. Details are in [docs/design.md](docs/design.md) under “Analytics”.
+
+<!-- BEGIN GENERATED: analytics -->
+| Field | Value |
+| --- | --- |
+| `ga4_measurement_id` | `G-SJMJ0R0GJS` |
+| `cf_beacon_token` | `092a061973fc4d899cd2e4b52952af89` |
+| `internal_cookie` | `sn_internal` |
+| `hosts` | `sarawak.news`, `www.sarawak.news` |
+<!-- END GENERATED: analytics -->
 
 ## Drawing
 

@@ -27,6 +27,8 @@ jobs:
           python-version: '3.12'
       - name: Check shared kit sync
         run: python kit/sync.py --check
+      - name: Check generated docs
+        run: python3 kit/generate_docs.py --check
       - name: Run tests
         # Discovers tests/test_build.py, including test_third_site_renders_card_without_map_tile.
         run: python -m unittest discover -s tests -v
