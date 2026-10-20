@@ -7,6 +7,7 @@ import html
 import json
 import re
 import shutil
+import sys
 import urllib.parse
 from pathlib import Path
 
@@ -15,6 +16,11 @@ DATA = ROOT / "data"
 SITE = ROOT / "site"
 DIST = ROOT / "dist"
 SITE_META_PATH = DATA / "site.json"
+
+_SCRIPTS = Path(__file__).resolve().parent
+if str(_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS))
+from analytics_registry import AnalyticsRegistry, load_analytics  # noqa: E402
 
 # Live origin. Pages serves the site at the domain root. SITE_URL overrides this.
 DEFAULT_SITE_URL = "https://sarawak.news/"
@@ -34,68 +40,59 @@ FAVICON_FILES = {
 # Query string on favicon link hrefs so browsers pick up icon swaps after publish.
 FAVICON_CACHE_BUST = "solid3"
 
-
-# Cloudflare Web Analytics token for the sarawak.news zone site (hub is served by GitHub Pages, not proxied).
-CLOUDFLARE_WEB_ANALYTICS_TOKEN = "092a061973fc4d899cd2e4b52952af89"
-
-GA_MEASUREMENT_ID = "G-SJMJ0R0GJS"
-GA_PRODUCTION_HOSTS = ("sarawak.news", "www.sarawak.news")
-GA_INTERNAL_COOKIE = "sn_internal"
-GA_INTERNAL_MAX_AGE = 31536000  # ~1 year
+# Analytics IDs, cookie name, and spa live only in data/analytics.json.
+ANALYTICS_MAX_AGE = 31536000  # ~1 year
+ANALYTICS_LOADER_ATTR = "data-sn-analytics-loader"
 
 
-def _analytics_host_cookie_js() -> str:
-    """Shared host allowlist + ``?internal=`` cookie toggle (sets ``internal`` bool)."""
-    hosts_js = ",".join(json.dumps(h) for h in GA_PRODUCTION_HOSTS)
-    cookie = json.dumps(GA_INTERNAL_COOKIE)
-    max_age = GA_INTERNAL_MAX_AGE
+def analytics_registry() -> AnalyticsRegistry:
+    return load_analytics()
+
+
+# Resolved once at import for tests that still read module-level names.
+_ANALYTICS = analytics_registry()
+GA_MEASUREMENT_ID = _ANALYTICS.primary_ga4_id()
+CLOUDFLARE_WEB_ANALYTICS_TOKEN = _ANALYTICS.primary_cf_token()
+GA_PRODUCTION_HOSTS = _ANALYTICS.hostnames
+GA_INTERNAL_COOKIE = _ANALYTICS.internal_cookie
+
+
+def render_analytics_loader(registry: AnalyticsRegistry | None = None) -> str:
+    """Emit one production analytics loader from ``data/analytics.json``.
+
+    - Host gate: only registry hostnames (never localhost / preview hosts).
+    - ``?internal=1`` sets the registry ``internal_cookie`` (~1 year);
+      ``?internal=0`` clears the primary and every listed legacy cookie.
+    - ``internal`` is true when the primary **or** any ``legacy_cookies`` name
+      is set to ``1``. On hub the historical cookie is already ``sn_internal``
+      (primary == legacy); honouring legacy keeps already-marked devices
+      excluded if the names ever diverge on sister sites.
+    - GA4 always loads on production hosts; when ``internal``, config includes
+      ``traffic_type: 'internal'``.
+    - CF Web Analytics beacon loads only when not ``internal``, with ``spa``
+      from the registry (``false`` for this static hub).
+    """
+    reg = registry if registry is not None else analytics_registry()
+    hosts_js = ",".join(json.dumps(h) for h in reg.hostnames)
+    primary = json.dumps(reg.internal_cookie)
+    honour = ",".join(json.dumps(c) for c in reg.honour_cookies)
+    mid = json.dumps(reg.primary_ga4_id())
+    token = json.dumps(reg.primary_cf_token())
+    spa_js = "true" if reg.spa else "false"
+    max_age = ANALYTICS_MAX_AGE
+    # Single inline script marked for dist checks (exactly one per page).
     return (
+        f"<script {ANALYTICS_LOADER_ATTR}>(function(){{"
         f"var H=[{hosts_js}],h=location.hostname;"
         "if(H.indexOf(h)<0)return;"
-        f"var C={cookie},q=new URLSearchParams(location.search),"
+        f"var C={primary},L=[{honour}],q=new URLSearchParams(location.search),"
         "sec=location.protocol==='https:'?';Secure':'';"
         "if(q.get('internal')==='1')"
         f"document.cookie=C+'=1;path=/;max-age={max_age};SameSite=Lax'+sec;"
         "else if(q.get('internal')==='0')"
-        "document.cookie=C+'=;path=/;max-age=0;SameSite=Lax'+sec;"
-        "var internal=document.cookie.split(';').some(function(p){"
-        "return p.trim()===C+'=1';});"
-    )
-
-
-def render_cf_beacon() -> str:
-    """Emit CF Web Analytics beacon: production hosts only; skip when internal cookie set.
-
-    The hub embeds the beacon in HTML (GitHub Pages is not CF-proxied). While
-    ``sn_internal`` is set (``?internal=1``), the beacon is not loaded so agent/QA
-    visits are not counted in Cloudflare Web Analytics.
-    """
-    token = json.dumps(CLOUDFLARE_WEB_ANALYTICS_TOKEN)
-    return (
-        "<script>(function(){"
-        f"{_analytics_host_cookie_js()}"
-        "if(internal)return;"
-        "var s=document.createElement('script');s.defer=true;"
-        "s.src='https://static.cloudflareinsights.com/beacon.min.js';"
-        f"s.setAttribute('data-cf-beacon',JSON.stringify({{token:{token}}}));"
-        "document.head.appendChild(s);"
-        "})();</script>"
-    )
-
-
-def render_ga_script() -> str:
-    """Emit GA4 loader: production hosts only, with optional internal traffic cookie.
-
-    ``?internal=1`` sets a first-party ``sn_internal`` cookie (~1 year);
-    ``?internal=0`` clears it. While set, ``gtag('config', …)`` sends
-    ``traffic_type: 'internal'``. The tag never loads on localhost, Pages
-    previews, or other non-production hosts.
-    """
-    mid = json.dumps(GA_MEASUREMENT_ID)
-    # Single inline script: host gate, cookie toggle, then async gtag load.
-    return (
-        "<script>(function(){"
-        f"{_analytics_host_cookie_js()}"
+        "L.forEach(function(n){document.cookie=n+'=;path=/;max-age=0;SameSite=Lax'+sec;});"
+        "var internal=L.some(function(n){return document.cookie.split(';').some(function(p){"
+        "return p.trim()===n+'=1';});});"
         "window.dataLayer=window.dataLayer||[];"
         "function gtag(){dataLayer.push(arguments);}"
         "window.gtag=gtag;"
@@ -103,12 +100,16 @@ def render_ga_script() -> str:
         f"var id={mid},cfg={{}};"
         "if(internal)cfg.traffic_type='internal';"
         "gtag('config',id,cfg);"
-        "var s=document.createElement('script');s.async=true;"
-        "s.src='https://www.googletagmanager.com/gtag/js?id='+encodeURIComponent(id);"
+        "var gs=document.createElement('script');gs.async=true;"
+        "gs.src='https://www.googletagmanager.com/gtag/js?id='+encodeURIComponent(id);"
+        "document.head.appendChild(gs);"
+        "if(internal)return;"
+        "var s=document.createElement('script');s.defer=true;"
+        "s.src='https://static.cloudflareinsights.com/beacon.min.js';"
+        f"s.setAttribute('data-cf-beacon',JSON.stringify({{token:{token},spa:{spa_js}}}));"
         "document.head.appendChild(s);"
         "})();</script>"
     )
-
 
 def site_url() -> str:
     import os
@@ -326,8 +327,7 @@ def render_head(
 {theme_boot()}
   <link rel="stylesheet" href="style.css" />
   <script src="app.js" defer></script>
-  {render_ga_script()}
-  {render_cf_beacon()}
+  {render_analytics_loader()}
 </head>"""
 
 
