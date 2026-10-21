@@ -143,6 +143,7 @@ class KitSyncTests(unittest.TestCase):
             explore_items=(),
             fleet_site="events",
         )
+        self.assertIn('<nav aria-label="Sarawak News" class="site-footer-fleet-nav">', html)
         self.assertIn('<a class="site-footer-link" href="https://sarawak.news/">', html)
         self.assertIn('<a class="site-footer-link" href="https://ai.sarawak.news/">', html)
         self.assertIn(
@@ -151,6 +152,11 @@ class KitSyncTests(unittest.TestCase):
         )
         self.assertNotIn("https://events.sarawak.news/", html)
         self.assertNotIn("nofollow", html)
+        explore_slice = html.split('<nav aria-label="Explore"', 1)[1].split(
+            '<div class="site-footer-fleet">', 1
+        )[0]
+        self.assertIn("Contact</a></li>", explore_slice)
+        self.assertNotIn("https://sarawak.news/", explore_slice)
 
     def test_footer_note_parts_emit_kit_break(self):
         from kit.python.shell import FOOTER_NOTE_BREAK, NavItem, render_footer
