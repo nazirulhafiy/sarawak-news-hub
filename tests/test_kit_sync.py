@@ -133,6 +133,25 @@ class KitSyncTests(unittest.TestCase):
             # Hub uses a single brand_note; no mid-note break.
             self.assertNotIn("site-footer-note-break", page)
 
+    def test_footer_fleet_cross_links_are_plain_hrefs_without_nofollow(self):
+        from kit.python.shell import render_footer
+
+        html = render_footer(
+            brand_title="Events.Sarawak.News",
+            brand_note="Note.",
+            active="home",
+            explore_items=(),
+            fleet_site="events",
+        )
+        self.assertIn('<a class="site-footer-link" href="https://sarawak.news/">', html)
+        self.assertIn('<a class="site-footer-link" href="https://ai.sarawak.news/">', html)
+        self.assertIn(
+            '<a class="site-footer-link" href="https://bantuan.sarawak.news/">',
+            html,
+        )
+        self.assertNotIn("https://events.sarawak.news/", html)
+        self.assertNotIn("nofollow", html)
+
     def test_footer_note_parts_emit_kit_break(self):
         from kit.python.shell import FOOTER_NOTE_BREAK, NavItem, render_footer
 
