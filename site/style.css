@@ -583,7 +583,11 @@ html[data-theme="dark"] .site-footer {
   padding: 0;
 }
 
-.site-footer-summary { padding: 28px; }
+.site-footer-summary {
+  display: flex;
+  flex-direction: column;
+  padding: 28px;
+}
 
 .site-footer-brand,
 .site-footer-note,
@@ -609,7 +613,8 @@ html[data-theme="dark"] .site-footer {
   border-left: 1px solid var(--line);
 }
 
-.site-footer-nav h2 {
+.site-footer-nav h2,
+.site-footer-fleet-nav h2 {
   margin: 0 0 12px;
   color: var(--ink);
   font-size: 11px;
@@ -638,6 +643,28 @@ html[data-theme="dark"] .site-footer {
 
 .site-footer-nav .site-footer-link:hover,
 .site-footer-nav .site-footer-link:focus-visible {
+  color: var(--sarawak-red);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--sarawak-red);
+}
+
+.site-footer-fleet-nav {
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+
+.site-footer-fleet-nav ul {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-footer-fleet-nav .site-footer-link:hover,
+.site-footer-fleet-nav .site-footer-link:focus-visible {
   color: var(--sarawak-red);
   font-weight: 700;
   text-decoration: underline;
