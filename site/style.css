@@ -32,7 +32,6 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 72px;
   background: var(--canvas);
   overflow-x: clip;
 }
@@ -107,14 +106,11 @@ html[data-theme="dark"] .skip-link {
 }
 
 .bar {
-  position: sticky;
-  top: 0;
-  z-index: 40;
+  position: relative;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
   padding: 0 var(--page-gutter);
   background: var(--page);
-  transition: box-shadow .18s ease;
 }
 
 .bar-inner {
@@ -161,14 +157,6 @@ html[data-theme="dark"] .skip-link {
 
 html[data-theme="dark"] .bar-rule-tail::after {
   background: linear-gradient(90deg, var(--sarawak-yellow) 0 50%, #3d4652 50% 100%);
-}
-
-.bar.is-scrolled {
-  box-shadow: 0 1px 0 var(--line), 0 6px 16px rgb(17 24 39 / 8%);
-}
-
-html[data-theme="dark"] .bar.is-scrolled {
-  box-shadow: 0 1px 0 var(--line), 0 6px 16px rgb(0 0 0 / 35%);
 }
 
 .theme-toggle {
@@ -703,7 +691,6 @@ html[data-theme="dark"] .back-to-top:hover{border-color:#f7c948}
 }
 
 @media (max-width: 560px) {
-  html { scroll-padding-top: 76px; }
   :root { --page-gutter: 15px; }
   body { padding: 0 15px 72px; overflow-x: clip; }
 
