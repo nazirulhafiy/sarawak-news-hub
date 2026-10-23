@@ -180,6 +180,67 @@ class KitSyncTests(unittest.TestCase):
             html,
         )
 
+    def test_render_footer_column_stacks_markup(self):
+        from kit.python.shell import NavItem, render_footer
+
+        categories = (
+            '<h2 class="site-footer-categories-title">Categories</h2>'
+            "<ul><li><a class=\"site-footer-link\" href=\"/?type=x\">X</a></li></ul>"
+        )
+        html = render_footer(
+            brand_title="Events.Sarawak.News",
+            brand_note="Note.",
+            active="home",
+            explore_items=(NavItem("home", "/", "Home"),),
+            fleet_site="events",
+            layout="column_stacks",
+            extra_nav_right=categories,
+        )
+        self.assertIn('class="site-footer-main site-footer-main--column-stacks"', html)
+        self.assertIn("site-footer-grid-stack-left", html)
+        self.assertIn("site-footer-grid-brand-cell", html)
+        self.assertIn("site-footer-grid-fleet", html)
+        self.assertIn("site-footer-grid-stack-right", html)
+        self.assertIn("site-footer-grid-explore", html)
+        self.assertIn('<hr class="site-footer-grid-explore-divider" />', html)
+        self.assertIn("site-footer-grid-categories", html)
+        self.assertNotIn(
+            '<div class="site-footer-summary">\n        <p class="site-footer-brand">',
+            html,
+        )
+        self.assertIn('<nav aria-label="Sarawak News" class="site-footer-fleet-nav">', html)
+
+    def test_render_footer_fleet_section_label_override(self):
+        from kit.python.shell import render_footer
+
+        html = render_footer(
+            brand_title="Events.Sarawak.News",
+            brand_note="Note.",
+            active="home",
+            explore_items=(),
+            fleet_site="events",
+            layout="column_stacks",
+            fleet_section_label="Hub",
+        )
+        self.assertIn('<nav aria-label="Hub" class="site-footer-fleet-nav">', html)
+        self.assertIn("<h2>Hub</h2>", html)
+        self.assertNotIn('aria-label="Sarawak News"', html)
+
+    def test_render_footer_classic_default_unchanged(self):
+        from kit.python.shell import render_footer
+
+        html = render_footer(
+            brand_title="Example Hub",
+            brand_note="Deck.",
+            active="home",
+            explore_items=(),
+            fleet_site="hub",
+        )
+        self.assertIn('<div class="site-footer-main">', html)
+        self.assertNotIn("site-footer-main--column-stacks", html)
+        self.assertIn('<div class="site-footer-summary">', html)
+        self.assertIn('<nav aria-label="Sarawak News" class="site-footer-fleet-nav">', html)
+
 
 if __name__ == "__main__":
     unittest.main()
