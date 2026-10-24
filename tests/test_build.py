@@ -67,7 +67,12 @@ class RenderTests(unittest.TestCase):
         )
         self.assertNotIn("Explore Sarawak-focused sites", home)
         self.assertNotIn("Each site links to its sources.", home)
-        self.assertIn('<nav aria-label="Explore" class="site-footer-nav">', home)
+        self.assertIn('class="site-footer-main site-footer-main--column-stacks"', home)
+        self.assertIn('<nav aria-label="Hub" class="site-footer-fleet-nav">', home)
+        self.assertIn(
+            '<nav aria-label="Explore" class="site-footer-nav site-footer-grid-explore">',
+            home,
+        )
         self.assertIn('<h2>Explore</h2>', home)
         self.assertIn(
             '<a class="site-footer-link" href="index.html" aria-current="page">Home</a>',
@@ -218,7 +223,12 @@ class RenderTests(unittest.TestCase):
                 )
                 self.assertIn(copy["about_lead"], about)
                 self.assertNotIn("Explore Sarawak-focused sites", about)
-                self.assertIn('<nav aria-label="Explore" class="site-footer-nav">', about)
+                self.assertIn('class="site-footer-main site-footer-main--column-stacks"', about)
+                self.assertIn('<nav aria-label="Hub" class="site-footer-fleet-nav">', about)
+                self.assertIn(
+                    '<nav aria-label="Explore" class="site-footer-nav site-footer-grid-explore">',
+                    about,
+                )
                 self.assertIn('<a class="site-footer-link" href="index.html">Home</a>', about)
                 self.assertIn(
                     '<a class="site-footer-link" href="about.html" aria-current="page">About</a>',
