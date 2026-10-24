@@ -206,6 +206,8 @@ def render_footer(active_page: str, site: dict[str, str] | None = None) -> str:
             NavItem("about", "about.html", "About"),
         ),
         fleet_site="hub",
+        layout="column_stacks",
+        fleet_section_label="Hub",
     )
 
 
