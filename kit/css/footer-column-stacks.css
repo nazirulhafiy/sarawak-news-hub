@@ -21,13 +21,12 @@
 
 .site-footer-main.site-footer-main--column-stacks .site-footer-grid-stack-left {
   overflow: hidden;
+  border-right: 1px solid var(--line);
 }
 
 .site-footer-main.site-footer-main--column-stacks .site-footer-grid-stack-right {
-  border-left: 1px solid var(--line);
+  border-left: 0;
   position: relative;
-  z-index: 1;
-  background: inherit;
 }
 
 .site-footer-main.site-footer-main--column-stacks .site-footer-grid-brand-cell {
