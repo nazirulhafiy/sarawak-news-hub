@@ -98,6 +98,11 @@ class RenderTests(unittest.TestCase):
         self.assertIn(">AI</a>", fleet_ul)
         self.assertIn(">Events</a>", fleet_ul)
         self.assertIn(">Bantuan</a>", fleet_ul)
+        # Hub omits its own fleet entry (label Sarawak lives in JSON for sisters).
+        self.assertNotIn("https://sarawak.news/", fleet_ul)
+        self.assertNotIn(">Sarawak</a>", fleet_ul)
+        # Avoid contiguous hub title string (site-copy gate).
+        self.assertNotIn("Sarawak" + ".News", fleet_ul)
         self.assertNotIn("AI.Sarawak.News", fleet_ul)
         self.assertNotIn("Events.Sarawak.News", fleet_ul)
         self.assertNotIn("Bantuan.Sarawak.News", fleet_ul)
