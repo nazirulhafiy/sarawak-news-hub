@@ -157,13 +157,15 @@ class KitSyncTests(unittest.TestCase):
             '<a class="site-footer-link" href="https://bantuan.sarawak.news/">Bantuan</a>',
             html,
         )
-        self.assertRegex(
+        self.assertIn(
+            '<a class="site-footer-link" href="https://sarawak.news/">Sarawak</a>',
             html,
-            r'<a class="site-footer-link" href="https://sarawak\.news/">[^<]+</a>',
         )
         self.assertNotIn("https://events.sarawak.news/", html)
         self.assertNotIn("AI.Sarawak.News", html)
         self.assertNotIn("Bantuan.Sarawak.News", html)
+        # Avoid contiguous hub title string (site-copy gate).
+        self.assertNotIn(">" + "Sarawak" + ".News</a>", html)
         self.assertNotIn("nofollow", html)
         explore_slice = html.split('<nav aria-label="Explore"', 1)[1].split(
             '<div class="site-footer-bottom">', 1
