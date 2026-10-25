@@ -149,12 +149,21 @@ class KitSyncTests(unittest.TestCase):
             '<nav aria-label="Explore"', 1
         )[0]
         self.assertIn("https://sarawak.news/", summary_slice)
-        self.assertIn('<a class="site-footer-link" href="https://ai.sarawak.news/">', html)
         self.assertIn(
-            '<a class="site-footer-link" href="https://bantuan.sarawak.news/">',
+            '<a class="site-footer-link" href="https://ai.sarawak.news/">AI</a>',
             html,
         )
+        self.assertIn(
+            '<a class="site-footer-link" href="https://bantuan.sarawak.news/">Bantuan</a>',
+            html,
+        )
+        self.assertRegex(
+            html,
+            r'<a class="site-footer-link" href="https://sarawak\.news/">[^<]+</a>',
+        )
         self.assertNotIn("https://events.sarawak.news/", html)
+        self.assertNotIn("AI.Sarawak.News", html)
+        self.assertNotIn("Bantuan.Sarawak.News", html)
         self.assertNotIn("nofollow", html)
         explore_slice = html.split('<nav aria-label="Explore"', 1)[1].split(
             '<div class="site-footer-bottom">', 1

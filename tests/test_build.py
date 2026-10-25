@@ -87,9 +87,20 @@ class RenderTests(unittest.TestCase):
         self.assertIn(f'<meta property="og:title" content="{copy["title"]}" />', home)
         self.assertIn(f'<meta name="twitter:title" content="{copy["title"]}" />', home)
         self.assertNotIn("<title>Independent", home)
+        # Site cards keep full brand names from data/sites.json.
         self.assertIn("AI.Sarawak.News", home)
         self.assertIn("Bantuan.Sarawak.News", home)
         self.assertIn("Events.Sarawak.News", home)
+        # Footer fleet ul uses short labels only.
+        fleet_ul = home.split(
+            '<nav aria-label="Hub" class="site-footer-fleet-nav">', 1
+        )[1].split("</nav>", 1)[0]
+        self.assertIn(">AI</a>", fleet_ul)
+        self.assertIn(">Events</a>", fleet_ul)
+        self.assertIn(">Bantuan</a>", fleet_ul)
+        self.assertNotIn("AI.Sarawak.News", fleet_ul)
+        self.assertNotIn("Events.Sarawak.News", fleet_ul)
+        self.assertNotIn("Bantuan.Sarawak.News", fleet_ul)
         self.assertNotIn("hub-meta", home)
         self.assertNotIn("stories", home)
         self.assertNotIn("schemes", home)
