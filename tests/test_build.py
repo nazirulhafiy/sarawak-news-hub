@@ -309,7 +309,9 @@ class RenderTests(unittest.TestCase):
                 self.assertNotIn("pcds2030", home.lower() + about.lower())
                 self.assertIn('href="about.html">About this hub</a>', home)
                 self.assertIn("https://events.sarawak.news/", home)
-                self.assertIn("https://events.sarawak.news/about.html", about)
+                self.assertIn('href="https://events.sarawak.news/"', about)
+                self.assertNotIn("https://events.sarawak.news/about.html", about)
+                self.assertNotIn(" · <a href=", about)
         finally:
             if previous is not None:
                 os.environ["SITE_URL"] = previous

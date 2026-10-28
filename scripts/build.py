@@ -310,12 +310,11 @@ def render_about(sites: list[dict] | None = None) -> str:
     sections = []
     for site in sites:
         home = ensure_trailing_slash(site["url"])
-        about = f"{home}about.html"
         sections.append(
             f"""    <section class="about-section" aria-labelledby="about-{esc(site["id"])}">
       <h2 id="about-{esc(site["id"])}">{esc(site["name"])}</h2>
       <p>{esc(site["text"])}</p>
-      <p><a href="{esc(home)}">{esc(domain_of(home))}</a> · <a href="{esc(about)}">About</a></p>
+      <p><a href="{esc(home)}">{esc(domain_of(home))}</a></p>
     </section>"""
         )
     body = f"""<body>
