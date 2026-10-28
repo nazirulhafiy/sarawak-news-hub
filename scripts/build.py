@@ -172,7 +172,6 @@ def render_hero(site: dict[str, str] | None = None) -> str:
     return f"""<header class="brief">
       <h1>{esc(site["tagline"])}</h1>
       <p class="brief-deck">{esc(site["description"])}</p>
-      <p class="brief-about"><a href="about.html">About this hub</a></p>
       {art}
     </header>"""
 
