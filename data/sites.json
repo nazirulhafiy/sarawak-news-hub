@@ -19,7 +19,7 @@
     {
       "id": "events",
       "name": "Events.Sarawak.News",
-      "url": "https://events.sarawak.news",
+      "url": "https://events.sarawak.news/",
       "tag": "Calendar",
       "icon": "calendar",
       "text": "Festivals, sports, cultural events and concerts across Sarawak, listed by month."
