@@ -133,6 +133,21 @@ def domain_of(url: str) -> str:
     return host.removeprefix("www.")
 
 
+def ensure_trailing_slash(url: str) -> str:
+    return url if url.endswith("/") else f"{url}/"
+
+
+def sitemap_lastmod() -> str:
+    """YYYY-MM-DD from the newest mtime among hub content JSON files."""
+    newest = max(
+        (DATA / "site.json").stat().st_mtime,
+        (DATA / "sites.json").stat().st_mtime,
+    )
+    from datetime import datetime, timezone
+
+    return datetime.fromtimestamp(newest, tz=timezone.utc).date().isoformat()
+
+
 def icon_inner(name: str, fill_class: str) -> str:
     raw = (SITE / "icons" / f"{name}.svg").read_text(encoding="utf-8").strip()
     return raw.replace('opacity="0.2"', f'class="{fill_class}" opacity="0.2"', 1)
@@ -157,6 +172,7 @@ def render_hero(site: dict[str, str] | None = None) -> str:
     return f"""<header class="brief">
       <h1>{esc(site["tagline"])}</h1>
       <p class="brief-deck">{esc(site["description"])}</p>
+      <p class="brief-about"><a href="about.html">About this hub</a></p>
       {art}
     </header>"""
 
@@ -293,11 +309,13 @@ def render_about(sites: list[dict] | None = None) -> str:
     description = copy["description"]
     sections = []
     for site in sites:
+        home = ensure_trailing_slash(site["url"])
+        about = f"{home}about.html"
         sections.append(
             f"""    <section class="about-section" aria-labelledby="about-{esc(site["id"])}">
       <h2 id="about-{esc(site["id"])}">{esc(site["name"])}</h2>
       <p>{esc(site["text"])}</p>
-      <p><a href="{esc(site["url"])}">{esc(domain_of(site["url"]))}</a></p>
+      <p><a href="{esc(home)}">{esc(domain_of(home))}</a> · <a href="{esc(about)}">About</a></p>
     </section>"""
         )
     body = f"""<body>
@@ -361,8 +379,10 @@ def write_dist(home: str, about: str, dist: Path = DIST) -> None:
     sitemap_loc = f"Sitemap: {url}sitemap.xml\n" if url else ""
     (dist / "robots.txt").write_text(f"User-agent: *\nAllow: /\n{sitemap_loc}", encoding="utf-8")
     if url:
+        lastmod = sitemap_lastmod()
         entries = "\n".join(
-            f"  <url><loc>{esc(loc)}</loc></url>" for loc in (url, f"{url}about.html")
+            f"  <url>\n    <loc>{esc(loc)}</loc>\n    <lastmod>{lastmod}</lastmod>\n  </url>"
+            for loc in (url, f"{url}about.html")
         )
         (dist / "sitemap.xml").write_text(
             "<?xml version='1.0' encoding='UTF-8'?>\n"

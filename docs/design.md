@@ -2,7 +2,7 @@
 
 The live site is [https://sarawak.news/](https://sarawak.news/). Pages are the static output of `scripts/build.py`, styled by `site/style.css`. This note describes that system.
 
-Every published site is one object in `data/sites.json`. That list drives the cards. The current entries are [AI.Sarawak.News](https://ai.sarawak.news/), [Bantuan.Sarawak.News](https://bantuan.sarawak.news/), and [Events.Sarawak.News](https://events.sarawak.news). Events uses the Phosphor calendar tile (`site/icons/calendar.svg`). There is no PCDS card. The hero is a line drawing of the Sarawak State Legislative Assembly riverfront, with Wisma Sanyan, Menara Kidurong and the Grand Old Lady derrick added. It does not mark sites.
+Every published site is one object in `data/sites.json`. That list drives the cards. The current entries are [AI.Sarawak.News](https://ai.sarawak.news/), [Bantuan.Sarawak.News](https://bantuan.sarawak.news/), and [Events.Sarawak.News](https://events.sarawak.news/). Events uses the Phosphor calendar tile (`site/icons/calendar.svg`). There is no PCDS card. The hero is a line drawing of the Sarawak State Legislative Assembly riverfront, with Wisma Sanyan, Menara Kidurong and the Grand Old Lady derrick added. It does not mark sites.
 
 ## Type and colour
 
@@ -155,7 +155,7 @@ The brief uses bantuan’s `hero-reveal`: a rise of 18px over 0.85s, easing `cub
 
 ## Deploy
 
-`scripts/build.py` writes `dist/` only. It does not fetch live pages. `design-handoff/` stays in the repo and is not copied. The build copies the repo `CNAME` into `dist/CNAME`. Canonical and `og:url` on the home page are `https://sarawak.news/`. About uses `https://sarawak.news/about.html`. `robots.txt` and `sitemap.xml` use the same origin. Internal links (`index.html`, `about.html`, `style.css`, `app.js`, `fonts/Geist-Variable.woff2`) are relative, so the site works at the domain root.
+`scripts/build.py` writes `dist/` only. It does not fetch live pages. `design-handoff/` stays in the repo and is not copied. The build copies the repo `CNAME` into `dist/CNAME`. Canonical and `og:url` on the home page are `https://sarawak.news/`. About uses `https://sarawak.news/about.html`. `robots.txt` points at `https://sarawak.news/sitemap.xml`. The sitemap lists only those two indexable HTML pages, each with a `<lastmod>` from the newest mtime of `data/site.json` and `data/sites.json`. Sister cards and About sections link only to fleet sites (AI, Bantuan, Events) — never pcds2030.com. About is linked from header nav, footer Explore, the home brief (`About this hub`), and each About sister block (home + About). Internal links (`index.html`, `about.html`, `style.css`, `app.js`, `fonts/Geist-Variable.woff2`) are relative, so the site works at the domain root.
 
 <!-- BEGIN GENERATED: hosting -->
 | Field | Value |

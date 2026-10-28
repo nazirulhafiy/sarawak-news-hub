@@ -112,7 +112,7 @@ class RenderTests(unittest.TestCase):
         self.assertNotIn("categories", home)
         self.assertIn('href="https://ai.sarawak.news/"', home)
         self.assertIn('href="https://bantuan.sarawak.news/"', home)
-        self.assertIn('href="https://events.sarawak.news"', home)
+        self.assertIn('href="https://events.sarawak.news/"', home)
         self.assertIn(">Calendar<", home)
         self.assertNotIn('class="hub-domain"', home)
         self.assertEqual(home.count(">Visit <"), 3)
@@ -303,7 +303,13 @@ class RenderTests(unittest.TestCase):
                 self.assertIn(f"Sitemap: {origin}sitemap.xml", robots)
                 self.assertIn(f"<loc>{origin}</loc>", sitemap)
                 self.assertIn(f"<loc>{origin}about.html</loc>", sitemap)
+                self.assertEqual(sitemap.count("<url>"), 2)
+                self.assertIn("<lastmod>", sitemap)
                 self.assertNotIn("github.io", robots + sitemap)
+                self.assertNotIn("pcds2030", home.lower() + about.lower())
+                self.assertIn('href="about.html">About this hub</a>', home)
+                self.assertIn("https://events.sarawak.news/", home)
+                self.assertIn("https://events.sarawak.news/about.html", about)
         finally:
             if previous is not None:
                 os.environ["SITE_URL"] = previous
