@@ -170,9 +170,15 @@ class RenderTests(unittest.TestCase):
         try:
             with tempfile.TemporaryDirectory() as tmp:
                 dist = Path(tmp)
-                build.write_dist(build.render_home(), build.render_about(), dist)
+                build.write_dist(
+                    build.render_home(),
+                    build.render_about(),
+                    build.render_404(),
+                    dist,
+                )
                 names = sorted(path.name for path in dist.rglob("*"))
                 self.assertIn("index.html", names)
+                self.assertIn("404.html", names)
                 self.assertIn("OFL.txt", names)
                 self.assertIn("Geist-Variable.woff2", names)
                 self.assertIn("CNAME", names)
@@ -304,6 +310,7 @@ class RenderTests(unittest.TestCase):
                 self.assertIn(f"<loc>{origin}</loc>", sitemap)
                 self.assertIn(f"<loc>{origin}about.html</loc>", sitemap)
                 self.assertEqual(sitemap.count("<url>"), 2)
+                self.assertNotIn("404.html", sitemap)
                 self.assertIn("<lastmod>", sitemap)
                 self.assertNotIn("github.io", robots + sitemap)
                 self.assertNotIn("pcds2030", home.lower() + about.lower())
@@ -313,6 +320,42 @@ class RenderTests(unittest.TestCase):
                 self.assertIn('href="https://events.sarawak.news/"', about)
                 self.assertNotIn("https://events.sarawak.news/about.html", about)
                 self.assertNotIn(" · <a href=", about)
+                not_found = (dist / "404.html").read_text(encoding="utf-8")
+                self.assertIn("<h1>Page not found</h1>", not_found)
+                self.assertIn(
+                    "The page you&#x27;re looking for doesn&#x27;t exist or has moved.",
+                    not_found,
+                )
+                self.assertIn('<meta name="robots" content="noindex" />', not_found)
+                self.assertIn('href="/style.css"', not_found)
+                self.assertIn('src="/app.js"', not_found)
+                self.assertIn('href="/fonts/Geist-Variable.woff2"', not_found)
+                self.assertIn('href="/index.html"', not_found)
+                self.assertIn('src="/icons/nav-mark-transparent.svg"', not_found)
+                self.assertIn('src="/icons/nav-mark-transparent-dark.svg"', not_found)
+                self.assertIn(build.ANALYTICS_LOADER_ATTR, not_found)
+                self.assertEqual(not_found.count(build.ANALYTICS_LOADER_ATTR), 1)
+                self.assertNotIn('href="style.css"', not_found)
+                self.assertNotIn('src="app.js"', not_found)
+        finally:
+            if previous is not None:
+                os.environ["SITE_URL"] = previous
+
+    def test_404_page_heading_in_build_output(self):
+        previous = os.environ.pop("SITE_URL", None)
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                dist = Path(tmp)
+                build.write_dist(
+                    build.render_home(),
+                    build.render_about(),
+                    build.render_404(),
+                    dist,
+                )
+                path = dist / "404.html"
+                self.assertTrue(path.is_file())
+                html = path.read_text(encoding="utf-8")
+                self.assertIn("<h1>Page not found</h1>", html)
         finally:
             if previous is not None:
                 os.environ["SITE_URL"] = previous
@@ -368,7 +411,8 @@ class GaScriptTests(unittest.TestCase):
     def test_pages_include_one_analytics_loader(self):
         home = build.render_home()
         about = build.render_about()
-        for page in (home, about):
+        not_found = build.render_404()
+        for page in (home, about, not_found):
             self.assertEqual(page.count(build.ANALYTICS_LOADER_ATTR), 1)
             self.assertIn(build.GA_MEASUREMENT_ID, page)
             self.assertIn("traffic_type", page)
