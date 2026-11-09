@@ -83,7 +83,12 @@ class AnalyticsDistCheckTests(unittest.TestCase):
     def test_built_dist_passes(self):
         with tempfile.TemporaryDirectory() as tmp:
             dist = Path(tmp)
-            build.write_dist(build.render_home(), build.render_about(), dist=dist)
+            build.write_dist(
+                build.render_home(),
+                build.render_about(),
+                build.render_404(),
+                dist=dist,
+            )
             self.assertEqual(check_analytics_dist.main(["--dist", str(dist)]), 0)
 
     def test_zero_loaders_fails_and_names_file(self):

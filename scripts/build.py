@@ -197,28 +197,45 @@ def theme_boot() -> str:
   </script>"""
 
 
-def render_header(active: str, site: dict[str, str] | None = None) -> str:
+def root_href(path: str, *, absolute: bool) -> str:
+    """Return a site-root path. Absolute form starts with ``/`` for nested 404 URLs."""
+    clean = path.lstrip("/")
+    return f"/{clean}" if absolute else clean
+
+
+def render_header(
+    active: str,
+    site: dict[str, str] | None = None,
+    *,
+    absolute: bool = False,
+) -> str:
     site = load_site() if site is None else site
     return kit_render_header(
         brand_title=site["title"],
-        brand_href="index.html",
+        brand_href=root_href("index.html", absolute=absolute),
         active=active,
         nav_items=(
-            NavItem("sites", "index.html", "Sites"),
-            NavItem("about", "about.html", "About"),
+            NavItem("sites", root_href("index.html", absolute=absolute), "Sites"),
+            NavItem("about", root_href("about.html", absolute=absolute), "About"),
         ),
+        mark_dir=root_href("icons", absolute=absolute),
     )
 
 
-def render_footer(active_page: str, site: dict[str, str] | None = None) -> str:
+def render_footer(
+    active_page: str,
+    site: dict[str, str] | None = None,
+    *,
+    absolute: bool = False,
+) -> str:
     site = load_site() if site is None else site
     return kit_render_footer(
         brand_title=site["title"],
         brand_note=site["description"],
         active=active_page,
         explore_items=(
-            NavItem("home", "index.html", "Home"),
-            NavItem("about", "about.html", "About"),
+            NavItem("home", root_href("index.html", absolute=absolute), "Home"),
+            NavItem("about", root_href("about.html", absolute=absolute), "About"),
         ),
         fleet_site="hub",
         layout="column_stacks",
@@ -231,25 +248,47 @@ def render_head(
     description: str,
     canonical: str,
     site: dict[str, str] | None = None,
+    *,
+    robots: str = "index,follow",
+    absolute_assets: bool = False,
 ) -> str:
     site = load_site() if site is None else site
     canonical_tag = f'\n  <link rel="canonical" href="{esc(canonical)}" />' if canonical else ""
     og_url = f'\n  <meta property="og:url" content="{esc(canonical)}" />' if canonical else ""
     url = site_url()
-    image_href = f"{url}og.png" if url else "og.png"
+    image_href = f"{url}og.png" if url else root_href("og.png", absolute=absolute_assets)
     image = versioned_href(image_href, SITE / "og.png")
-    icon_svg = versioned_icon("favicon.svg")
-    icon_ico = versioned_icon("favicon.ico")
-    icon_apple = versioned_icon("apple-touch-icon.png")
-    icon_192 = versioned_icon("icon-192.png")
-    icon_512 = versioned_icon("icon-512.png")
+    if absolute_assets:
+        icon_svg = versioned_href("/favicon.svg", ROOT / "design-handoff" / "favicon-F1" / "favicon.svg")
+        icon_ico = versioned_href("/favicon.ico", ROOT / "design-handoff" / "favicon-F1" / "favicon.ico")
+        icon_apple = versioned_href(
+            "/apple-touch-icon.png",
+            ROOT / "design-handoff" / "favicon-F1" / "apple-touch-icon.png",
+        )
+        icon_192 = versioned_href(
+            "/icon-192.png",
+            ROOT / "design-handoff" / "favicon-F1" / "icon-192.png",
+        )
+        icon_512 = versioned_href(
+            "/icon-512.png",
+            ROOT / "design-handoff" / "favicon-F1" / "icon-512.png",
+        )
+    else:
+        icon_svg = versioned_icon("favicon.svg")
+        icon_ico = versioned_icon("favicon.ico")
+        icon_apple = versioned_icon("apple-touch-icon.png")
+        icon_192 = versioned_icon("icon-192.png")
+        icon_512 = versioned_icon("icon-512.png")
+    font_href = root_href("fonts/Geist-Variable.woff2", absolute=absolute_assets)
+    css_href = root_href("style.css", absolute=absolute_assets)
+    js_href = root_href("app.js", absolute=absolute_assets)
     return f"""<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="{esc(description)}" />
-  <meta name="robots" content="index,follow" />
+  <meta name="robots" content="{esc(robots)}" />
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)" />
   <meta property="og:type" content="website" />
@@ -269,10 +308,10 @@ def render_head(
   <link rel="apple-touch-icon" href="{esc(icon_apple)}" />
   <link rel="icon" href="{esc(icon_192)}" type="image/png" sizes="192x192" />
   <link rel="icon" href="{esc(icon_512)}" type="image/png" sizes="512x512" />
-  <link rel="preload" href="fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="{esc(font_href)}" as="font" type="font/woff2" crossorigin />
 {theme_boot()}
-  <link rel="stylesheet" href="style.css" />
-  <script src="app.js" defer></script>
+  <link rel="stylesheet" href="{esc(css_href)}" />
+  <script src="{esc(js_href)}" defer></script>
   {render_analytics_loader()}
 </head>"""
 
@@ -336,12 +375,47 @@ def render_about(sites: list[dict] | None = None) -> str:
     return render_head(title, description, canonical, copy) + "\n" + body + "\n</html>\n"
 
 
-def write_dist(home: str, about: str, dist: Path = DIST) -> None:
+def render_404() -> str:
+    """GitHub Pages custom 404. Absolute asset and nav URLs for nested missing paths."""
+    copy = load_site()
+    title = f"Page not found · {copy['title']}"
+    description = "The page you're looking for doesn't exist or has moved."
+    home_href = root_href("index.html", absolute=True)
+    body = f"""<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+{render_header("", copy, absolute=True)}
+  <main id="content" class="not-found-page">
+    <header class="not-found-hero">
+      <h1>Page not found</h1>
+      <p class="not-found-lede">{esc(description)}</p>
+      <p class="not-found-home"><a href="{esc(home_href)}">Home</a></p>
+    </header>
+  </main>
+{render_footer("", copy, absolute=True)}
+{render_back_to_top()}
+</body>"""
+    return (
+        render_head(
+            title,
+            description,
+            "",
+            copy,
+            robots="noindex",
+            absolute_assets=True,
+        )
+        + "\n"
+        + body
+        + "\n</html>\n"
+    )
+
+
+def write_dist(home: str, about: str, not_found: str, dist: Path = DIST) -> None:
     if dist.exists():
         shutil.rmtree(dist)
     dist.mkdir()
     (dist / "index.html").write_text(home, encoding="utf-8")
     (dist / "about.html").write_text(about, encoding="utf-8")
+    (dist / "404.html").write_text(not_found, encoding="utf-8")
     shutil.copy2(SITE / "style.css", dist / "style.css")
     shutil.copy2(SITE / "app.js", dist / "app.js")
     fonts = dist / "fonts"
@@ -395,10 +469,11 @@ def build() -> None:
     sites = load_sites()
     home = render_home(sites)
     about = render_about(sites)
+    not_found = render_404()
     for banned in ("PCDS", "pcds2030", "brief-net", "hub-meta"):
-        if banned in home or banned in about:
+        if banned in home or banned in about or banned in not_found:
             raise SystemExit(f"Banned marker in build output: {banned}")
-    write_dist(home, about)
+    write_dist(home, about, not_found)
 
 
 def main() -> None:
