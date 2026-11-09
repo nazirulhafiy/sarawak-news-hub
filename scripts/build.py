@@ -258,21 +258,27 @@ def render_head(
     url = site_url()
     image_href = f"{url}og.png" if url else root_href("og.png", absolute=absolute_assets)
     image = versioned_href(image_href, SITE / "og.png")
-    icon_prefix = "/" if absolute_assets else ""
-    icon_svg = versioned_href(f"{icon_prefix}favicon.svg", ROOT / "design-handoff" / "favicon-F1" / "favicon.svg")
-    icon_ico = versioned_href(f"{icon_prefix}favicon.ico", ROOT / "design-handoff" / "favicon-F1" / "favicon.ico")
-    icon_apple = versioned_href(
-        f"{icon_prefix}apple-touch-icon.png",
-        ROOT / "design-handoff" / "favicon-F1" / "apple-touch-icon.png",
-    )
-    icon_192 = versioned_href(
-        f"{icon_prefix}icon-192.png",
-        ROOT / "design-handoff" / "favicon-F1" / "icon-192.png",
-    )
-    icon_512 = versioned_href(
-        f"{icon_prefix}icon-512.png",
-        ROOT / "design-handoff" / "favicon-F1" / "icon-512.png",
-    )
+    if absolute_assets:
+        icon_svg = versioned_href("/favicon.svg", ROOT / "design-handoff" / "favicon-F1" / "favicon.svg")
+        icon_ico = versioned_href("/favicon.ico", ROOT / "design-handoff" / "favicon-F1" / "favicon.ico")
+        icon_apple = versioned_href(
+            "/apple-touch-icon.png",
+            ROOT / "design-handoff" / "favicon-F1" / "apple-touch-icon.png",
+        )
+        icon_192 = versioned_href(
+            "/icon-192.png",
+            ROOT / "design-handoff" / "favicon-F1" / "icon-192.png",
+        )
+        icon_512 = versioned_href(
+            "/icon-512.png",
+            ROOT / "design-handoff" / "favicon-F1" / "icon-512.png",
+        )
+    else:
+        icon_svg = versioned_icon("favicon.svg")
+        icon_ico = versioned_icon("favicon.ico")
+        icon_apple = versioned_icon("apple-touch-icon.png")
+        icon_192 = versioned_icon("icon-192.png")
+        icon_512 = versioned_icon("icon-512.png")
     font_href = root_href("fonts/Geist-Variable.woff2", absolute=absolute_assets)
     css_href = root_href("style.css", absolute=absolute_assets)
     js_href = root_href("app.js", absolute=absolute_assets)
