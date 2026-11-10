@@ -231,9 +231,11 @@ class KitSyncTests(unittest.TestCase):
             mobile,
         )
         self.assertIn(
-            ".site-footer-grid-explore.site-footer-nav {\n"
-            "    /* bottom matches top so Contact (last Explore link) clears the credit divider */\n"
-            "    padding: 22px var(--sn-footer-mobile-gutter);",
+            "padding: 22px var(--sn-footer-mobile-gutter) var(--sn-footer-fleet-gap);",
+            mobile,
+        )
+        self.assertIn(
+            "padding: 0 var(--sn-footer-mobile-gutter) var(--sn-footer-fleet-gap);",
             mobile,
         )
         self.assertIn(
