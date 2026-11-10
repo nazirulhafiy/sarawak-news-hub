@@ -176,10 +176,16 @@ def render_hero(site: dict[str, str] | None = None) -> str:
     </header>"""
 
 
+# Restrained BETA beside hub-name for early sister sites (matches Bantuan/Events header badge).
+HUB_CARD_BETA_IDS = frozenset({"bantuan", "events"})
+SITE_BETA_BADGE = '<span class="site-beta" aria-label="Beta">BETA</span>'
+
+
 def render_card(site: dict) -> str:
+    beta = SITE_BETA_BADGE if site["id"] in HUB_CARD_BETA_IDS else ""
     return f"""<article class="hub-card" data-site="{esc(site["id"])}">
         <div class="hub-top">{tile_icon(site["icon"])}<span class="hub-pill">{esc(site["tag"])}</span></div>
-        <h2 class="hub-name">{esc(site["name"])}</h2>
+        <h2 class="hub-name">{esc(site["name"])}{beta}</h2>
         <p class="hub-desc">{esc(site["text"])}</p>
         <p class="hub-foot"><a class="hub-visit" href="{esc(site["url"])}">Visit <span class="hub-arrow" aria-hidden="true">→</span></a></p>
       </article>"""
@@ -229,6 +235,7 @@ def render_footer(
     absolute: bool = False,
 ) -> str:
     site = load_site() if site is None else site
+    # Hub homepage is already the fleet directory; omit the redundant footer HUB column.
     return kit_render_footer(
         brand_title=site["title"],
         brand_note=site["description"],
@@ -237,9 +244,7 @@ def render_footer(
             NavItem("home", root_href("index.html", absolute=absolute), "Home"),
             NavItem("about", root_href("about.html", absolute=absolute), "About"),
         ),
-        fleet_site="hub",
         layout="column_stacks",
-        fleet_section_label="Hub",
     )
 
 
