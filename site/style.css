@@ -844,12 +844,13 @@ html[data-theme="dark"] .site-footer {
 
   .site-footer-main.site-footer-main--column-stacks .site-footer-grid-brand-cell {
     order: 1;
-    padding: 22px var(--sn-footer-mobile-gutter) var(--sn-footer-fleet-gap);
+    padding: 22px var(--sn-footer-mobile-gutter) 0;
   }
 
-  /* brand-cell uses display:contents — pad the inner brand box instead */
+  /* brand-cell uses display:contents — pad the inner brand box for the left gutter.
+     Bottom gap before Hub comes from .site-footer-grid-fleet margin-top. */
   .site-footer-main.site-footer-main--column-stacks .site-footer-grid-brand {
-    padding: 22px var(--sn-footer-mobile-gutter) var(--sn-footer-fleet-gap);
+    padding: 22px var(--sn-footer-mobile-gutter) 0;
   }
 
   .site-footer-main.site-footer-main--column-stacks .site-footer-grid-fleet {
