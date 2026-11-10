@@ -68,7 +68,10 @@ class RenderTests(unittest.TestCase):
         self.assertNotIn("Explore Sarawak-focused sites", home)
         self.assertNotIn("Each site links to its sources.", home)
         self.assertIn('class="site-footer-main site-footer-main--column-stacks"', home)
-        self.assertIn('<nav aria-label="Hub" class="site-footer-fleet-nav">', home)
+        # Hub homepage is the fleet directory; no redundant footer HUB fleet column.
+        self.assertNotIn('class="site-footer-fleet-nav"', home)
+        self.assertNotIn('class="site-footer-grid-fleet"', home)
+        self.assertNotIn('<nav aria-label="Hub"', home)
         self.assertIn(
             '<nav aria-label="Explore" class="site-footer-nav site-footer-grid-explore">',
             home,
@@ -91,21 +94,16 @@ class RenderTests(unittest.TestCase):
         self.assertIn("AI.Sarawak.News", home)
         self.assertIn("Bantuan.Sarawak.News", home)
         self.assertIn("Events.Sarawak.News", home)
-        # Footer fleet ul uses short labels only.
-        fleet_ul = home.split(
-            '<nav aria-label="Hub" class="site-footer-fleet-nav">', 1
-        )[1].split("</nav>", 1)[0]
-        self.assertIn(">AI</a>", fleet_ul)
-        self.assertIn(">Events</a>", fleet_ul)
-        self.assertIn(">Bantuan</a>", fleet_ul)
-        # Hub omits its own fleet entry (label Sarawak lives in JSON for sisters).
-        self.assertNotIn("https://sarawak.news/", fleet_ul)
-        self.assertNotIn(">Sarawak</a>", fleet_ul)
-        # Avoid contiguous hub title string (site-copy gate).
-        self.assertNotIn("Sarawak" + ".News", fleet_ul)
-        self.assertNotIn("AI.Sarawak.News", fleet_ul)
-        self.assertNotIn("Events.Sarawak.News", fleet_ul)
-        self.assertNotIn("Bantuan.Sarawak.News", fleet_ul)
+        # BETA only on Bantuan and Events hub cards (not AI).
+        self.assertEqual(
+            home.count('<span class="site-beta" aria-label="Beta">BETA</span>'), 2
+        )
+        bantuan_card = home.split('data-site="bantuan"', 1)[1].split("</article>", 1)[0]
+        events_card = home.split('data-site="events"', 1)[1].split("</article>", 1)[0]
+        ai_card = home.split('data-site="ai"', 1)[1].split("</article>", 1)[0]
+        self.assertIn('<span class="site-beta" aria-label="Beta">BETA</span>', bantuan_card)
+        self.assertIn('<span class="site-beta" aria-label="Beta">BETA</span>', events_card)
+        self.assertNotIn("site-beta", ai_card)
         self.assertNotIn("hub-meta", home)
         self.assertNotIn("stories", home)
         self.assertNotIn("schemes", home)
@@ -246,7 +244,9 @@ class RenderTests(unittest.TestCase):
                 self.assertIn(copy["about_lead"], about)
                 self.assertNotIn("Explore Sarawak-focused sites", about)
                 self.assertIn('class="site-footer-main site-footer-main--column-stacks"', about)
-                self.assertIn('<nav aria-label="Hub" class="site-footer-fleet-nav">', about)
+                self.assertNotIn('class="site-footer-fleet-nav"', about)
+                self.assertNotIn('class="site-footer-grid-fleet"', about)
+                self.assertNotIn('<nav aria-label="Hub"', about)
                 self.assertIn(
                     '<nav aria-label="Explore" class="site-footer-nav site-footer-grid-explore">',
                     about,
