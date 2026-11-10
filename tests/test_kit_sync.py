@@ -221,6 +221,38 @@ class KitSyncTests(unittest.TestCase):
         )
         self.assertIn('<nav aria-label="Sarawak News" class="site-footer-fleet-nav">', html)
 
+    def test_footer_column_stacks_mobile_bottom_padding(self):
+        """Stacked mobile Hub/Explore bottom pad matches top; desktop Explore stays top-only."""
+        css = (ROOT / "kit" / "css" / "footer-column-stacks.css").read_text(encoding="utf-8")
+        mobile = css.split("@media (max-width: 560px)", 1)[1]
+        desktop = css.split("@media (max-width: 560px)", 1)[0]
+        self.assertIn(
+            "padding: var(--sn-footer-fleet-gap) var(--sn-footer-mobile-gutter) var(--sn-footer-fleet-gap);",
+            mobile,
+        )
+        self.assertIn(
+            ".site-footer-grid-explore.site-footer-nav {\n"
+            "    /* bottom matches top so Contact (last Explore link) clears the credit divider */\n"
+            "    padding: 22px var(--sn-footer-mobile-gutter);",
+            mobile,
+        )
+        self.assertIn(
+            "padding: var(--sn-footer-fleet-gap) var(--sn-footer-stack-inset) var(--sn-footer-stack-inset);",
+            desktop,
+        )
+        self.assertIn(
+            ".site-footer-grid-explore.site-footer-nav {\n"
+            "  flex: 0 0 auto;\n"
+            "  display: flex;\n"
+            "  flex-direction: column;\n"
+            "  padding: var(--sn-footer-stack-inset) var(--sn-footer-stack-inset) 0;",
+            desktop,
+        )
+        self.assertNotIn(
+            "padding: var(--sn-footer-fleet-gap) var(--sn-footer-mobile-gutter) 0;",
+            mobile,
+        )
+
     def test_render_footer_fleet_section_label_override(self):
         from kit.python.shell import render_footer
 
