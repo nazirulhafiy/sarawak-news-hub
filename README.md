@@ -6,7 +6,7 @@ Hub for [sarawak.news](https://sarawak.news/). Site title, tagline, description,
 | Field | Value |
 | --- | --- |
 | `title` | Sarawak.News |
-| `tagline` | Sarawak, made easy. |
+| `tagline` | Sarawak made harder. |
 | `description` | Aggregating key information, all in one place. |
 <!-- END GENERATED: site-copy -->
 
